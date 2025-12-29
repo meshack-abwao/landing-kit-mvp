@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { settingsAPI } from '../../services/api.jsx';
-import { Save, Check, Crown, ExternalLink } from 'lucide-react';
+import { Save, Check, Crown } from 'lucide-react';
 
 export default function Settings() {
   const [loading, setLoading] = useState(true);
@@ -13,7 +13,6 @@ export default function Settings() {
     fontFamily: '',
   });
   const [themes, setThemes] = useState([]);
-  const [storeUrl, setStoreUrl] = useState('');
 
   const fontOptions = [
     { value: 'Inter', name: 'Inter', preview: 'Modern & Clean' },
@@ -43,11 +42,6 @@ export default function Settings() {
         themeColor: settings.theme_color || '',
         fontFamily: settings.font_family || 'Inter',
       });
-
-      // Set store URL for preview link
-      if (settings.subdomain) {
-        setStoreUrl(`http://localhost:5177?subdomain=${settings.subdomain}`);
-      }
     } catch (error) {
       console.error('Failed to load settings:', error);
     } finally {
@@ -80,21 +74,13 @@ export default function Settings() {
       const response = await settingsAPI.update(updateData);
       console.log('Save response:', response);
       
-      // Show success message with instructions
-      alert('✅ Store settings saved successfully!\n\n💡 To see theme changes on your live store:\n1. Open your store in a new tab\n2. Refresh the page (Ctrl+R or Cmd+R)\n\nYour dashboard will now reload to show the changes here.');
-      
+      alert('Store settings saved successfully!');
       window.location.reload();
     } catch (error) {
       console.error('Save error:', error);
       alert('Failed to save store settings. Please try again.');
     } finally {
       setSaving(false);
-    }
-  };
-
-  const openStorePreview = () => {
-    if (storeUrl) {
-      window.open(storeUrl, '_blank');
     }
   };
 
@@ -105,27 +91,8 @@ export default function Settings() {
   return (
     <div style={styles.container} className="fade-in">
       <div style={styles.header}>
-        <div>
-          <h1 style={styles.title}>Store Appearance</h1>
-          <p style={styles.subtitle}>Customize how your store looks to customers</p>
-        </div>
-        {storeUrl && (
-          <button onClick={openStorePreview} style={styles.previewBtn} className="btn btn-secondary">
-            <ExternalLink size={18} />
-            Preview Store
-          </button>
-        )}
-      </div>
-
-      <div style={styles.infoCard} className="glass-card">
-        <div style={styles.infoIcon}>💡</div>
-        <div style={styles.infoContent}>
-          <h4 style={styles.infoTitle}>How Theme Changes Work</h4>
-          <p style={styles.infoText}>
-            After saving your theme changes, refresh your live store page to see the updates. 
-            Your dashboard will reload automatically.
-          </p>
-        </div>
+        <h1 style={styles.title}>Store Appearance</h1>
+        <p style={styles.subtitle}>Customize how your store looks to customers</p>
       </div>
 
       <form onSubmit={handleSaveStore}>
@@ -248,15 +215,9 @@ export default function Settings() {
 const styles = {
   container: { maxWidth: '1200px' },
   loading: { textAlign: 'center', padding: '40px', color: 'rgba(255, 255, 255, 0.5)' },
-  header: { marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' },
+  header: { marginBottom: '32px' },
   title: { fontSize: '36px', fontWeight: '800', marginBottom: '8px' },
   subtitle: { fontSize: '16px', color: 'rgba(255, 255, 255, 0.5)' },
-  previewBtn: { display: 'flex', alignItems: 'center', gap: '8px' },
-  infoCard: { padding: '20px', marginBottom: '24px', display: 'flex', gap: '16px', alignItems: 'flex-start', background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.2)' },
-  infoIcon: { fontSize: '32px', flexShrink: 0 },
-  infoContent: { flex: 1 },
-  infoTitle: { fontSize: '16px', fontWeight: '700', marginBottom: '8px', color: 'white' },
-  infoText: { fontSize: '14px', color: 'rgba(255, 255, 255, 0.7)', lineHeight: '1.5' },
   card: { padding: '32px', marginBottom: '24px' },
   cardTitle: { fontSize: '24px', fontWeight: '700', marginBottom: '8px' },
   cardDesc: { fontSize: '14px', color: 'rgba(255, 255, 255, 0.6)', marginBottom: '24px' },

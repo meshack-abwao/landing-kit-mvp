@@ -8,6 +8,14 @@ router.get('/store/:subdomain', async (req, res) => {
   try {
     const { subdomain } = req.params;
     
+    // Add cache control headers to prevent stale theme data
+    res.set({
+      'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0',
+      'Surrogate-Control': 'no-store'
+    });
+    
     // Get store settings
     const storeResult = await pool.query(
       'SELECT * FROM store_settings WHERE subdomain = $1',
@@ -41,7 +49,9 @@ router.get('/store/:subdomain', async (req, res) => {
         theme: themeResult.rows[0] || null,
         fontFamily: store.font_family,
       },
-      products: productsResult.rows
+      products: productsResult.rows,
+      // Add timestamp for debugging
+      _timestamp: new Date().toISOString()
     });
   } catch (error) {
     console.error('Get store error:', error);
