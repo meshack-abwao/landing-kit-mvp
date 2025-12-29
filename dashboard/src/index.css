@@ -1,0 +1,595 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
+  color: white;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s;
+}
+
+.glass-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-2px);
+}
+
+.btn {
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.3s;
+  font-size: 15px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #ff9f0a 0%, #ff375f 100%);
+  color: white;
+  box-shadow: 0 4px 20px rgba(255, 159, 10, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 30px rgba(255, 159, 10, 0.4);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.dashboard-input,
+.dashboard-select {
+  width: 100%;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  color: white;
+  font-size: 14px;
+  transition: all 0.3s;
+}
+
+.dashboard-input:focus,
+.dashboard-select:focus {
+  outline: none;
+  border-color: #ff9f0a;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.dashboard-select option {
+  background: #1a1a2e;
+  color: white;
+}
+
+.active-nav {
+  background: rgba(255, 159, 10, 0.15);
+  color: #ff9f0a;
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ===== BEAUTIFUL LIGHT MODE - Soft Blue/Purple ===== */
+[data-theme="light"] {
+  --bg-primary: #f0f4ff;
+  --bg-secondary: #ffffff;
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --border-color: rgba(100, 116, 139, 0.15);
+  --card-bg: rgba(255, 255, 255, 0.9);
+  --card-border: rgba(139, 92, 246, 0.12);
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(139, 92, 246, 0.15);
+  --shadow-color: rgba(139, 92, 246, 0.08);
+  --accent-purple: #8b5cf6;
+  --accent-blue: #3b82f6;
+}
+
+[data-theme="light"] body {
+  background: linear-gradient(135deg, #e0e7ff 0%, #f5f3ff 50%, #fae8ff 100%);
+  color: var(--text-primary);
+}
+
+[data-theme="light"] .glass-card {
+  background: var(--glass-bg);
+  border-color: var(--glass-border);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 8px 32px var(--shadow-color);
+}
+
+[data-theme="light"] .glass-card:hover {
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 12px 40px rgba(139, 92, 246, 0.12);
+}
+
+[data-theme="light"] .dashboard-input,
+[data-theme="light"] .dashboard-select {
+  background: rgba(139, 92, 246, 0.04);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+[data-theme="light"] .dashboard-input::placeholder,
+[data-theme="light"] .dashboard-select::placeholder {
+  color: var(--text-secondary);
+}
+
+[data-theme="light"] .dashboard-input:focus,
+[data-theme="light"] .dashboard-select:focus {
+  border-color: var(--accent-purple);
+  background: rgba(139, 92, 246, 0.08);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+[data-theme="light"] .dashboard-select option {
+  background: white;
+  color: var(--text-primary);
+}
+
+[data-theme="light"] .btn-primary {
+  background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+  box-shadow: 0 4px 20px rgba(139, 92, 246, 0.25);
+}
+
+[data-theme="light"] .btn-primary:hover {
+  box-shadow: 0 6px 30px rgba(139, 92, 246, 0.35);
+}
+
+[data-theme="light"] .active-nav {
+  background: rgba(139, 92, 246, 0.12);
+  color: var(--accent-purple);
+  font-weight: 700;
+}
+
+/* Light mode text colors */
+[data-theme="light"] h1,
+[data-theme="light"] h2,
+[data-theme="light"] h3,
+[data-theme="light"] h4 {
+  color: var(--text-primary);
+}
+
+[data-theme="light"] p {
+  color: var(--text-secondary);
+}
+
+/* Better contrast for navigation */
+[data-theme="light"] nav a {
+  color: var(--text-secondary);
+}
+
+[data-theme="light"] nav a:hover {
+  color: var(--accent-purple);
+}
+
+/* ===== COMPREHENSIVE LIGHT MODE TEXT FIXES ===== */
+
+/* Force ALL text to be dark in light mode */
+[data-theme="light"] * {
+  color: var(--text-primary) !important;
+}
+
+/* Headings - darkest */
+[data-theme="light"] h1,
+[data-theme="light"] h2,
+[data-theme="light"] h3,
+[data-theme="light"] h4,
+[data-theme="light"] h5,
+[data-theme="light"] h6 {
+  color: var(--text-primary) !important;
+}
+
+/* Paragraphs and spans - medium dark */
+[data-theme="light"] p,
+[data-theme="light"] span {
+  color: var(--text-secondary) !important;
+}
+
+/* Labels and small text */
+[data-theme="light"] label,
+[data-theme="light"] small {
+  color: var(--text-secondary) !important;
+}
+
+/* Stat labels (uppercase text) */
+[data-theme="light"] p[style*="textTransform: 'uppercase'"],
+[data-theme="light"] p[style*="text-transform: uppercase"] {
+  color: var(--text-secondary) !important;
+}
+
+/* Stat values (big numbers) */
+[data-theme="light"] p[style*="fontSize: '28px'"],
+[data-theme="light"] p[style*="fontSize: '20px'"],
+[data-theme="light"] p[style*="fontSize: '18px'"] {
+  color: var(--text-primary) !important;
+  font-weight: 800 !important;
+}
+
+/* Action card titles and descriptions */
+[data-theme="light"] h3[style*="fontSize: '16px'"] {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="light"] p[style*="fontSize: '13px'"] {
+  color: var(--text-secondary) !important;
+}
+
+/* Product names */
+[data-theme="light"] h3[style*="fontSize: '16px'"][style*="fontWeight: '700'"] {
+  color: var(--text-primary) !important;
+}
+
+/* Product prices - make them a darker orange */
+[data-theme="light"] p[style*="color: '#ff9f0a'"],
+[data-theme="light"] [style*="color: '#ff9f0a'"] {
+  color: #ea580c !important;
+  font-weight: 800 !important;
+}
+
+/* Keep buttons white text */
+[data-theme="light"] .btn,
+[data-theme="light"] .btn *,
+[data-theme="light"] button,
+[data-theme="light"] button * {
+  color: white !important;
+}
+
+/* Navigation links */
+[data-theme="light"] nav a,
+[data-theme="light"] nav a span {
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="light"] nav a:hover,
+[data-theme="light"] nav a:hover span {
+  color: var(--accent-purple) !important;
+}
+
+[data-theme="light"] .active-nav,
+[data-theme="light"] .active-nav span {
+  color: var(--accent-purple) !important;
+}
+
+/* User name and email in sidebar */
+[data-theme="light"] p[style*="fontSize: '15px'"],
+[data-theme="light"] p[style*="fontSize: '13px'"][style*="rgba(255, 255, 255, 0.5)"] {
+  color: var(--text-secondary) !important;
+}
+
+/* Greeting box text */
+[data-theme="light"] div[style*="rgba(255, 159, 10, 0.1)"],
+[data-theme="light"] div[style*="rgba(255, 159, 10, 0.1)"] * {
+  color: var(--text-primary) !important;
+}
+
+/* Sidebar text colors */
+[data-theme="light"] aside *:not(.btn):not(button) {
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="light"] aside h2,
+[data-theme="light"] aside h3 {
+  color: var(--text-primary) !important;
+}
+
+/* Status badges */
+[data-theme="light"] span[style*="color: '#30d158'"] {
+  color: #059669 !important;
+}
+
+/* Icon colors */
+[data-theme="light"] svg {
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="light"] .btn svg,
+[data-theme="light"] button svg {
+  color: white !important;
+}
+
+/* Login page in light mode */
+[data-theme="light"] .glass-card label {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="light"] .glass-card p {
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="light"] .glass-card h1 {
+  background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+/* Ensure subtitle text is visible */
+[data-theme="light"] p[style*="rgba(255, 255, 255, 0.6)"],
+[data-theme="light"] p[style*="rgba(255, 255, 255, 0.5)"],
+[data-theme="light"] p[style*="rgba(255, 255, 255, 0.7)"],
+[data-theme="light"] p[style*="rgba(255, 255, 255, 0.8)"],
+[data-theme="light"] span[style*="rgba(255, 255, 255, 0.6)"],
+[data-theme="light"] span[style*="rgba(255, 255, 255, 0.5)"] {
+  color: var(--text-secondary) !important;
+}
+
+/* View Collections button */
+[data-theme="light"] button[style*="rgba(255, 159, 10, 0.1)"],
+[data-theme="light"] button[style*="rgba(255, 159, 10, 0.1)"] * {
+  color: var(--accent-purple) !important;
+}
+
+/* ===== LIGHT MODE PRODUCT FIXES ===== */
+
+/* Product card action buttons */
+[data-theme="light"] button[style*="rgba(255, 255, 255, 0.05)"] {
+  background: rgba(139, 92, 246, 0.1) !important;
+  border: 1px solid rgba(139, 92, 246, 0.2) !important;
+  color: var(--accent-purple) !important;
+}
+
+[data-theme="light"] button[style*="rgba(255, 255, 255, 0.05)"]:hover {
+  background: rgba(139, 92, 246, 0.15) !important;
+}
+
+/* Delete button in light mode */
+[data-theme="light"] button[style*="rgba(255, 55, 95, 0.1)"] {
+  background: rgba(239, 68, 68, 0.1) !important;
+  border: 1px solid rgba(239, 68, 68, 0.2) !important;
+  color: #dc2626 !important;
+}
+
+[data-theme="light"] button[style*="rgba(255, 55, 95, 0.1)"]:hover {
+  background: rgba(239, 68, 68, 0.15) !important;
+}
+
+/* Cancel button */
+[data-theme="light"] button[style*="rgba(255, 255, 255, 0.05)"][type="button"] {
+  background: rgba(100, 116, 139, 0.1) !important;
+  border: 1px solid rgba(100, 116, 139, 0.2) !important;
+  color: var(--text-secondary) !important;
+}
+
+/* Product labels in light mode */
+[data-theme="light"] label[style*="rgba(255, 255, 255, 0.7)"] {
+  color: var(--text-secondary) !important;
+}
+
+/* Form inputs in light mode */
+[data-theme="light"] textarea.dashboard-input {
+  background: rgba(139, 92, 246, 0.04) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid rgba(100, 116, 139, 0.15) !important;
+}
+
+/* ===== MOBILE RESPONSIVE ===== */
+@media (max-width: 768px) {
+  /* Show mobile header */
+  div[style*="mobileHeader"] {
+    display: flex !important;
+  }
+
+  /* Hide sidebar by default on mobile */
+  aside[style*="width: '280px'"] {
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+    transform: translateX(-100%) !important;
+    box-shadow: 2px 0 20px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Show overlay when menu is open */
+  div[style*="mobileOverlay"] {
+    display: block !important;
+  }
+
+  /* Adjust main content for mobile header */
+  main {
+    padding-top: 84px !important;
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+  }
+
+  /* Stack stat cards on mobile */
+  div[style*="gridTemplateColumns: 'repeat(auto-fit"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Full width action cards */
+  div[style*="gridTemplateColumns: 'repeat(auto-fit, minmax(200px"] {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Smaller padding on very small screens */
+  main {
+    padding: 74px 16px 20px !important;
+  }
+
+  /* Smaller titles */
+  h1 {
+    font-size: 28px !important;
+  }
+
+  h2 {
+    font-size: 20px !important;
+  }
+}
+
+/* ===== DASHBOARD LAYOUT ===== */
+.dashboard-container {
+  min-height: 100vh;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+}
+
+.dashboard-sidebar {
+  width: 280px;
+  padding: 32px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  transition: transform 0.3s ease;
+  z-index: 1000;
+}
+
+.dashboard-main {
+  flex: 1;
+  padding: 40px;
+  overflow-y: auto;
+  position: relative;
+  z-index: 1;
+}
+
+.mobile-header {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  padding: 0 20px;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 999;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.hamburger-btn {
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-logo {
+  fontSize: 20px;
+  fontWeight: 800;
+  background: linear-gradient(135deg, #ff9f0a 0%, #ff375f 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.mobile-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 998;
+}
+
+/* ===== MOBILE RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .mobile-header {
+    display: flex !important;
+  }
+
+  .mobile-overlay {
+    display: block !important;
+  }
+
+  .dashboard-sidebar {
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+    transform: translateX(-100%);
+    box-shadow: 2px 0 20px rgba(0, 0, 0, 0.3);
+  }
+
+  .dashboard-sidebar.mobile-open {
+    transform: translateX(0) !important;
+  }
+
+  .dashboard-main {
+    padding: 84px 20px 20px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-main {
+    padding: 74px 16px 20px !important;
+  }
+
+  h1 {
+    font-size: 28px !important;
+  }
+
+  h2 {
+    font-size: 20px !important;
+  }
+}
+
+/* ===== SELECT/DROPDOWN FIX ===== */
+select.dashboard-input,
+select.settings-select {
+  color: white !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+select.dashboard-input option,
+select.settings-select option {
+  background: #1a1a2e !important;
+  color: white !important;
+}
+
+[data-theme="light"] select.dashboard-input,
+[data-theme="light"] select.settings-select {
+  color: var(--text-primary) !important;
+  background: rgba(139, 92, 246, 0.04) !important;
+  border: 1px solid rgba(100, 116, 139, 0.15) !important;
+}
+
+[data-theme="light"] select.dashboard-input option,
+[data-theme="light"] select.settings-select option {
+  background: white !important;
+  color: var(--text-primary) !important;
+}
