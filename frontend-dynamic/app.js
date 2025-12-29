@@ -18,8 +18,9 @@ async function init() {
             throw new Error('Store not found');
         }
 
-        storeData = await response.json();`n        console.log('=ƒôª Store data loaded:', storeData);`n        console.log('=ƒÄ¿ Theme from database:', storeData.theme);
-        console.log('âœ… Store loaded:', storeData.store.businessName);
+        storeData = await response.json();
+        console.log('ðŸ“¦ Store loaded');
+        console.log('ðŸŽ¨ Theme:', storeData.theme);
         
         applyTheme(storeData.theme);
         
@@ -46,7 +47,25 @@ async function init() {
     }
 }
 
-function applyTheme(theme) {`n    if (!theme) return;`n    `n    console.log('=ƒÄ¿ Applying theme:', theme.display_name `|\`| theme.name);`n    console.log('=ƒôè Theme gradient:', theme.gradient);`n    `n    const root = document.documentElement;`n    `n    // Force override CSS with !important`n    root.style.setProperty('--gradient-primary', theme.gradient, 'important');`n    root.style.setProperty('--color-primary', theme.primary_color, 'important');`n    `n    if (theme.heading_font) {`n        root.style.setProperty('--font-heading', theme.heading_font, 'important');`n    }`n    if (theme.body_font) {`n        root.style.setProperty('--font-body', theme.body_font, 'important');`n    }`n    `n    document.title = storeData.store.businessName;`n    `n    console.log('G£à Theme applied successfully');`n}
+function applyTheme(theme) {
+    if (!theme) return;
+    
+    console.log('ðŸŽ¨ Applying theme:', theme.display_name);
+    
+    // FIXED: Add 'important' to override CSS
+    document.documentElement.style.setProperty('--gradient-primary', theme.gradient, 'important');
+    document.documentElement.style.setProperty('--color-primary', theme.primary_color, 'important');
+    
+    if (theme.heading_font) {
+        document.documentElement.style.setProperty('--font-heading', theme.heading_font, 'important');
+    }
+    if (theme.body_font) {
+        document.documentElement.style.setProperty('--font-body', theme.body_font, 'important');
+    }
+    
+    document.title = storeData.store.businessName;
+    console.log('âœ… Theme applied');
+}
 
 function renderStore() {
     const { store, products } = storeData;
@@ -369,7 +388,3 @@ function showSuccess() {
 }
 
 init();
-
-
-
-
