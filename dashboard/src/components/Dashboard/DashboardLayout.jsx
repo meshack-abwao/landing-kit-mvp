@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth.jsx';
 import { useTheme } from '../../context/ThemeContext.jsx';
@@ -17,6 +17,37 @@ export default function DashboardLayout() {
     mpesaNumber: '',
   });
   const [saving, setSaving] = useState(false);
+
+  // **FIX: Safety reset on mount to prevent stuck overlay**
+  useEffect(() => {
+    // Force close any stuck modals on component mount
+    setShowAccountModal(false);
+    setMobileMenuOpen(false);
+    document.body.style.overflow = ''; // Reset body scroll
+  }, []);
+
+  // **FIX: ESC key handler to close modals**
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        setShowAccountModal(false);
+        setMobileMenuOpen(false);
+        document.body.style.overflow = '';
+      }
+    };
+    
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, []);
+
+  // **FIX: Lock body scroll when modal is open**
+  useEffect(() => {
+    if (showAccountModal || mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+  }, [showAccountModal, mobileMenuOpen]);
 
   const loadMpesaNumber = async () => {
     try {
@@ -74,15 +105,21 @@ export default function DashboardLayout() {
     setMobileMenuOpen(false);
   };
 
+  // **FIX: Force close modal handler with safety checks**
+  const closeAccountModal = () => {
+    setShowAccountModal(false);
+    document.body.style.overflow = '';
+  };
+
   return (
     <div className="dashboard-container">
       {/* Account Modal */}
       {showAccountModal && (
-        <div style={styles.modalOverlay} onClick={() => setShowAccountModal(false)}>
+        <div style={styles.modalOverlay} onClick={closeAccountModal}>
           <div style={styles.modal} className="glass-card" onClick={(e) => e.stopPropagation()}>
             <div style={styles.modalHeader}>
               <h2 style={styles.modalTitle}>Account & Billing</h2>
-              <button onClick={() => setShowAccountModal(false)} style={styles.closeBtn}>
+              <button onClick={closeAccountModal} style={styles.closeBtn}>
                 <X size={24} />
               </button>
             </div>
@@ -122,7 +159,7 @@ export default function DashboardLayout() {
                 </div>
 
                 <div style={styles.modalActions}>
-                  <button type="button" onClick={() => setShowAccountModal(false)} style={styles.cancelBtn}>
+                  <button type="button" onClick={closeAccountModal} style={styles.cancelBtn}>
                     Cancel
                   </button>
                   <button type="submit" disabled={saving} className="btn btn-primary">
