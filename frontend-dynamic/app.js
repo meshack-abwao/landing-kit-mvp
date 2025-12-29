@@ -18,7 +18,7 @@ async function init() {
             throw new Error('Store not found');
         }
 
-        storeData = await response.json();
+        storeData = await response.json();`n        console.log('=ƒôª Store data loaded:', storeData);`n        console.log('=ƒÄ¿ Theme from database:', storeData.theme);
         console.log('âœ… Store loaded:', storeData.store.businessName);
         
         applyTheme(storeData.theme);
@@ -46,21 +46,7 @@ async function init() {
     }
 }
 
-function applyTheme(theme) {
-    if (!theme) return;
-    
-    document.documentElement.style.setProperty('--gradient-primary', theme.gradient);
-    document.documentElement.style.setProperty('--color-primary', theme.primary_color);
-    
-    if (theme.heading_font) {
-        document.documentElement.style.setProperty('--font-heading', theme.heading_font);
-    }
-    if (theme.body_font) {
-        document.documentElement.style.setProperty('--font-body', theme.body_font);
-    }
-    
-    document.title = storeData.store.businessName;
-}
+function applyTheme(theme) {`n    if (!theme) return;`n    `n    console.log('=ƒÄ¿ Applying theme:', theme.display_name `|\`| theme.name);`n    console.log('=ƒôè Theme gradient:', theme.gradient);`n    `n    const root = document.documentElement;`n    `n    // Force override CSS with !important`n    root.style.setProperty('--gradient-primary', theme.gradient, 'important');`n    root.style.setProperty('--color-primary', theme.primary_color, 'important');`n    `n    if (theme.heading_font) {`n        root.style.setProperty('--font-heading', theme.heading_font, 'important');`n    }`n    if (theme.body_font) {`n        root.style.setProperty('--font-body', theme.body_font, 'important');`n    }`n    `n    document.title = storeData.store.businessName;`n    `n    console.log('G£à Theme applied successfully');`n}
 
 function renderStore() {
     const { store, products } = storeData;
@@ -383,3 +369,7 @@ function showSuccess() {
 }
 
 init();
+
+
+
+
