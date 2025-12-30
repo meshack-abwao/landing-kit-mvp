@@ -1,7 +1,31 @@
-const API_BASE_URL = 'http://localhost:3000';
+// PRODUCTION: Set your Railway backend URL here
+// For development, use localhost
+const API_BASE_URL = window.location.hostname === 'localhost' 
+    ? 'http://localhost:3000'
+    : 'https://YOUR-APP-NAME.railway.app';  // ← CHANGE THIS after Railway deploy
 
 const urlParams = new URLSearchParams(window.location.search);
-const SUBDOMAIN = urlParams.get('subdomain') || 'testfashion';
+
+// Get subdomain from URL param OR from actual subdomain
+const getSubdomain = () => {
+    // First check query param (for development and Netlify)
+    const paramSubdomain = urlParams.get('subdomain');
+    if (paramSubdomain) return paramSubdomain;
+    
+    // Then check actual subdomain (for production with custom domain)
+    const hostname = window.location.hostname;
+    const parts = hostname.split('.');
+    
+    // If we have a subdomain (e.g., testfashion.jari.ecom)
+    if (parts.length > 2 && parts[0] !== 'www') {
+        return parts[0];
+    }
+    
+    // Default fallback
+    return 'testfashion';
+};
+
+const SUBDOMAIN = getSubdomain();
 
 let storeData = null;
 let currentProduct = null;
@@ -10,6 +34,7 @@ let selectedPaymentMethod = null;
 
 async function init() {
     console.log('🔍 Loading store for subdomain:', SUBDOMAIN);
+    console.log('📡 API URL:', API_BASE_URL);
     
     try {
         const response = await fetch(`${API_BASE_URL}/api/public/store/${SUBDOMAIN}`);
@@ -19,8 +44,7 @@ async function init() {
         }
 
         storeData = await response.json();
-        console.log('📦 Store loaded');
-        console.log('🎨 Theme:', storeData.theme);
+        console.log('✅ Store loaded:', storeData.store.businessName);
         
         applyTheme(storeData.theme);
         
@@ -48,35 +72,64 @@ async function init() {
 }
 
 function applyTheme(theme) {
-    if (!theme) return;
+    if (!theme) {
+        console.log('⚠️ No theme provided, using defaults');
+        return;
+    }
     
-    console.log('🎨 Applying theme:', theme.display_name);
+    console.log('🎨 Applying theme:', theme.display_name || theme.name);
     
-    // FIXED: Add 'important' to override CSS
-    document.documentElement.style.setProperty('--gradient-primary', theme.gradient, 'important');
-    document.documentElement.style.setProperty('--color-primary', theme.primary_color, 'important');
+    // Apply theme with !important to override CSS defaults
+    const root = document.documentElement;
     
+    if (theme.gradient) {
+        root.style.setProperty('--gradient-primary', theme.gradient, 'important');
+    }
+    if (theme.primary_color) {
+        root.style.setProperty('--color-primary', theme.primary_color, 'important');
+    }
     if (theme.heading_font) {
-        document.documentElement.style.setProperty('--font-heading', theme.heading_font, 'important');
+        root.style.setProperty('--font-heading', theme.heading_font, 'important');
+        // Load the font if it's a Google Font
+        loadGoogleFont(theme.heading_font);
     }
     if (theme.body_font) {
-        document.documentElement.style.setProperty('--font-body', theme.body_font, 'important');
+        root.style.setProperty('--font-body', theme.body_font, 'important');
+        loadGoogleFont(theme.body_font);
     }
     
-    document.title = storeData.store.businessName;
-    console.log('✅ Theme applied');
+    // Update page title
+    if (storeData && storeData.store) {
+        document.title = storeData.store.businessName || 'Store';
+    }
+}
+
+function loadGoogleFont(fontName) {
+    // Skip system fonts
+    const systemFonts = ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont'];
+    if (systemFonts.includes(fontName)) return;
+    
+    // Check if font is already loaded
+    const existingLink = document.querySelector(`link[href*="${fontName.replace(' ', '+')}"]`);
+    if (existingLink) return;
+    
+    // Load from Google Fonts
+    const link = document.createElement('link');
+    link.href = `https://fonts.googleapis.com/css2?family=${fontName.replace(' ', '+')}:wght@400;500;600;700;800&display=swap`;
+    link.rel = 'stylesheet';
+    document.head.appendChild(link);
 }
 
 function renderStore() {
     const { store, products } = storeData;
     
-    document.getElementById('logo').textContent = store.logoText || store.businessName.charAt(0);
-    document.getElementById('businessName').textContent = store.businessName;
+    document.getElementById('logo').textContent = store.logoText || store.businessName?.charAt(0) || '🛍️';
+    document.getElementById('businessName').textContent = store.businessName || 'Store';
     document.getElementById('tagline').textContent = store.tagline || '';
     
     const main = document.getElementById('main');
     
-    if (products.length === 0) {
+    if (!products || products.length === 0) {
         main.innerHTML = `
             <div class="empty-state">
                 <div class="empty-icon">📦</div>
@@ -107,13 +160,13 @@ function renderCollectionsGrid(products) {
                     <div class="collection-card" onclick="viewProduct(${product.id})">
                         <div class="collection-image">
                             ${product.image_url ? 
-                                `<img src="${product.image_url}" alt="${product.name}">` :
+                                `<img src="${product.image_url}" alt="${product.name}" onerror="this.parentElement.innerHTML='<div class=\\'image-placeholder\\'>📸</div>'">` :
                                 '<div class="image-placeholder">📸</div>'
                             }
                         </div>
                         <div class="collection-content">
                             <h3 class="collection-name">${product.name}</h3>
-                            <p class="collection-description">${product.description ? (product.description.substring(0, 60) + '...') : 'No description'}</p>
+                            <p class="collection-description">${product.description ? (product.description.substring(0, 60) + (product.description.length > 60 ? '...' : '')) : 'No description'}</p>
                             <div class="collection-footer">
                                 <p class="collection-price">KES ${parseInt(product.price).toLocaleString()}</p>
                                 <button class="collection-btn">View Details →</button>
@@ -156,7 +209,7 @@ function renderSingleProduct(product) {
             <div class="product-card">
                 <div class="product-image">
                     ${product.image_url ? 
-                        `<img src="${product.image_url}" alt="${product.name}">` :
+                        `<img src="${product.image_url}" alt="${product.name}" onerror="this.parentElement.innerHTML='<div class=\\'image-placeholder\\'>📸</div>'">` :
                         '<div class="image-placeholder">📸</div>'
                     }
                 </div>
@@ -173,7 +226,7 @@ function renderSingleProduct(product) {
                     <div class="quantity-section">
                         <label class="quantity-label">Quantity</label>
                         <div class="quantity-controls">
-                            <button onclick="decreaseQuantity()" id="decreaseBtn" class="quantity-btn">−</button>
+                            <button onclick="decreaseQuantity()" id="decreaseBtn" class="quantity-btn" ${quantity <= 1 ? 'disabled' : ''}>−</button>
                             <span class="quantity-value" id="quantityDisplay">1</span>
                             <button onclick="increaseQuantity()" id="increaseBtn" class="quantity-btn">+</button>
                         </div>
@@ -204,7 +257,8 @@ function backToCollections() {
 }
 
 function increaseQuantity() {
-    if (quantity < currentProduct.stock_quantity) {
+    const maxStock = currentProduct.stock_quantity || 1000;
+    if (quantity < maxStock) {
         quantity++;
         updateQuantityDisplay();
     }
@@ -221,8 +275,12 @@ function updateQuantityDisplay() {
     document.getElementById('quantityDisplay').textContent = quantity;
     const total = currentProduct.price * quantity;
     document.getElementById('totalPrice').textContent = parseInt(total).toLocaleString();
-    document.getElementById('decreaseBtn').disabled = quantity <= 1;
-    document.getElementById('increaseBtn').disabled = quantity >= currentProduct.stock_quantity;
+    
+    const decreaseBtn = document.getElementById('decreaseBtn');
+    const increaseBtn = document.getElementById('increaseBtn');
+    
+    if (decreaseBtn) decreaseBtn.disabled = quantity <= 1;
+    if (increaseBtn) increaseBtn.disabled = quantity >= (currentProduct.stock_quantity || 1000);
 }
 
 function openCheckout() {
@@ -245,11 +303,17 @@ function closeCheckout() {
 
 function resetCheckout() {
     setTimeout(() => {
-        document.getElementById('mpesaOption').classList.remove('selected');
-        document.getElementById('codOption').classList.remove('selected');
-        document.getElementById('completeOrderBtn').classList.remove('show');
-        document.getElementById('ctaHelper').classList.remove('show');
-        document.getElementById('customerForm').reset();
+        const mpesaOption = document.getElementById('mpesaOption');
+        const codOption = document.getElementById('codOption');
+        const completeBtn = document.getElementById('completeOrderBtn');
+        const ctaHelper = document.getElementById('ctaHelper');
+        const customerForm = document.getElementById('customerForm');
+        
+        if (mpesaOption) mpesaOption.classList.remove('selected');
+        if (codOption) codOption.classList.remove('selected');
+        if (completeBtn) completeBtn.classList.remove('show');
+        if (ctaHelper) ctaHelper.classList.remove('show');
+        if (customerForm) customerForm.reset();
     }, 300);
 }
 
@@ -367,7 +431,7 @@ async function completeOrder() {
             document.getElementById('successMessage').textContent = message;
             showSuccess();
         } else {
-            alert('Order failed. Please try again.');
+            alert(result.error || 'Order failed. Please try again.');
             goToStep3();
         }
     } catch (error) {
@@ -387,4 +451,18 @@ function showSuccess() {
     document.getElementById('successStep').classList.add('active');
 }
 
+// Handle browser back button
+window.addEventListener('popstate', () => {
+    const productId = urlParams.get('product');
+    if (productId) {
+        const product = storeData?.products?.find(p => p.id === parseInt(productId));
+        if (product) {
+            renderSingleProduct(product);
+        }
+    } else {
+        renderStore();
+    }
+});
+
+// Initialize the app
 init();
