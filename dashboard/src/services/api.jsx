@@ -1,22 +1,52 @@
 import axios from 'axios';
 
-// Use environment variable for production, fallback to localhost for development
+// Use environment variable in production, fallback to localhost for development
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+
+console.log('🔗 API connecting to:', API_BASE_URL);
 
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json'
-  }
+  },
+  timeout: 10000, // 10 second timeout
 });
 
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+// Request interceptor - adds auth token
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    console.log('📤 Request:', config.method?.toUpperCase(), config.url);
+    return config;
+  },
+  (error) => {
+    console.error('❌ Request error:', error);
+    return Promise.reject(error);
   }
-  return config;
-});
+);
+
+// Response interceptor - handles errors
+api.interceptors.response.use(
+  (response) => {
+    console.log('📥 Response:', response.status, response.config.url);
+    return response;
+  },
+  (error) => {
+    console.error('❌ Response error:', error.response?.status, error.message);
+    
+    // Handle specific error cases
+    if (error.response?.status === 401) {
+      console.log('🔐 Unauthorized - clearing token');
+      localStorage.removeItem('token');
+    }
+    
+    return Promise.reject(error);
+  }
+);
 
 export const authAPI = {
   login: (credentials) => api.post('/auth/login', credentials),
@@ -34,7 +64,7 @@ export const productsAPI = {
 export const ordersAPI = {
   getAll: () => api.get('/orders'),
   create: (orderData) => api.post('/orders', orderData),
-  updateStatus: (id, status) => api.put(`/orders/${id}/status`, { status }),
+  updateStatus: (id, status) => api.put(`/orders/${id}`, { status }),
 };
 
 export const settingsAPI = {
