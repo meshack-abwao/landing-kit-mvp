@@ -1,8 +1,7 @@
 // PRODUCTION: Set your Railway backend URL here
 // For development, use localhost
-const API_BASE_URL = window.location.hostname === 'localhost' 
-    ? 'http://localhost:3000'
-    : 'https://YOUR-APP-NAME.railway.app';  // ← CHANGE THIS after Railway deploy
+// PRODUCTION: Set your Railway backend URL here
+const API_BASE_URL = 'https://landing-kit-mvp-production.up.railway.app';
 
 const urlParams = new URLSearchParams(window.location.search);
 
