@@ -1,22 +1,14 @@
 // ===========================================
 // LANDING KIT STORE - Configuration
 // ===========================================
-// API URL is set via Vite environment variable
-// In production: Set VITE_API_URL in Netlify
-// In development: Uses localhost:3000
-// ===========================================
-
 const getApiUrl = () => {
-  // Check for Vite environment variable (works in both dev and build)
   if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_URL) {
     return import.meta.env.VITE_API_URL;
   }
-  // Fallback for development
   return 'http://localhost:3000';
 };
 
 const API_BASE_URL = getApiUrl();
-
 console.log('📡 Store API URL:', API_BASE_URL);
 
 // ===========================================
@@ -25,20 +17,16 @@ console.log('📡 Store API URL:', API_BASE_URL);
 const urlParams = new URLSearchParams(window.location.search);
 
 const getSubdomain = () => {
-    // First check query param (for development and Netlify)
     const paramSubdomain = urlParams.get('subdomain');
     if (paramSubdomain) return paramSubdomain;
     
-    // Then check actual subdomain (for production with custom domain)
     const hostname = window.location.hostname;
     const parts = hostname.split('.');
     
-    // If we have a subdomain (e.g., testfashion.jarisolutionsecom.store)
     if (parts.length > 2 && parts[0] !== 'www') {
         return parts[0];
     }
     
-    // Default fallback for testing
     return 'testfashion';
 };
 
@@ -51,27 +39,32 @@ let storeData = null;
 let currentProduct = null;
 let quantity = 1;
 let selectedPaymentMethod = null;
+let currentImageIndex = 0;
+let productImages = [];
 
 // ===========================================
 // INITIALIZATION
 // ===========================================
 async function init() {
     console.log('🔍 Loading store for subdomain:', SUBDOMAIN);
-    console.log('📡 API URL:', API_BASE_URL);
     
     try {
         const response = await fetch(`${API_BASE_URL}/api/public/store/${SUBDOMAIN}`);
         
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
-            console.error('Store load error:', errorData);
             throw new Error(errorData.error || 'Store not found');
         }
 
         storeData = await response.json();
-        console.log('✅ Store loaded:', storeData.store?.businessName || 'Unknown');
+        console.log('✅ Store loaded:', storeData.store?.logoText || 'Unknown');
         
-        applyTheme(storeData.theme);
+        applyTheme(storeData.store?.theme);
+        
+        if (storeData.store?.fontFamily) {
+            document.documentElement.style.setProperty('--font-family', storeData.store.fontFamily, 'important');
+            loadGoogleFont(storeData.store.fontFamily);
+        }
         
         const productId = urlParams.get('product');
         
@@ -109,12 +102,8 @@ function applyTheme(theme) {
     
     const root = document.documentElement;
     
-    if (theme.gradient) {
-        root.style.setProperty('--gradient-primary', theme.gradient, 'important');
-    }
-    if (theme.primary_color) {
-        root.style.setProperty('--color-primary', theme.primary_color, 'important');
-    }
+    if (theme.gradient) root.style.setProperty('--gradient-primary', theme.gradient, 'important');
+    if (theme.primary_color) root.style.setProperty('--color-primary', theme.primary_color, 'important');
     if (theme.heading_font) {
         root.style.setProperty('--font-heading', theme.heading_font, 'important');
         loadGoogleFont(theme.heading_font);
@@ -124,7 +113,7 @@ function applyTheme(theme) {
         loadGoogleFont(theme.body_font);
     }
     
-    if (storeData && storeData.store) {
+    if (storeData?.store) {
         document.title = storeData.store.businessName || 'Store';
     }
 }
@@ -140,6 +129,52 @@ function loadGoogleFont(fontName) {
     link.href = `https://fonts.googleapis.com/css2?family=${fontName.replace(' ', '+')}:wght@400;500;600;700;800&display=swap`;
     link.rel = 'stylesheet';
     document.head.appendChild(link);
+}
+
+// ===========================================
+// IMAGE GALLERY FUNCTIONS
+// ===========================================
+function getProductImages(product) {
+    const images = [];
+    if (product.image_url) images.push(product.image_url);
+    
+    try {
+        const additional = JSON.parse(product.additional_images || '[]');
+        if (Array.isArray(additional)) {
+            additional.forEach(url => {
+                if (url && url.trim()) images.push(url.trim());
+            });
+        }
+    } catch (e) {}
+    
+    return images;
+}
+
+function setMainImage(index) {
+    if (index < 0 || index >= productImages.length) return;
+    
+    currentImageIndex = index;
+    const mainImg = document.getElementById('mainProductImage');
+    if (mainImg) {
+        mainImg.src = productImages[index];
+    }
+    
+    // Update thumbnail active states
+    document.querySelectorAll('.thumb-img').forEach((thumb, i) => {
+        thumb.classList.toggle('active', i === index);
+    });
+}
+
+function nextImage() {
+    if (productImages.length <= 1) return;
+    const next = (currentImageIndex + 1) % productImages.length;
+    setMainImage(next);
+}
+
+function prevImage() {
+    if (productImages.length <= 1) return;
+    const prev = (currentImageIndex - 1 + productImages.length) % productImages.length;
+    setMainImage(prev);
 }
 
 // ===========================================
@@ -181,13 +216,16 @@ function renderCollectionsGrid(products) {
                 <p>${products.length} ${products.length === 1 ? 'Product' : 'Products'} Available</p>
             </div>
             <div class="collections-grid">
-                ${products.map(product => `
+                ${products.map(product => {
+                    const imgCount = getProductImages(product).length;
+                    return `
                     <div class="collection-card" onclick="viewProduct(${product.id})">
                         <div class="collection-image">
                             ${product.image_url ? 
                                 `<img src="${product.image_url}" alt="${product.name}" onerror="this.parentElement.innerHTML='<div class=\\'image-placeholder\\'>📸</div>'">` :
                                 '<div class="image-placeholder">📸</div>'
                             }
+                            ${imgCount > 1 ? `<span class="image-count-badge">📷 ${imgCount}</span>` : ''}
                         </div>
                         <div class="collection-content">
                             <h3 class="collection-name">${product.name}</h3>
@@ -198,7 +236,7 @@ function renderCollectionsGrid(products) {
                             </div>
                         </div>
                     </div>
-                `).join('')}
+                `}).join('')}
             </div>
         </div>
     `;
@@ -219,6 +257,8 @@ function viewProduct(productId) {
 function renderSingleProduct(product) {
     currentProduct = product;
     quantity = 1;
+    currentImageIndex = 0;
+    productImages = getProductImages(product);
     
     const main = document.getElementById('main');
     
@@ -228,16 +268,41 @@ function renderSingleProduct(product) {
         </button>
     ` : '';
     
+    const hasMultipleImages = productImages.length > 1;
+    
+    const galleryHTML = hasMultipleImages ? `
+        <div class="product-gallery">
+            <div class="main-image-container">
+                <button class="gallery-nav prev" onclick="prevImage()">‹</button>
+                ${productImages[0] ? 
+                    `<img id="mainProductImage" src="${productImages[0]}" alt="${product.name}" class="main-gallery-image" onerror="this.src=''; this.parentElement.innerHTML='<div class=\\'image-placeholder\\'>📸</div>'">` :
+                    '<div class="image-placeholder">📸</div>'
+                }
+                <button class="gallery-nav next" onclick="nextImage()">›</button>
+                <div class="image-counter">${currentImageIndex + 1} / ${productImages.length}</div>
+            </div>
+            <div class="thumbnail-strip">
+                ${productImages.map((img, idx) => `
+                    <div class="thumb-img ${idx === 0 ? 'active' : ''}" onclick="setMainImage(${idx})">
+                        <img src="${img}" alt="Thumbnail ${idx + 1}" onerror="this.parentElement.style.display='none'">
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    ` : `
+        <div class="product-image">
+            ${product.image_url ? 
+                `<img src="${product.image_url}" alt="${product.name}" onerror="this.parentElement.innerHTML='<div class=\\'image-placeholder\\'>📸</div>'">` :
+                '<div class="image-placeholder">📸</div>'
+            }
+        </div>
+    `;
+    
     main.innerHTML = `
         ${backButton}
         <div class="product-container">
             <div class="product-card">
-                <div class="product-image">
-                    ${product.image_url ? 
-                        `<img src="${product.image_url}" alt="${product.name}" onerror="this.parentElement.innerHTML='<div class=\\'image-placeholder\\'>📸</div>'">` :
-                        '<div class="image-placeholder">📸</div>'
-                    }
-                </div>
+                ${galleryHTML}
                 
                 <div class="product-info">
                     <h2 class="product-name">${product.name}</h2>
@@ -270,6 +335,33 @@ function renderSingleProduct(product) {
             </div>
         </div>
     `;
+    
+    // Add swipe support for mobile
+    if (hasMultipleImages) {
+        setTimeout(() => setupSwipeGestures(), 100);
+    }
+}
+
+function setupSwipeGestures() {
+    const container = document.querySelector('.main-image-container');
+    if (!container) return;
+    
+    let startX = 0;
+    let endX = 0;
+    
+    container.addEventListener('touchstart', (e) => {
+        startX = e.touches[0].clientX;
+    }, { passive: true });
+    
+    container.addEventListener('touchend', (e) => {
+        endX = e.changedTouches[0].clientX;
+        const diff = startX - endX;
+        
+        if (Math.abs(diff) > 50) {
+            if (diff > 0) nextImage();
+            else prevImage();
+        }
+    }, { passive: true });
 }
 
 function backToCollections() {
@@ -492,9 +584,7 @@ window.addEventListener('popstate', () => {
     const productId = new URLSearchParams(window.location.search).get('product');
     if (productId) {
         const product = storeData?.products?.find(p => p.id === parseInt(productId));
-        if (product) {
-            renderSingleProduct(product);
-        }
+        if (product) renderSingleProduct(product);
     } else {
         renderStore();
     }
@@ -506,7 +596,7 @@ window.addEventListener('popstate', () => {
 init();
 
 // ===========================================
-// EXPOSE FUNCTIONS TO WINDOW (for onclick handlers)
+// EXPOSE FUNCTIONS TO WINDOW
 // ===========================================
 window.increaseQuantity = increaseQuantity;
 window.decreaseQuantity = decreaseQuantity;
@@ -520,3 +610,6 @@ window.selectPaymentMethod = selectPaymentMethod;
 window.completeOrder = completeOrder;
 window.viewProduct = viewProduct;
 window.backToCollections = backToCollections;
+window.setMainImage = setMainImage;
+window.nextImage = nextImage;
+window.prevImage = prevImage;

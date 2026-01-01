@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { productsAPI, settingsAPI } from '../../services/api.jsx';
-import { Plus, Edit, Trash2, X, Eye, EyeOff, ExternalLink } from 'lucide-react';
+import { Plus, Edit, Trash2, X, Eye, EyeOff, ExternalLink, Image } from 'lucide-react';
 
-// Helper function to get store base URL from environment
 const getStoreBaseUrl = () => {
   return import.meta.env.VITE_STORE_URL || 'http://localhost:5177';
 };
@@ -18,6 +17,7 @@ export default function ProductList() {
     description: '',
     price: '',
     imageUrl: '',
+    additionalImages: ['', '', ''],
     stockQuantity: 1000,
     isActive: true,
   });
@@ -44,7 +44,6 @@ export default function ProductList() {
     try {
       const response = await settingsAPI.getAll();
       const subdomain = response.data.settings.subdomain;
-      
       if (subdomain) {
         const baseUrl = getStoreBaseUrl();
         setStoreUrl(`${baseUrl}?subdomain=${subdomain}`);
@@ -55,24 +54,24 @@ export default function ProductList() {
   };
 
   const viewProduct = (productId) => {
-    if (storeUrl) {
-      window.open(`${storeUrl}&product=${productId}`, '_blank');
-    }
+    if (storeUrl) window.open(`${storeUrl}&product=${productId}`, '_blank');
   };
 
   const viewCollections = () => {
-    if (storeUrl) {
-      window.open(storeUrl, '_blank');
-    }
+    if (storeUrl) window.open(storeUrl, '_blank');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const submitData = {
+        ...formData,
+        additionalImages: formData.additionalImages.filter(url => url && url.trim())
+      };
       if (editingProduct) {
-        await productsAPI.update(editingProduct.id, formData);
+        await productsAPI.update(editingProduct.id, submitData);
       } else {
-        await productsAPI.create(formData);
+        await productsAPI.create(submitData);
       }
       resetForm();
       loadProducts();
@@ -84,11 +83,20 @@ export default function ProductList() {
 
   const handleEdit = (product) => {
     setEditingProduct(product);
+    let additionalImgs = ['', '', ''];
+    try {
+      const parsed = JSON.parse(product.additional_images || '[]');
+      if (Array.isArray(parsed)) {
+        additionalImgs = [...parsed, '', '', ''].slice(0, 3);
+      }
+    } catch (e) {}
+    
     setFormData({
       name: product.name,
       description: product.description || '',
       price: product.price,
       imageUrl: product.image_url || '',
+      additionalImages: additionalImgs,
       stockQuantity: product.stock_quantity,
       isActive: product.is_active,
     });
@@ -97,7 +105,6 @@ export default function ProductList() {
 
   const handleDelete = async (id) => {
     if (!confirm('Are you sure you want to delete this product?')) return;
-    
     try {
       await productsAPI.delete(id);
       setProducts(products.filter(p => p.id !== id));
@@ -110,11 +117,15 @@ export default function ProductList() {
 
   const toggleActive = async (product) => {
     try {
+      let additionalImgs = [];
+      try { additionalImgs = JSON.parse(product.additional_images || '[]'); } catch (e) {}
+      
       await productsAPI.update(product.id, {
         name: product.name,
         description: product.description,
         price: product.price,
         imageUrl: product.image_url,
+        additionalImages: additionalImgs,
         stockQuantity: product.stock_quantity,
         isActive: !product.is_active,
       });
@@ -127,17 +138,33 @@ export default function ProductList() {
     }
   };
 
+  const updateAdditionalImage = (index, value) => {
+    const newImages = [...formData.additionalImages];
+    newImages[index] = value;
+    setFormData({ ...formData, additionalImages: newImages });
+  };
+
   const resetForm = () => {
     setFormData({
       name: '',
       description: '',
       price: '',
       imageUrl: '',
+      additionalImages: ['', '', ''],
       stockQuantity: 1000,
       isActive: true,
     });
     setEditingProduct(null);
     setShowModal(false);
+  };
+
+  const getImageCount = (product) => {
+    let count = product.image_url ? 1 : 0;
+    try {
+      const additional = JSON.parse(product.additional_images || '[]');
+      count += additional.filter(url => url && url.trim()).length;
+    } catch (e) {}
+    return count;
   };
 
   return (
@@ -166,9 +193,7 @@ export default function ProductList() {
           <div style={styles.modal} className="glass-card" onClick={(e) => e.stopPropagation()}>
             <div style={styles.modalHeader}>
               <h2 style={styles.modalTitle}>{editingProduct ? 'Edit Product' : 'Add Product'}</h2>
-              <button onClick={resetForm} style={styles.closeBtn}>
-                <X size={24} />
-              </button>
+              <button onClick={resetForm} style={styles.closeBtn}><X size={24} /></button>
             </div>
 
             <form onSubmit={handleSubmit} style={styles.form}>
@@ -181,7 +206,6 @@ export default function ProductList() {
                   placeholder="Premium Ankara Dress"
                   required
                   className="dashboard-input"
-                  style={styles.input}
                 />
               </div>
 
@@ -193,7 +217,6 @@ export default function ProductList() {
                   placeholder="Beautiful handcrafted dress..."
                   rows="3"
                   className="dashboard-input"
-                  style={styles.textarea}
                 />
               </div>
 
@@ -207,10 +230,8 @@ export default function ProductList() {
                     placeholder="2500"
                     required
                     className="dashboard-input"
-                    style={styles.input}
                   />
                 </div>
-
                 <div style={styles.formGroup}>
                   <label style={styles.label}>STOCK QUANTITY</label>
                   <input
@@ -219,28 +240,55 @@ export default function ProductList() {
                     onChange={(e) => setFormData({ ...formData, stockQuantity: e.target.value })}
                     placeholder="1000"
                     className="dashboard-input"
-                    style={styles.input}
                   />
                 </div>
               </div>
 
-              <div style={styles.formGroup}>
-                <label style={styles.label}>IMAGE URL</label>
-                <input
-                  type="url"
-                  value={formData.imageUrl}
-                  onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                  placeholder="https://example.com/image.jpg"
-                  className="dashboard-input"
-                  style={styles.input}
-                />
-                <p style={styles.hint}>Upload feature coming soon!</p>
+              <div style={styles.imagesSection}>
+                <label style={styles.label}>PRODUCT IMAGES (Up to 4)</label>
+                <p style={styles.hint}>First image is the main display image</p>
+                
+                <div style={styles.imageInputs}>
+                  <div style={styles.mainImageInput}>
+                    <span style={styles.imageLabel}>Main Image</span>
+                    <input
+                      type="url"
+                      value={formData.imageUrl}
+                      onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                      placeholder="https://example.com/main-image.jpg"
+                      className="dashboard-input"
+                    />
+                    {formData.imageUrl && (
+                      <div style={styles.imagePreview}>
+                        <img src={formData.imageUrl} alt="Main" style={styles.previewImg} />
+                      </div>
+                    )}
+                  </div>
+
+                  <div style={styles.additionalImagesGrid}>
+                    {formData.additionalImages.map((img, idx) => (
+                      <div key={idx} style={styles.additionalImageInput}>
+                        <span style={styles.imageLabel}>Image {idx + 2}</span>
+                        <input
+                          type="url"
+                          value={img}
+                          onChange={(e) => updateAdditionalImage(idx, e.target.value)}
+                          placeholder={`https://example.com/image-${idx + 2}.jpg`}
+                          className="dashboard-input"
+                        />
+                        {img && (
+                          <div style={styles.smallPreview}>
+                            <img src={img} alt={`Additional ${idx + 1}`} style={styles.previewImg} />
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
 
               <div style={styles.formActions}>
-                <button type="button" onClick={resetForm} style={styles.cancelBtn}>
-                  Cancel
-                </button>
+                <button type="button" onClick={resetForm} style={styles.cancelBtn}>Cancel</button>
                 <button type="submit" className="btn btn-primary">
                   {editingProduct ? 'Update Product' : 'Add Product'}
                 </button>
@@ -272,6 +320,12 @@ export default function ProductList() {
                 }}>
                   {product.is_active ? '● Active' : '● Inactive'}
                 </div>
+                {getImageCount(product) > 1 && (
+                  <div style={styles.imageCountBadge}>
+                    <Image size={14} />
+                    {getImageCount(product)}
+                  </div>
+                )}
               </div>
 
               <div style={styles.cardContent}>
@@ -341,25 +395,33 @@ const styles = {
   spinner: { width: '40px', height: '40px', border: '3px solid rgba(255, 255, 255, 0.1)', borderTop: '3px solid #ff9f0a', borderRadius: '50%', animation: 'spin 1s linear infinite' },
   loadingText: { marginTop: '16px', color: 'rgba(255, 255, 255, 0.5)' },
   modalOverlay: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0, 0, 0, 0.7)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' },
-  modal: { width: '100%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto', padding: '32px' },
+  modal: { width: '100%', maxWidth: '650px', maxHeight: '90vh', overflowY: 'auto', padding: '32px' },
   modalHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' },
   modalTitle: { fontSize: '28px', fontWeight: '800' },
-  closeBtn: { background: 'transparent', border: 'none', color: 'rgba(255, 255, 255, 0.6)', cursor: 'pointer', padding: '8px', borderRadius: '8px', transition: 'all 0.3s' },
+  closeBtn: { background: 'transparent', border: 'none', color: 'rgba(255, 255, 255, 0.6)', cursor: 'pointer', padding: '8px', borderRadius: '8px' },
   form: { display: 'flex', flexDirection: 'column', gap: '24px' },
   formRow: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' },
   formGroup: { display: 'flex', flexDirection: 'column', gap: '10px' },
   label: { fontSize: '12px', fontWeight: '700', color: 'rgba(255, 255, 255, 0.6)', textTransform: 'uppercase', letterSpacing: '1px' },
-  input: { background: 'rgba(255, 255, 255, 0.08)', border: '1px solid rgba(255, 255, 255, 0.15)' },
-  textarea: { background: 'rgba(255, 255, 255, 0.08)', border: '1px solid rgba(255, 255, 255, 0.15)', resize: 'vertical' },
-  hint: { fontSize: '12px', color: 'rgba(255, 255, 255, 0.4)', fontStyle: 'italic', marginTop: '-4px' },
+  hint: { fontSize: '12px', color: 'rgba(255, 255, 255, 0.4)', marginTop: '-4px' },
+  imagesSection: { display: 'flex', flexDirection: 'column', gap: '12px' },
+  imageInputs: { display: 'flex', flexDirection: 'column', gap: '16px' },
+  mainImageInput: { display: 'flex', flexDirection: 'column', gap: '8px' },
+  imageLabel: { fontSize: '11px', fontWeight: '600', color: 'rgba(255, 159, 10, 0.8)', textTransform: 'uppercase' },
+  additionalImagesGrid: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' },
+  additionalImageInput: { display: 'flex', flexDirection: 'column', gap: '6px' },
+  imagePreview: { width: '100%', height: '120px', borderRadius: '8px', overflow: 'hidden', background: 'rgba(255,255,255,0.05)' },
+  smallPreview: { width: '100%', height: '60px', borderRadius: '6px', overflow: 'hidden', background: 'rgba(255,255,255,0.05)' },
+  previewImg: { width: '100%', height: '100%', objectFit: 'cover' },
   formActions: { display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '8px' },
-  cancelBtn: { padding: '14px 28px', borderRadius: '12px', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', color: 'rgba(255, 255, 255, 0.7)', fontWeight: '600', fontSize: '15px', cursor: 'pointer', transition: 'all 0.3s' },
+  cancelBtn: { padding: '14px 28px', borderRadius: '12px', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', color: 'rgba(255, 255, 255, 0.7)', fontWeight: '600', fontSize: '15px', cursor: 'pointer' },
   grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '24px' },
   card: { overflow: 'hidden' },
   productImage: { position: 'relative', height: '200px', background: 'rgba(255, 255, 255, 0.03)' },
   image: { width: '100%', height: '100%', objectFit: 'cover' },
   placeholder: { width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '64px', background: 'linear-gradient(135deg, #667eea 0%, #bf5af2 100%)' },
   badge: { position: 'absolute', top: '12px', right: '12px', padding: '6px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '600' },
+  imageCountBadge: { position: 'absolute', bottom: '12px', left: '12px', padding: '4px 10px', borderRadius: '16px', fontSize: '12px', fontWeight: '600', background: 'rgba(0,0,0,0.6)', color: 'white', display: 'flex', alignItems: 'center', gap: '4px' },
   cardContent: { padding: '20px' },
   productName: { fontSize: '18px', fontWeight: '700', marginBottom: '8px' },
   productDesc: { fontSize: '14px', color: 'rgba(255, 255, 255, 0.6)', marginBottom: '16px', lineHeight: '1.5' },
@@ -367,8 +429,8 @@ const styles = {
   price: { fontSize: '24px', fontWeight: '800', color: '#ff9f0a', marginBottom: '4px' },
   stock: { fontSize: '13px', color: 'rgba(255, 255, 255, 0.5)' },
   actions: { display: 'flex', gap: '8px' },
-  iconBtn: { padding: '10px', borderRadius: '10px', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', color: 'rgba(255, 255, 255, 0.7)', cursor: 'pointer', transition: 'all 0.3s', display: 'flex', alignItems: 'center', justifyContent: 'center' },
-  deleteBtn: { padding: '10px', borderRadius: '10px', background: 'rgba(255, 55, 95, 0.1)', border: '1px solid rgba(255, 55, 95, 0.2)', color: '#ff375f', cursor: 'pointer', transition: 'all 0.3s', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+  iconBtn: { padding: '10px', borderRadius: '10px', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', color: 'rgba(255, 255, 255, 0.7)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+  deleteBtn: { padding: '10px', borderRadius: '10px', background: 'rgba(255, 55, 95, 0.1)', border: '1px solid rgba(255, 55, 95, 0.2)', color: '#ff375f', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' },
   empty: { textAlign: 'center', padding: '80px 20px' },
   emptyIcon: { fontSize: '80px', marginBottom: '20px' },
   emptyTitle: { fontSize: '24px', fontWeight: '700', marginBottom: '8px' },

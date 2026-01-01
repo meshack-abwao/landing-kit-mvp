@@ -194,4 +194,31 @@ router.get('/status', async (req, res) => {
   }
 });
 
+// GET /api/init/migrate - Run schema migrations
+router.get('/migrate', async (req, res) => {
+  try {
+    console.log('🔧 Running migrations...');
+
+    // Add additional_images column to products (stores JSON array of image URLs)
+    await pool.query(`
+      ALTER TABLE products 
+      ADD COLUMN IF NOT EXISTS additional_images TEXT DEFAULT '[]'
+    `);
+    console.log('✅ Added additional_images column to products');
+
+    res.json({
+      success: true,
+      message: '🎉 Migrations completed!',
+      changes: ['Added additional_images column to products table']
+    });
+
+  } catch (error) {
+    console.error('❌ Migration failed:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message 
+    });
+  }
+});
+
 module.exports = router;

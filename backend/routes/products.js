@@ -19,10 +19,17 @@ router.get('/', authMiddleware, async (req, res) => {
 
 router.post('/', authMiddleware, async (req, res) => {
   try {
-    const { name, description, price, imageUrl, stockQuantity, isActive } = req.body;
+    const { name, description, price, imageUrl, additionalImages, stockQuantity, isActive } = req.body;
+    
+    // Validate and format additionalImages as JSON string
+    let imagesJson = '[]';
+    if (additionalImages && Array.isArray(additionalImages)) {
+      imagesJson = JSON.stringify(additionalImages.filter(url => url && url.trim()));
+    }
+    
     const result = await pool.query(
-      'INSERT INTO products (user_id, name, description, price, image_url, stock_quantity, is_active) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-      [req.user.userId, name, description, price, imageUrl, stockQuantity || 1000, isActive !== false]
+      'INSERT INTO products (user_id, name, description, price, image_url, additional_images, stock_quantity, is_active) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
+      [req.user.userId, name, description, price, imageUrl, imagesJson, stockQuantity || 1000, isActive !== false]
     );
     res.json({ success: true, product: result.rows[0] });
   } catch (error) {
@@ -34,10 +41,17 @@ router.post('/', authMiddleware, async (req, res) => {
 router.put('/:id', authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, description, price, imageUrl, stockQuantity, isActive } = req.body;
+    const { name, description, price, imageUrl, additionalImages, stockQuantity, isActive } = req.body;
+    
+    // Validate and format additionalImages as JSON string
+    let imagesJson = '[]';
+    if (additionalImages && Array.isArray(additionalImages)) {
+      imagesJson = JSON.stringify(additionalImages.filter(url => url && url.trim()));
+    }
+    
     const result = await pool.query(
-      'UPDATE products SET name = $1, description = $2, price = $3, image_url = $4, stock_quantity = $5, is_active = $6 WHERE id = $7 AND user_id = $8 RETURNING *',
-      [name, description, price, imageUrl, stockQuantity, isActive, id, req.user.userId]
+      'UPDATE products SET name = $1, description = $2, price = $3, image_url = $4, additional_images = $5, stock_quantity = $6, is_active = $7, updated_at = NOW() WHERE id = $8 AND user_id = $9 RETURNING *',
+      [name, description, price, imageUrl, imagesJson, stockQuantity, isActive, id, req.user.userId]
     );
     if (result.rows.length === 0) {
       return res.status(404).json({ success: false, error: 'Product not found' });

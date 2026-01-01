@@ -262,7 +262,7 @@ export default function DashboardLayout() {
 
           <NavLink to="/dashboard/products" style={styles.navLink} className={({ isActive }) => isActive ? 'active-nav' : ''} onClick={closeMobileMenu}>
             <Package size={20} />
-            <span>My Pages</span>
+            <span>My Products</span>
           </NavLink>
 
           <NavLink to="/dashboard/orders" style={styles.navLink} className={({ isActive }) => isActive ? 'active-nav' : ''} onClick={closeMobileMenu}>
