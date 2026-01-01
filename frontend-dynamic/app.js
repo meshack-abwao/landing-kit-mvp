@@ -504,3 +504,19 @@ window.addEventListener('popstate', () => {
 // START THE APP
 // ===========================================
 init();
+
+// ===========================================
+// EXPOSE FUNCTIONS TO WINDOW (for onclick handlers)
+// ===========================================
+window.increaseQuantity = increaseQuantity;
+window.decreaseQuantity = decreaseQuantity;
+window.openCheckout = openCheckout;
+window.closeCheckout = closeCheckout;
+window.closeOnOverlay = closeOnOverlay;
+window.goToStep1 = goToStep1;
+window.goToStep2 = goToStep2;
+window.goToStep3 = goToStep3;
+window.selectPaymentMethod = selectPaymentMethod;
+window.completeOrder = completeOrder;
+window.viewProduct = viewProduct;
+window.backToCollections = backToCollections;
