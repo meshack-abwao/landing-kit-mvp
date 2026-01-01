@@ -1,11 +1,29 @@
-// PRODUCTION: Set your Railway backend URL here
-// For development, use localhost
-// PRODUCTION: Set your Railway backend URL here
-const API_BASE_URL = 'https://landing-kit-mvp-production.up.railway.app';
+// ===========================================
+// LANDING KIT STORE - Configuration
+// ===========================================
+// API URL is set via Vite environment variable
+// In production: Set VITE_API_URL in Netlify
+// In development: Uses localhost:3000
+// ===========================================
 
+const getApiUrl = () => {
+  // Check for Vite environment variable (works in both dev and build)
+  if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+  // Fallback for development
+  return 'http://localhost:3000';
+};
+
+const API_BASE_URL = getApiUrl();
+
+console.log('📡 Store API URL:', API_BASE_URL);
+
+// ===========================================
+// SUBDOMAIN DETECTION
+// ===========================================
 const urlParams = new URLSearchParams(window.location.search);
 
-// Get subdomain from URL param OR from actual subdomain
 const getSubdomain = () => {
     // First check query param (for development and Netlify)
     const paramSubdomain = urlParams.get('subdomain');
@@ -15,22 +33,28 @@ const getSubdomain = () => {
     const hostname = window.location.hostname;
     const parts = hostname.split('.');
     
-    // If we have a subdomain (e.g., testfashion.jari.ecom)
+    // If we have a subdomain (e.g., testfashion.jarisolutionsecom.store)
     if (parts.length > 2 && parts[0] !== 'www') {
         return parts[0];
     }
     
-    // Default fallback
+    // Default fallback for testing
     return 'testfashion';
 };
 
 const SUBDOMAIN = getSubdomain();
 
+// ===========================================
+// STATE
+// ===========================================
 let storeData = null;
 let currentProduct = null;
 let quantity = 1;
 let selectedPaymentMethod = null;
 
+// ===========================================
+// INITIALIZATION
+// ===========================================
 async function init() {
     console.log('🔍 Loading store for subdomain:', SUBDOMAIN);
     console.log('📡 API URL:', API_BASE_URL);
@@ -39,18 +63,20 @@ async function init() {
         const response = await fetch(`${API_BASE_URL}/api/public/store/${SUBDOMAIN}`);
         
         if (!response.ok) {
-            throw new Error('Store not found');
+            const errorData = await response.json().catch(() => ({}));
+            console.error('Store load error:', errorData);
+            throw new Error(errorData.error || 'Store not found');
         }
 
         storeData = await response.json();
-        console.log('✅ Store loaded:', storeData.store.businessName);
+        console.log('✅ Store loaded:', storeData.store?.businessName || 'Unknown');
         
         applyTheme(storeData.theme);
         
         const productId = urlParams.get('product');
         
         if (productId) {
-            const product = storeData.products.find(p => p.id === parseInt(productId));
+            const product = storeData.products?.find(p => p.id === parseInt(productId));
             if (product) {
                 renderSingleProduct(product);
             } else {
@@ -70,6 +96,9 @@ async function init() {
     }
 }
 
+// ===========================================
+// THEME APPLICATION
+// ===========================================
 function applyTheme(theme) {
     if (!theme) {
         console.log('⚠️ No theme provided, using defaults');
@@ -78,7 +107,6 @@ function applyTheme(theme) {
     
     console.log('🎨 Applying theme:', theme.display_name || theme.name);
     
-    // Apply theme with !important to override CSS defaults
     const root = document.documentElement;
     
     if (theme.gradient) {
@@ -89,7 +117,6 @@ function applyTheme(theme) {
     }
     if (theme.heading_font) {
         root.style.setProperty('--font-heading', theme.heading_font, 'important');
-        // Load the font if it's a Google Font
         loadGoogleFont(theme.heading_font);
     }
     if (theme.body_font) {
@@ -97,34 +124,33 @@ function applyTheme(theme) {
         loadGoogleFont(theme.body_font);
     }
     
-    // Update page title
     if (storeData && storeData.store) {
         document.title = storeData.store.businessName || 'Store';
     }
 }
 
 function loadGoogleFont(fontName) {
-    // Skip system fonts
     const systemFonts = ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont'];
     if (systemFonts.includes(fontName)) return;
     
-    // Check if font is already loaded
     const existingLink = document.querySelector(`link[href*="${fontName.replace(' ', '+')}"]`);
     if (existingLink) return;
     
-    // Load from Google Fonts
     const link = document.createElement('link');
     link.href = `https://fonts.googleapis.com/css2?family=${fontName.replace(' ', '+')}:wght@400;500;600;700;800&display=swap`;
     link.rel = 'stylesheet';
     document.head.appendChild(link);
 }
 
+// ===========================================
+// RENDER FUNCTIONS
+// ===========================================
 function renderStore() {
     const { store, products } = storeData;
     
-    document.getElementById('logo').textContent = store.logoText || store.businessName?.charAt(0) || '🛍️';
-    document.getElementById('businessName').textContent = store.businessName || 'Store';
-    document.getElementById('tagline').textContent = store.tagline || '';
+    document.getElementById('logo').textContent = store?.logoText || store?.businessName?.charAt(0) || '🛍️';
+    document.getElementById('businessName').textContent = store?.businessName || 'Store';
+    document.getElementById('tagline').textContent = store?.tagline || '';
     
     const main = document.getElementById('main');
     
@@ -255,6 +281,9 @@ function backToCollections() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+// ===========================================
+// QUANTITY CONTROLS
+// ===========================================
 function increaseQuantity() {
     const maxStock = currentProduct.stock_quantity || 1000;
     if (quantity < maxStock) {
@@ -282,6 +311,9 @@ function updateQuantityDisplay() {
     if (increaseBtn) increaseBtn.disabled = quantity >= (currentProduct.stock_quantity || 1000);
 }
 
+// ===========================================
+// CHECKOUT FLOW
+// ===========================================
 function openCheckout() {
     document.getElementById('summaryProductName').textContent = currentProduct.name;
     document.getElementById('summaryQuantity').textContent = quantity;
@@ -381,6 +413,9 @@ function selectPaymentMethod(method) {
     ctaHelper.classList.add('show');
 }
 
+// ===========================================
+// ORDER SUBMISSION
+// ===========================================
 async function completeOrder() {
     if (!selectedPaymentMethod) {
         alert('Please select a payment method');
@@ -450,9 +485,11 @@ function showSuccess() {
     document.getElementById('successStep').classList.add('active');
 }
 
-// Handle browser back button
+// ===========================================
+// BROWSER NAVIGATION
+// ===========================================
 window.addEventListener('popstate', () => {
-    const productId = urlParams.get('product');
+    const productId = new URLSearchParams(window.location.search).get('product');
     if (productId) {
         const product = storeData?.products?.find(p => p.id === parseInt(productId));
         if (product) {
@@ -463,5 +500,7 @@ window.addEventListener('popstate', () => {
     }
 });
 
-// Initialize the app
+// ===========================================
+// START THE APP
+// ===========================================
 init();

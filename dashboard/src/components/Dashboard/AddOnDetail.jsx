@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { settingsAPI } from '../../services/api.jsx';
 import { Check, ArrowLeft, Zap } from 'lucide-react';
 
 export default function AddOnDetail() {
@@ -14,12 +15,8 @@ export default function AddOnDetail() {
 
   const loadAddon = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3000/api/settings/add-ons', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const data = await response.json();
-      const foundAddon = data.addOns.find(a => a.name === addonName);
+      const response = await settingsAPI.getAddOns();
+      const foundAddon = response.data.addOns.find(a => a.name === addonName);
       setAddon(foundAddon);
     } catch (error) {
       console.error('Failed to load add-on:', error);
@@ -35,16 +32,9 @@ export default function AddOnDetail() {
     }
 
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:3000/api/settings/add-ons/${addon.id}/activate`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-
-      if (response.ok) {
-        alert('Add-on activated successfully!');
-        await loadAddon();
-      }
+      await settingsAPI.activateAddOn(addon.id);
+      alert('Add-on activated successfully!');
+      await loadAddon();
     } catch (error) {
       alert('Failed to activate add-on');
     }
@@ -162,166 +152,28 @@ export default function AddOnDetail() {
 }
 
 const styles = {
-  container: {
-    maxWidth: '900px',
-    margin: '0 auto',
-  },
-  loading: {
-    textAlign: 'center',
-    padding: '40px',
-    color: 'rgba(255, 255, 255, 0.5)',
-  },
-  notFound: {
-    textAlign: 'center',
-    padding: '80px 20px',
-  },
-  backBtn: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    padding: '12px 20px',
-    background: 'rgba(255, 255, 255, 0.05)',
-    border: '1px solid rgba(255, 255, 255, 0.1)',
-    borderRadius: '12px',
-    color: 'rgba(255, 255, 255, 0.7)',
-    fontSize: '15px',
-    fontWeight: '600',
-    cursor: 'pointer',
-    marginBottom: '24px',
-    transition: 'all 0.3s',
-  },
-  hero: {
-    padding: '48px 40px',
-    textAlign: 'center',
-    marginBottom: '24px',
-  },
-  heroIcon: {
-    width: '96px',
-    height: '96px',
-    margin: '0 auto 24px',
-    background: 'linear-gradient(135deg, #ff9f0a 0%, #ff375f 100%)',
-    borderRadius: '24px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    color: 'white',
-  },
-  title: {
-    fontSize: '42px',
-    fontWeight: '800',
-    marginBottom: '12px',
-    letterSpacing: '-0.02em',
-  },
-  price: {
-    fontSize: '24px',
-    fontWeight: '700',
-    color: '#ff9f0a',
-    marginBottom: '20px',
-  },
-  heroDesc: {
-    fontSize: '18px',
-    color: 'rgba(255, 255, 255, 0.7)',
-    lineHeight: '1.6',
-    marginBottom: '32px',
-    maxWidth: '600px',
-    margin: '0 auto 32px',
-  },
-  activateBtn: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '12px',
-    padding: '18px 40px',
-    fontSize: '18px',
-    fontWeight: '700',
-    borderRadius: '14px',
-    border: 'none',
-    color: 'white',
-    cursor: 'pointer',
-    transition: 'all 0.3s',
-  },
-  section: {
-    padding: '32px',
-    marginBottom: '24px',
-  },
-  sectionTitle: {
-    fontSize: '24px',
-    fontWeight: '700',
-    marginBottom: '20px',
-  },
-  jobStatement: {
-    fontSize: '20px',
-    fontStyle: 'italic',
-    color: 'rgba(255, 255, 255, 0.8)',
-    lineHeight: '1.6',
-    padding: '24px',
-    background: 'rgba(255, 159, 10, 0.1)',
-    borderLeft: '4px solid #ff9f0a',
-    borderRadius: '12px',
-  },
-  outcomeCard: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '20px',
-    padding: '24px',
-    background: 'rgba(255, 255, 255, 0.03)',
-    borderRadius: '16px',
-  },
-  outcomeIcon: {
-    fontSize: '48px',
-    flexShrink: 0,
-  },
-  outcomeText: {
-    fontSize: '18px',
-    lineHeight: '1.6',
-    color: 'rgba(255, 255, 255, 0.9)',
-  },
-  benefitsGrid: {
-    display: 'grid',
-    gap: '16px',
-  },
-  benefitCard: {
-    display: 'flex',
-    gap: '20px',
-    padding: '24px',
-    background: 'rgba(255, 255, 255, 0.03)',
-    borderRadius: '16px',
-    alignItems: 'flex-start',
-  },
-  benefitNumber: {
-    width: '40px',
-    height: '40px',
-    background: 'linear-gradient(135deg, #ff9f0a 0%, #ff375f 100%)',
-    borderRadius: '12px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: '20px',
-    fontWeight: '700',
-    color: 'white',
-    flexShrink: 0,
-  },
-  benefitText: {
-    fontSize: '16px',
-    lineHeight: '1.6',
-    color: 'rgba(255, 255, 255, 0.8)',
-  },
-  ctaSection: {
-    padding: '48px',
-    textAlign: 'center',
-    background: 'linear-gradient(135deg, rgba(255, 159, 10, 0.1) 0%, rgba(255, 55, 95, 0.1) 100%)',
-  },
-  ctaTitle: {
-    fontSize: '28px',
-    fontWeight: '800',
-    marginBottom: '12px',
-  },
-  ctaDesc: {
-    fontSize: '16px',
-    color: 'rgba(255, 255, 255, 0.7)',
-    marginBottom: '24px',
-  },
-  ctaBtn: {
-    padding: '16px 40px',
-    fontSize: '18px',
-  },
+  container: { maxWidth: '900px', margin: '0 auto' },
+  loading: { textAlign: 'center', padding: '40px', color: 'rgba(255, 255, 255, 0.5)' },
+  notFound: { textAlign: 'center', padding: '80px 20px' },
+  backBtn: { display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 20px', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '12px', color: 'rgba(255, 255, 255, 0.7)', fontSize: '15px', fontWeight: '600', cursor: 'pointer', marginBottom: '24px', transition: 'all 0.3s' },
+  hero: { padding: '48px 40px', textAlign: 'center', marginBottom: '24px' },
+  heroIcon: { width: '96px', height: '96px', margin: '0 auto 24px', background: 'linear-gradient(135deg, #ff9f0a 0%, #ff375f 100%)', borderRadius: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' },
+  title: { fontSize: '42px', fontWeight: '800', marginBottom: '12px', letterSpacing: '-0.02em' },
+  price: { fontSize: '24px', fontWeight: '700', color: '#ff9f0a', marginBottom: '20px' },
+  heroDesc: { fontSize: '18px', color: 'rgba(255, 255, 255, 0.7)', lineHeight: '1.6', marginBottom: '32px', maxWidth: '600px', margin: '0 auto 32px' },
+  activateBtn: { display: 'inline-flex', alignItems: 'center', gap: '12px', padding: '18px 40px', fontSize: '18px', fontWeight: '700', borderRadius: '14px', border: 'none', color: 'white', cursor: 'pointer', transition: 'all 0.3s' },
+  section: { padding: '32px', marginBottom: '24px' },
+  sectionTitle: { fontSize: '24px', fontWeight: '700', marginBottom: '20px' },
+  jobStatement: { fontSize: '20px', fontStyle: 'italic', color: 'rgba(255, 255, 255, 0.8)', lineHeight: '1.6', padding: '24px', background: 'rgba(255, 159, 10, 0.1)', borderLeft: '4px solid #ff9f0a', borderRadius: '12px' },
+  outcomeCard: { display: 'flex', alignItems: 'center', gap: '20px', padding: '24px', background: 'rgba(255, 255, 255, 0.03)', borderRadius: '16px' },
+  outcomeIcon: { fontSize: '48px', flexShrink: 0 },
+  outcomeText: { fontSize: '18px', lineHeight: '1.6', color: 'rgba(255, 255, 255, 0.9)' },
+  benefitsGrid: { display: 'grid', gap: '16px' },
+  benefitCard: { display: 'flex', gap: '20px', padding: '24px', background: 'rgba(255, 255, 255, 0.03)', borderRadius: '16px', alignItems: 'flex-start' },
+  benefitNumber: { width: '40px', height: '40px', background: 'linear-gradient(135deg, #ff9f0a 0%, #ff375f 100%)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', fontWeight: '700', color: 'white', flexShrink: 0 },
+  benefitText: { fontSize: '16px', lineHeight: '1.6', color: 'rgba(255, 255, 255, 0.8)' },
+  ctaSection: { padding: '48px', textAlign: 'center', background: 'linear-gradient(135deg, rgba(255, 159, 10, 0.1) 0%, rgba(255, 55, 95, 0.1) 100%)' },
+  ctaTitle: { fontSize: '28px', fontWeight: '800', marginBottom: '12px' },
+  ctaDesc: { fontSize: '16px', color: 'rgba(255, 255, 255, 0.7)', marginBottom: '24px' },
+  ctaBtn: { padding: '16px 40px', fontSize: '18px' },
 };

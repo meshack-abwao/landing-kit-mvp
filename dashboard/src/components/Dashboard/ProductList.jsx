@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react';
-import { productsAPI } from '../../services/api.jsx';
+import { productsAPI, settingsAPI } from '../../services/api.jsx';
 import { Plus, Edit, Trash2, X, Eye, EyeOff, ExternalLink } from 'lucide-react';
+
+// Helper function to get store base URL from environment
+const getStoreBaseUrl = () => {
+  return import.meta.env.VITE_STORE_URL || 'http://localhost:5177';
+};
 
 export default function ProductList() {
   const [products, setProducts] = useState([]);
@@ -37,15 +42,12 @@ export default function ProductList() {
 
   const loadStoreUrl = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3000/api/settings', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const data = await response.json();
-      const subdomain = data.settings.subdomain;
+      const response = await settingsAPI.getAll();
+      const subdomain = response.data.settings.subdomain;
       
       if (subdomain) {
-        setStoreUrl(`http://localhost:5177?subdomain=${subdomain}`);
+        const baseUrl = getStoreBaseUrl();
+        setStoreUrl(`${baseUrl}?subdomain=${subdomain}`);
       }
     } catch (error) {
       console.error('Failed to load store URL:', error);

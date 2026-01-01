@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { authAPI } from '../../services/api.jsx';
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -20,21 +21,16 @@ export default function Register() {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:3000/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
+      const response = await authAPI.register(formData);
 
-      const data = await response.json();
-
-      if (data.success) {
+      if (response.data.success) {
         navigate('/login');
       } else {
-        setError(data.error || 'Registration failed');
+        setError(response.data.error || 'Registration failed');
       }
     } catch (err) {
-      setError('Network error. Please try again.');
+      console.error('Registration error:', err);
+      setError(err.response?.data?.error || 'Network error. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -146,99 +142,20 @@ export default function Register() {
 }
 
 const styles = {
-  container: {
-    minHeight: '100vh',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '20px',
-    position: 'relative',
-    overflow: 'hidden',
-  },
-  formCard: {
-    width: '100%',
-    maxWidth: '480px',
-    padding: '40px',
-    position: 'relative',
-    zIndex: 1,
-  },
-  header: {
-    textAlign: 'center',
-    marginBottom: '32px',
-  },
-  logoIcon: {
-    fontSize: '48px',
-    marginBottom: '16px',
-  },
-  title: {
-    fontSize: '32px',
-    fontWeight: '800',
-    marginBottom: '8px',
-  },
-  subtitle: {
-    fontSize: '15px',
-    color: 'rgba(255, 255, 255, 0.6)',
-  },
-  error: {
-    padding: '12px 16px',
-    background: 'rgba(255, 55, 95, 0.1)',
-    border: '1px solid rgba(255, 55, 95, 0.3)',
-    borderRadius: '10px',
-    color: '#ff375f',
-    fontSize: '14px',
-    marginBottom: '20px',
-  },
-  form: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '20px',
-  },
-  formGroup: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '8px',
-  },
-  label: {
-    fontSize: '13px',
-    fontWeight: '600',
-    color: 'rgba(255, 255, 255, 0.7)',
-    textTransform: 'uppercase',
-    letterSpacing: '0.5px',
-  },
-  optional: {
-    fontSize: '11px',
-    fontWeight: '400',
-    color: 'rgba(255, 255, 255, 0.4)',
-    textTransform: 'none',
-  },
-  hint: {
-    fontSize: '12px',
-    color: 'rgba(255, 255, 255, 0.4)',
-  },
-  submitBtn: {
-    marginTop: '12px',
-  },
-  footer: {
-    textAlign: 'center',
-    marginTop: '24px',
-    fontSize: '14px',
-    color: 'rgba(255, 255, 255, 0.6)',
-  },
-  link: {
-    color: '#ff9f0a',
-    textDecoration: 'none',
-    fontWeight: '600',
-  },
-  bgGlow: {
-    position: 'fixed',
-    width: '800px',
-    height: '800px',
-    background: 'radial-gradient(circle, rgba(255, 159, 10, 0.15) 0%, transparent 70%)',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    borderRadius: '50%',
-    filter: 'blur(120px)',
-    pointerEvents: 'none',
-  },
+  container: { minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', position: 'relative', overflow: 'hidden' },
+  formCard: { width: '100%', maxWidth: '480px', padding: '40px', position: 'relative', zIndex: 1 },
+  header: { textAlign: 'center', marginBottom: '32px' },
+  logoIcon: { fontSize: '48px', marginBottom: '16px' },
+  title: { fontSize: '32px', fontWeight: '800', marginBottom: '8px' },
+  subtitle: { fontSize: '15px', color: 'rgba(255, 255, 255, 0.6)' },
+  error: { padding: '12px 16px', background: 'rgba(255, 55, 95, 0.1)', border: '1px solid rgba(255, 55, 95, 0.3)', borderRadius: '10px', color: '#ff375f', fontSize: '14px', marginBottom: '20px' },
+  form: { display: 'flex', flexDirection: 'column', gap: '20px' },
+  formGroup: { display: 'flex', flexDirection: 'column', gap: '8px' },
+  label: { fontSize: '13px', fontWeight: '600', color: 'rgba(255, 255, 255, 0.7)', textTransform: 'uppercase', letterSpacing: '0.5px' },
+  optional: { fontSize: '11px', fontWeight: '400', color: 'rgba(255, 255, 255, 0.4)', textTransform: 'none' },
+  hint: { fontSize: '12px', color: 'rgba(255, 255, 255, 0.4)' },
+  submitBtn: { marginTop: '12px' },
+  footer: { textAlign: 'center', marginTop: '24px', fontSize: '14px', color: 'rgba(255, 255, 255, 0.6)' },
+  link: { color: '#ff9f0a', textDecoration: 'none', fontWeight: '600' },
+  bgGlow: { position: 'fixed', width: '800px', height: '800px', background: 'radial-gradient(circle, rgba(255, 159, 10, 0.15) 0%, transparent 70%)', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: '50%', filter: 'blur(120px)', pointerEvents: 'none' },
 };

@@ -1,7 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ordersAPI, productsAPI } from '../../services/api.jsx';
+import { ordersAPI, productsAPI, settingsAPI } from '../../services/api.jsx';
 import { TrendingUp, Package, ShoppingCart, DollarSign, ExternalLink, Eye } from 'lucide-react';
+
+// Get store URL from env or default to localhost for dev
+const getStoreBaseUrl = () => {
+  return import.meta.env.VITE_STORE_URL || 'http://localhost:5177';
+};
 
 export default function Overview() {
   const [stats, setStats] = useState(null);
@@ -25,7 +30,6 @@ export default function Overview() {
       const orders = ordersRes.data.orders || [];
       const prods = productsRes.data.products || [];
       
-      // Calculate stats from orders
       const totalRevenue = orders
         .filter(o => o.status === 'completed')
         .reduce((sum, o) => sum + parseFloat(o.total_amount || 0), 0);
@@ -50,15 +54,12 @@ export default function Overview() {
 
   const loadStoreUrl = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3000/api/settings', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const data = await response.json();
-      const subdomain = data.settings.subdomain;
+      const response = await settingsAPI.getAll();
+      const subdomain = response.data.settings?.subdomain;
       
       if (subdomain) {
-        setStoreUrl(`http://localhost:5177?subdomain=${subdomain}`);
+        const baseUrl = getStoreBaseUrl();
+        setStoreUrl(`${baseUrl}?subdomain=${subdomain}`);
       }
     } catch (error) {
       console.error('Failed to load store URL:', error);
@@ -82,30 +83,10 @@ export default function Overview() {
   }
 
   const statCards = [
-    {
-      title: 'Total Revenue',
-      value: `KES ${parseInt(stats?.total_revenue || 0).toLocaleString()}`,
-      icon: <DollarSign size={24} />,
-      gradient: 'linear-gradient(135deg, #ff9f0a 0%, #ff375f 100%)',
-    },
-    {
-      title: 'Total Orders',
-      value: stats?.total_orders || 0,
-      icon: <ShoppingCart size={24} />,
-      gradient: 'linear-gradient(135deg, #667eea 0%, #bf5af2 100%)',
-    },
-    {
-      title: 'Active Products',
-      value: products.filter(p => p.is_active).length,
-      icon: <Package size={24} />,
-      gradient: 'linear-gradient(135deg, #0a84ff 0%, #00d4ff 100%)',
-    },
-    {
-      title: 'Pending Revenue',
-      value: `KES ${parseInt(stats?.pending_revenue || 0).toLocaleString()}`,
-      icon: <TrendingUp size={24} />,
-      gradient: 'linear-gradient(135deg, #30d158 0%, #00c7be 100%)',
-    },
+    { title: 'Total Revenue', value: `KES ${parseInt(stats?.total_revenue || 0).toLocaleString()}`, icon: <DollarSign size={24} />, gradient: 'linear-gradient(135deg, #ff9f0a 0%, #ff375f 100%)' },
+    { title: 'Total Orders', value: stats?.total_orders || 0, icon: <ShoppingCart size={24} />, gradient: 'linear-gradient(135deg, #667eea 0%, #bf5af2 100%)' },
+    { title: 'Active Products', value: products.filter(p => p.is_active).length, icon: <Package size={24} />, gradient: 'linear-gradient(135deg, #0a84ff 0%, #00d4ff 100%)' },
+    { title: 'Pending Revenue', value: `KES ${parseInt(stats?.pending_revenue || 0).toLocaleString()}`, icon: <TrendingUp size={24} />, gradient: 'linear-gradient(135deg, #30d158 0%, #00c7be 100%)' },
   ];
 
   return (
@@ -116,11 +97,7 @@ export default function Overview() {
           <p style={styles.subtitle}>Let's review what's working!</p>
         </div>
         {storeUrl && (
-          <button 
-            onClick={viewCollections}
-            className="btn btn-primary"
-            style={styles.viewStoreBtn}
-          >
+          <button onClick={viewCollections} className="btn btn-primary" style={styles.viewStoreBtn}>
             <ExternalLink size={20} />
             <span>View Live Store</span>
           </button>
@@ -130,9 +107,7 @@ export default function Overview() {
       <div style={styles.statsGrid}>
         {statCards.map((card, index) => (
           <div key={index} style={styles.statCard} className="glass-card">
-            <div style={{ ...styles.statIcon, background: card.gradient }}>
-              {card.icon}
-            </div>
+            <div style={{ ...styles.statIcon, background: card.gradient }}>{card.icon}</div>
             <div>
               <p style={styles.statLabel}>{card.title}</p>
               <p style={styles.statValue}>{card.value}</p>
@@ -149,13 +124,11 @@ export default function Overview() {
             <h3 style={styles.actionTitle}>Add Product</h3>
             <p style={styles.actionDesc}>Start selling a new product</p>
           </div>
-
           <div onClick={() => navigate('/dashboard/orders')} style={styles.actionCard} className="glass-card">
             <div style={styles.actionIcon}>📋</div>
             <h3 style={styles.actionTitle}>View Orders</h3>
             <p style={styles.actionDesc}>Manage your orders</p>
           </div>
-
           <div onClick={() => navigate('/dashboard/marketplace')} style={styles.actionCard} className="glass-card">
             <div style={styles.actionIcon}>⚡</div>
             <h3 style={styles.actionTitle}>Browse Add-Ons</h3>
@@ -189,16 +162,11 @@ export default function Overview() {
                   <h3 style={styles.productName}>{product.name}</h3>
                   <p style={styles.productPrice}>KES {parseInt(product.price).toLocaleString()}</p>
                   <div style={styles.productFooter}>
-                    <span style={{
-                      ...styles.productStatus,
-                      background: product.is_active ? 'rgba(48, 209, 88, 0.2)' : 'rgba(255, 55, 95, 0.2)',
-                      color: product.is_active ? '#30d158' : '#ff375f',
-                    }}>
+                    <span style={{ ...styles.productStatus, background: product.is_active ? 'rgba(48, 209, 88, 0.2)' : 'rgba(255, 55, 95, 0.2)', color: product.is_active ? '#30d158' : '#ff375f' }}>
                       {product.is_active ? '● Active' : '● Inactive'}
                     </span>
                     <button onClick={() => viewProduct(product.id)} style={styles.viewProductBtn}>
-                      <Eye size={16} />
-                      View
+                      <Eye size={16} /> View
                     </button>
                   </div>
                 </div>

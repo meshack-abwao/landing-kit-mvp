@@ -1,9 +1,13 @@
 [build]
-environment = "production"
+builder = "nixpacks"
 
 [deploy]
 startCommand = "npm start"
 healthcheckPath = "/health"
-healthcheckTimeout = 100
+healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 10
+
+# Use the root package.json in backend folder
+[build.paths]
+base = "backend"
