@@ -464,7 +464,7 @@ function renderSingleProduct(product) {
     // Story circles section
     const storyHTML = stories.length > 0 ? `
         <div class="story-section">
-            <p class="story-title">${product.story_title || 'See it in Action'}</p>
+            ${product.story_title ? `<p class="story-title">${product.story_title}</p>` : ''}
             <div class="story-circles">
                 ${stories.map((story, idx) => `
                     <div class="story-circle" onclick="openStory(${idx})">
@@ -499,11 +499,11 @@ function renderSingleProduct(product) {
                     <div class="product-header">
                         <h2 class="product-name">${product.name}</h2>
                         <div class="social-actions">
-                            <button id="like-btn-${product.id}" class="social-btn like-btn" onclick="toggleLike(${product.id}, event)">
-                                <span class="heart-icon ${isLiked ? 'liked' : ''}">${isLiked ? '❤️' : '🤍'}</span>
-                            </button>
                             <button class="social-btn share-btn" onclick="shareProduct(${product.id}, event)">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                            </button>
+                            <button id="like-btn-${product.id}" class="social-btn like-btn" onclick="toggleLike(${product.id}, event)">
+                                <span class="heart-icon ${isLiked ? 'liked' : ''}">${isLiked ? '❤️' : '🤍'}</span>
                             </button>
                         </div>
                     </div>
