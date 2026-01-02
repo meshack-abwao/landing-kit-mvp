@@ -5,7 +5,7 @@ import { TrendingUp, Package, ShoppingCart, DollarSign, ExternalLink, Eye } from
 
 // Get store URL from env or default to localhost for dev
 const getStoreBaseUrl = () => {
-  return import.meta.env.VITE_STORE_URL || 'http://localhost:5177';
+  return window.location.hostname === 'localhost' ? 'http://localhost:5177' : 'https://jariecomstore.netlify.app';
 };
 
 export default function Overview() {
@@ -212,3 +212,4 @@ const styles = {
   productStatus: { display: 'inline-block', padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '600' },
   viewProductBtn: { display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px', color: 'rgba(255, 255, 255, 0.7)', fontSize: '13px', fontWeight: '600', cursor: 'pointer', transition: 'all 0.3s' },
 };
+

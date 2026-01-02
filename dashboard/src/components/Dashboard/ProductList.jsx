@@ -3,7 +3,7 @@ import { productsAPI, settingsAPI } from '../../services/api.jsx';
 import { Plus, Edit, Trash2, X, Eye, EyeOff, ExternalLink, Image } from 'lucide-react';
 
 const getStoreBaseUrl = () => {
-  return import.meta.env.VITE_STORE_URL || 'http://localhost:5177';
+  return window.location.hostname === 'localhost' ? 'http://localhost:5177' : 'https://jariecomstore.netlify.app';
 };
 
 const parseStoryMedia = (storyJson) => {
@@ -559,3 +559,4 @@ const styles = {
   emptyTitle: { fontSize: '24px', fontWeight: '700', marginBottom: '8px' },
   emptyDesc: { fontSize: '16px', color: 'rgba(255, 255, 255, 0.5)' },
 };
+

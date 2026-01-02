@@ -50,7 +50,8 @@ export default function Settings() {
 
       // Set store URL for preview link
       if (settings.subdomain) {
-        setStoreUrl(`http://localhost:5177?subdomain=${settings.subdomain}`);
+        const baseUrl = window.location.hostname === 'localhost' ? 'http://localhost:5177' : 'https://jariecomstore.netlify.app';
+        setStoreUrl(`${baseUrl}?subdomain=${settings.subdomain}`);
       }
     } catch (error) {
       console.error('Failed to load settings:', error);
