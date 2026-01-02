@@ -11,6 +11,8 @@ export default function Settings() {
     subdomain: '',
     themeColor: '',
     fontFamily: '',
+    logoUrl: '',
+    headerBgUrl: '',
   });
   const [themes, setThemes] = useState([]);
   const [storeUrl, setStoreUrl] = useState('');
@@ -42,6 +44,8 @@ export default function Settings() {
         subdomain: settings.subdomain || '',
         themeColor: settings.theme_color || '',
         fontFamily: settings.font_family || 'Inter',
+        logoUrl: settings.logo_url || '',
+        headerBgUrl: settings.header_bg_url || '',
       });
 
       // Set store URL for preview link
@@ -73,6 +77,8 @@ export default function Settings() {
         tagline: storeSettings.tagline,
         theme_color: storeSettings.themeColor,
         font_family: storeSettings.fontFamily,
+        logo_url: storeSettings.logoUrl,
+        header_bg_url: storeSettings.headerBgUrl,
       };
 
       console.log('Saving:', updateData);
@@ -166,6 +172,32 @@ export default function Settings() {
               style={styles.inputDisabled}
             />
             <p style={styles.hint}>jari.ecom/{storeSettings.subdomain}</p>
+          </div>
+
+          <div style={styles.formGroup}>
+            <label style={styles.label}>LOGO IMAGE URL <span style={styles.optional}>(Optional)</span></label>
+            <input
+              type="url"
+              value={storeSettings.logoUrl}
+              onChange={(e) => setStoreSettings({ ...storeSettings, logoUrl: e.target.value })}
+              placeholder="https://example.com/your-logo.png"
+              className="dashboard-input"
+              style={styles.input}
+            />
+            <p style={styles.hint}>If provided, displays instead of store name text</p>
+          </div>
+
+          <div style={styles.formGroup}>
+            <label style={styles.label}>HEADER BACKGROUND IMAGE <span style={styles.optional}>(Optional)</span></label>
+            <input
+              type="url"
+              value={storeSettings.headerBgUrl}
+              onChange={(e) => setStoreSettings({ ...storeSettings, headerBgUrl: e.target.value })}
+              placeholder="https://example.com/header-bg.jpg"
+              className="dashboard-input"
+              style={styles.input}
+            />
+            <p style={styles.hint}>Displays behind your header with a slight blur for legibility</p>
           </div>
         </div>
 
@@ -262,6 +294,7 @@ const styles = {
   cardDesc: { fontSize: '14px', color: 'rgba(255, 255, 255, 0.6)', marginBottom: '24px' },
   formGroup: { marginBottom: '24px' },
   label: { fontSize: '12px', fontWeight: '700', color: 'rgba(255, 255, 255, 0.6)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px', display: 'block' },
+  optional: { fontSize: '10px', fontWeight: '400', color: 'rgba(255, 255, 255, 0.4)', textTransform: 'none' },
   input: { background: 'rgba(255, 255, 255, 0.08)', border: '1px solid rgba(255, 255, 255, 0.15)', width: '100%' },
   inputDisabled: { background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)', color: 'rgba(255, 255, 255, 0.4)', cursor: 'not-allowed', width: '100%' },
   hint: { fontSize: '12px', color: 'rgba(255, 255, 255, 0.4)', fontStyle: 'italic', marginTop: '8px' },

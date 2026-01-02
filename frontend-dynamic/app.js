@@ -41,6 +41,7 @@ let quantity = 1;
 let selectedPaymentMethod = null;
 let currentImageIndex = 0;
 let productImages = [];
+let likedProducts = JSON.parse(localStorage.getItem('likedProducts') || '{}');
 
 // ===========================================
 // INITIALIZATION
@@ -60,6 +61,7 @@ async function init() {
         console.log('✅ Store loaded:', storeData.store?.logoText || 'Unknown');
         
         applyTheme(storeData.store?.theme);
+        applyHeaderBackground();
         
         if (storeData.store?.fontFamily) {
             document.documentElement.style.setProperty('--font-family', storeData.store.fontFamily, 'important');
@@ -114,7 +116,20 @@ function applyTheme(theme) {
     }
     
     if (storeData?.store) {
-        document.title = storeData.store.businessName || 'Store';
+        document.title = storeData.store.logoText || 'Store';
+    }
+}
+
+function applyHeaderBackground() {
+    const header = document.querySelector('.header');
+    if (!header || !storeData?.store) return;
+    
+    const bgUrl = storeData.store.headerBgUrl;
+    if (bgUrl && bgUrl.trim()) {
+        header.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('${bgUrl}')`;
+        header.style.backgroundSize = 'cover';
+        header.style.backgroundPosition = 'center';
+        header.classList.add('has-bg-image');
     }
 }
 
@@ -150,6 +165,15 @@ function getProductImages(product) {
     return images;
 }
 
+function getStoryMedia(product) {
+    try {
+        const stories = JSON.parse(product.story_media || '[]');
+        return Array.isArray(stories) ? stories.slice(0, 4) : [];
+    } catch (e) {
+        return [];
+    }
+}
+
 function setMainImage(index) {
     if (index < 0 || index >= productImages.length) return;
     
@@ -159,10 +183,16 @@ function setMainImage(index) {
         mainImg.src = productImages[index];
     }
     
-    // Update thumbnail active states
-    document.querySelectorAll('.thumb-img').forEach((thumb, i) => {
-        thumb.classList.toggle('active', i === index);
+    // Update dot indicators
+    document.querySelectorAll('.gallery-dot').forEach((dot, i) => {
+        dot.classList.toggle('active', i === index);
     });
+    
+    // Update counter
+    const counter = document.querySelector('.image-counter');
+    if (counter) {
+        counter.textContent = `${index + 1} / ${productImages.length}`;
+    }
 }
 
 function nextImage() {
@@ -178,13 +208,150 @@ function prevImage() {
 }
 
 // ===========================================
+// LIKE & SHARE FUNCTIONS
+// ===========================================
+function toggleLike(productId, event) {
+    if (event) event.stopPropagation();
+    
+    const key = `${SUBDOMAIN}_${productId}`;
+    likedProducts[key] = !likedProducts[key];
+    localStorage.setItem('likedProducts', JSON.stringify(likedProducts));
+    
+    const heartIcon = document.querySelector(`#like-btn-${productId} .heart-icon`);
+    if (heartIcon) {
+        heartIcon.classList.toggle('liked', likedProducts[key]);
+        heartIcon.innerHTML = likedProducts[key] ? '❤️' : '🤍';
+    }
+}
+
+function isProductLiked(productId) {
+    return likedProducts[`${SUBDOMAIN}_${productId}`] || false;
+}
+
+async function shareProduct(productId, event) {
+    if (event) event.stopPropagation();
+    
+    const product = currentProduct || storeData.products.find(p => p.id === productId);
+    if (!product) return;
+    
+    const shareUrl = `${window.location.origin}${window.location.pathname}?subdomain=${SUBDOMAIN}&product=${productId}`;
+    const shareData = {
+        title: product.name,
+        text: `Check out ${product.name} - KES ${parseInt(product.price).toLocaleString()}`,
+        url: shareUrl
+    };
+    
+    if (navigator.share) {
+        try {
+            await navigator.share(shareData);
+        } catch (err) {
+            if (err.name !== 'AbortError') {
+                copyToClipboard(shareUrl);
+            }
+        }
+    } else {
+        copyToClipboard(shareUrl);
+    }
+}
+
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        showToast('Link copied to clipboard!');
+    }).catch(() => {
+        showToast('Could not copy link');
+    });
+}
+
+function showToast(message) {
+    const existing = document.querySelector('.toast');
+    if (existing) existing.remove();
+    
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => toast.classList.add('show'), 10);
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 2000);
+}
+
+// ===========================================
+// STORY MODAL FUNCTIONS
+// ===========================================
+function openStory(index) {
+    const stories = getStoryMedia(currentProduct);
+    if (!stories.length) return;
+    
+    const story = stories[index];
+    const modal = document.getElementById('storyModal');
+    const content = document.getElementById('storyContent');
+    
+    if (story.type === 'video') {
+        content.innerHTML = `<video src="${story.url}" controls autoplay playsinline class="story-media"></video>`;
+    } else {
+        content.innerHTML = `<img src="${story.url}" alt="Story" class="story-media">`;
+    }
+    
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeStory() {
+    const modal = document.getElementById('storyModal');
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+    
+    const video = modal.querySelector('video');
+    if (video) video.pause();
+}
+
+// ===========================================
+// POLICY MODAL FUNCTIONS
+// ===========================================
+function showPolicy(type) {
+    if (!currentProduct) return;
+    
+    const titles = {
+        privacy: 'Privacy Policy',
+        terms: 'Terms of Service',
+        refund: 'Refund Policy'
+    };
+    
+    const content = {
+        privacy: currentProduct.privacy_policy || 'No privacy policy available.',
+        terms: currentProduct.terms_of_service || 'No terms of service available.',
+        refund: currentProduct.refund_policy || 'No refund policy available.'
+    };
+    
+    document.getElementById('policyTitle').textContent = titles[type];
+    document.getElementById('policyText').textContent = content[type];
+    document.getElementById('policyModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closePolicy() {
+    document.getElementById('policyModal').classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+// ===========================================
 // RENDER FUNCTIONS
 // ===========================================
 function renderStore() {
     const { store, products } = storeData;
     
-    document.getElementById('logo').textContent = store?.logoText || store?.businessName?.charAt(0) || '🛍️';
-    document.getElementById('businessName').textContent = store?.businessName || 'Store';
+    // Render header with logo URL option
+    const logoEl = document.getElementById('logo');
+    if (store?.logoUrl && store.logoUrl.trim()) {
+        logoEl.innerHTML = `<img src="${store.logoUrl}" alt="${store.logoText || 'Logo'}" class="logo-image">`;
+    } else {
+        logoEl.textContent = store?.logoText || store?.businessName?.charAt(0) || '🛍️';
+    }
+    
+    document.getElementById('businessName').textContent = store?.logoText || 'Store';
     document.getElementById('tagline').textContent = store?.tagline || '';
     
     const main = document.getElementById('main');
@@ -259,6 +426,8 @@ function renderSingleProduct(product) {
     quantity = 1;
     currentImageIndex = 0;
     productImages = getProductImages(product);
+    const stories = getStoryMedia(product);
+    const isLiked = isProductLiked(product.id);
     
     const main = document.getElementById('main');
     
@@ -270,31 +439,53 @@ function renderSingleProduct(product) {
     
     const hasMultipleImages = productImages.length > 1;
     
-    const galleryHTML = hasMultipleImages ? `
+    // Gallery with dots instead of thumbnails
+    const galleryHTML = `
         <div class="product-gallery">
             <div class="main-image-container">
-                <button class="gallery-nav prev" onclick="prevImage()">‹</button>
+                ${hasMultipleImages ? `<button class="gallery-nav prev" onclick="prevImage()">‹</button>` : ''}
                 ${productImages[0] ? 
-                    `<img id="mainProductImage" src="${productImages[0]}" alt="${product.name}" class="main-gallery-image" onerror="this.src=''; this.parentElement.innerHTML='<div class=\\'image-placeholder\\'>📸</div>'">` :
-                    '<div class="image-placeholder">📸</div>'
+                    `<img id="mainProductImage" src="${productImages[0]}" alt="${product.name}" class="main-gallery-image" onerror="this.src=''; this.parentElement.querySelector('.image-placeholder')?.classList.remove('hidden')">` :
+                    ''
                 }
-                <button class="gallery-nav next" onclick="nextImage()">›</button>
-                <div class="image-counter">${currentImageIndex + 1} / ${productImages.length}</div>
+                <div class="image-placeholder ${productImages[0] ? 'hidden' : ''}">📸</div>
+                ${hasMultipleImages ? `<button class="gallery-nav next" onclick="nextImage()">›</button>` : ''}
             </div>
-            <div class="thumbnail-strip">
-                ${productImages.map((img, idx) => `
-                    <div class="thumb-img ${idx === 0 ? 'active' : ''}" onclick="setMainImage(${idx})">
-                        <img src="${img}" alt="Thumbnail ${idx + 1}" onerror="this.parentElement.style.display='none'">
+            ${hasMultipleImages ? `
+                <div class="gallery-dots">
+                    ${productImages.map((_, idx) => `
+                        <span class="gallery-dot ${idx === 0 ? 'active' : ''}" onclick="setMainImage(${idx})"></span>
+                    `).join('')}
+                </div>
+            ` : ''}
+        </div>
+    `;
+    
+    // Story circles section
+    const storyHTML = stories.length > 0 ? `
+        <div class="story-section">
+            <p class="story-title">${product.story_title || 'See it in Action'}</p>
+            <div class="story-circles">
+                ${stories.map((story, idx) => `
+                    <div class="story-circle" onclick="openStory(${idx})">
+                        <div class="story-ring">
+                            <img src="${story.thumbnail || story.url}" alt="Story ${idx + 1}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>▶</text></svg>'">
+                        </div>
                     </div>
                 `).join('')}
             </div>
         </div>
-    ` : `
-        <div class="product-image">
-            ${product.image_url ? 
-                `<img src="${product.image_url}" alt="${product.name}" onerror="this.parentElement.innerHTML='<div class=\\'image-placeholder\\'>📸</div>'">` :
-                '<div class="image-placeholder">📸</div>'
-            }
+    ` : '';
+    
+    // Footer with policies
+    const footerHTML = `
+        <div class="store-footer">
+            <p class="powered-by">Powered by <a href="https://jarisolutionsecom.store" target="_blank">jarisolutionsecom.store</a></p>
+            <div class="policy-links">
+                <span onclick="showPolicy('privacy')">Privacy Policy</span>
+                <span onclick="showPolicy('terms')">Terms of Service</span>
+                <span onclick="showPolicy('refund')">Refund Policy</span>
+            </div>
         </div>
     `;
     
@@ -305,13 +496,25 @@ function renderSingleProduct(product) {
                 ${galleryHTML}
                 
                 <div class="product-info">
-                    <h2 class="product-name">${product.name}</h2>
+                    <div class="product-header">
+                        <h2 class="product-name">${product.name}</h2>
+                        <div class="social-actions">
+                            <button id="like-btn-${product.id}" class="social-btn like-btn" onclick="toggleLike(${product.id}, event)">
+                                <span class="heart-icon ${isLiked ? 'liked' : ''}">${isLiked ? '❤️' : '🤍'}</span>
+                            </button>
+                            <button class="social-btn share-btn" onclick="shareProduct(${product.id}, event)">
+                                <span>↗️</span>
+                            </button>
+                        </div>
+                    </div>
                     <p class="product-description">${product.description || ''}</p>
                     
                     <div class="price-display">
                         <span class="price-label">Price</span>
                         <div class="price">KES <span id="displayPrice">${parseInt(product.price).toLocaleString()}</span></div>
                     </div>
+                    
+                    ${storyHTML}
                     
                     <div class="quantity-section">
                         <label class="quantity-label">Quantity</label>
@@ -333,6 +536,7 @@ function renderSingleProduct(product) {
                     </button>
                 </div>
             </div>
+            ${footerHTML}
         </div>
     `;
     
@@ -613,3 +817,9 @@ window.backToCollections = backToCollections;
 window.setMainImage = setMainImage;
 window.nextImage = nextImage;
 window.prevImage = prevImage;
+window.toggleLike = toggleLike;
+window.shareProduct = shareProduct;
+window.openStory = openStory;
+window.closeStory = closeStory;
+window.showPolicy = showPolicy;
+window.closePolicy = closePolicy;

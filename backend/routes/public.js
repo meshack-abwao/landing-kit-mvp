@@ -48,6 +48,8 @@ router.get('/store/:subdomain', async (req, res) => {
         tagline: store.tagline,
         theme: themeResult.rows[0] || null,
         fontFamily: store.font_family,
+        logoUrl: store.logo_url || '',
+        headerBgUrl: store.header_bg_url || '',
       },
       products: productsResult.rows,
       // Add timestamp for debugging

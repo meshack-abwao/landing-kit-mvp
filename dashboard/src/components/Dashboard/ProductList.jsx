@@ -6,6 +6,20 @@ const getStoreBaseUrl = () => {
   return import.meta.env.VITE_STORE_URL || 'http://localhost:5177';
 };
 
+const parseStoryMedia = (storyJson) => {
+  const defaultStories = [{ url: '', type: 'image' }, { url: '', type: 'image' }, { url: '', type: 'image' }, { url: '', type: 'image' }];
+  try {
+    const parsed = JSON.parse(storyJson || '[]');
+    if (Array.isArray(parsed)) {
+      return [...parsed, ...defaultStories].slice(0, 4).map(s => ({
+        url: s?.url || '',
+        type: s?.type || 'image'
+      }));
+    }
+  } catch (e) {}
+  return defaultStories;
+};
+
 export default function ProductList() {
   const [products, setProducts] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -20,6 +34,11 @@ export default function ProductList() {
     additionalImages: ['', '', ''],
     stockQuantity: 1000,
     isActive: true,
+    storyMedia: [{ url: '', type: 'image' }, { url: '', type: 'image' }, { url: '', type: 'image' }, { url: '', type: 'image' }],
+    storyTitle: 'See it in Action',
+    privacyPolicy: '',
+    termsOfService: '',
+    refundPolicy: '',
   });
 
   useEffect(() => {
@@ -99,6 +118,11 @@ export default function ProductList() {
       additionalImages: additionalImgs,
       stockQuantity: product.stock_quantity,
       isActive: product.is_active,
+      storyMedia: parseStoryMedia(product.story_media),
+      storyTitle: product.story_title || 'See it in Action',
+      privacyPolicy: product.privacy_policy || '',
+      termsOfService: product.terms_of_service || '',
+      refundPolicy: product.refund_policy || '',
     });
     setShowModal(true);
   };
@@ -153,6 +177,11 @@ export default function ProductList() {
       additionalImages: ['', '', ''],
       stockQuantity: 1000,
       isActive: true,
+      storyMedia: [{ url: '', type: 'image' }, { url: '', type: 'image' }, { url: '', type: 'image' }, { url: '', type: 'image' }],
+      storyTitle: 'See it in Action',
+      privacyPolicy: '',
+      termsOfService: '',
+      refundPolicy: '',
     });
     setEditingProduct(null);
     setShowModal(false);
@@ -287,6 +316,94 @@ export default function ProductList() {
                 </div>
               </div>
 
+              {/* Story Media Section */}
+              <div style={styles.storySection}>
+                <label style={styles.label}>STORY MEDIA - Testimonials/Videos (Up to 4)</label>
+                <p style={styles.hint}>Instagram-style story circles for social proof</p>
+                
+                <div style={styles.formGroup}>
+                  <label style={styles.smallLabel}>Story Section Title</label>
+                  <input
+                    type="text"
+                    value={formData.storyTitle}
+                    onChange={(e) => setFormData({ ...formData, storyTitle: e.target.value })}
+                    placeholder="See it in Action"
+                    className="dashboard-input"
+                  />
+                </div>
+
+                <div style={styles.storyGrid}>
+                  {formData.storyMedia.map((story, idx) => (
+                    <div key={idx} style={styles.storyInput}>
+                      <span style={styles.imageLabel}>Story {idx + 1}</span>
+                      <input
+                        type="url"
+                        value={story.url}
+                        onChange={(e) => {
+                          const newStories = [...formData.storyMedia];
+                          newStories[idx] = { ...newStories[idx], url: e.target.value };
+                          setFormData({ ...formData, storyMedia: newStories });
+                        }}
+                        placeholder="https://example.com/video-or-image.mp4"
+                        className="dashboard-input"
+                      />
+                      <select
+                        value={story.type}
+                        onChange={(e) => {
+                          const newStories = [...formData.storyMedia];
+                          newStories[idx] = { ...newStories[idx], type: e.target.value };
+                          setFormData({ ...formData, storyMedia: newStories });
+                        }}
+                        className="dashboard-input"
+                        style={styles.typeSelect}
+                      >
+                        <option value="image">Image</option>
+                        <option value="video">Video</option>
+                      </select>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Policies Section */}
+              <div style={styles.policiesSection}>
+                <label style={styles.label}>STORE POLICIES (Optional)</label>
+                <p style={styles.hint}>Appears in footer, popup on click</p>
+                
+                <div style={styles.formGroup}>
+                  <label style={styles.smallLabel}>Privacy Policy</label>
+                  <textarea
+                    value={formData.privacyPolicy}
+                    onChange={(e) => setFormData({ ...formData, privacyPolicy: e.target.value })}
+                    placeholder="We respect your privacy..."
+                    rows="2"
+                    className="dashboard-input"
+                  />
+                </div>
+
+                <div style={styles.formGroup}>
+                  <label style={styles.smallLabel}>Terms of Service</label>
+                  <textarea
+                    value={formData.termsOfService}
+                    onChange={(e) => setFormData({ ...formData, termsOfService: e.target.value })}
+                    placeholder="By using our service..."
+                    rows="2"
+                    className="dashboard-input"
+                  />
+                </div>
+
+                <div style={styles.formGroup}>
+                  <label style={styles.smallLabel}>Refund Policy</label>
+                  <textarea
+                    value={formData.refundPolicy}
+                    onChange={(e) => setFormData({ ...formData, refundPolicy: e.target.value })}
+                    placeholder="Refunds within 7 days..."
+                    rows="2"
+                    className="dashboard-input"
+                  />
+                </div>
+              </div>
+
               <div style={styles.formActions}>
                 <button type="button" onClick={resetForm} style={styles.cancelBtn}>Cancel</button>
                 <button type="submit" className="btn btn-primary">
@@ -413,6 +530,12 @@ const styles = {
   imagePreview: { width: '100%', height: '120px', borderRadius: '8px', overflow: 'hidden', background: 'rgba(255,255,255,0.05)' },
   smallPreview: { width: '100%', height: '60px', borderRadius: '6px', overflow: 'hidden', background: 'rgba(255,255,255,0.05)' },
   previewImg: { width: '100%', height: '100%', objectFit: 'cover' },
+  storySection: { display: 'flex', flexDirection: 'column', gap: '12px', padding: '20px', background: 'rgba(139, 92, 246, 0.05)', borderRadius: '12px', border: '1px solid rgba(139, 92, 246, 0.15)' },
+  storyGrid: { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' },
+  storyInput: { display: 'flex', flexDirection: 'column', gap: '6px' },
+  typeSelect: { padding: '8px', fontSize: '12px', marginTop: '4px' },
+  policiesSection: { display: 'flex', flexDirection: 'column', gap: '16px', padding: '20px', background: 'rgba(255, 255, 255, 0.02)', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.08)' },
+  smallLabel: { fontSize: '11px', fontWeight: '600', color: 'rgba(255, 255, 255, 0.5)' },
   formActions: { display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '8px' },
   cancelBtn: { padding: '14px 28px', borderRadius: '12px', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', color: 'rgba(255, 255, 255, 0.7)', fontWeight: '600', fontSize: '15px', cursor: 'pointer' },
   grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '24px' },

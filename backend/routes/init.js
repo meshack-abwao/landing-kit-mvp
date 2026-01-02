@@ -198,18 +198,52 @@ router.get('/status', async (req, res) => {
 router.get('/migrate', async (req, res) => {
   try {
     console.log('🔧 Running migrations...');
+    const changes = [];
 
     // Add additional_images column to products (stores JSON array of image URLs)
     await pool.query(`
       ALTER TABLE products 
       ADD COLUMN IF NOT EXISTS additional_images TEXT DEFAULT '[]'
     `);
-    console.log('✅ Added additional_images column to products');
+    changes.push('Added additional_images column to products');
+
+    // Add story_media column to products (stores JSON array for testimonials/videos)
+    await pool.query(`
+      ALTER TABLE products 
+      ADD COLUMN IF NOT EXISTS story_media TEXT DEFAULT '[]'
+    `);
+    changes.push('Added story_media column to products');
+
+    // Add story_title column to products (custom title for story section)
+    await pool.query(`
+      ALTER TABLE products 
+      ADD COLUMN IF NOT EXISTS story_title VARCHAR(100) DEFAULT 'See it in Action'
+    `);
+    changes.push('Added story_title column to products');
+
+    // Add policy columns to products
+    await pool.query(`
+      ALTER TABLE products 
+      ADD COLUMN IF NOT EXISTS privacy_policy TEXT DEFAULT '',
+      ADD COLUMN IF NOT EXISTS terms_of_service TEXT DEFAULT '',
+      ADD COLUMN IF NOT EXISTS refund_policy TEXT DEFAULT ''
+    `);
+    changes.push('Added policy columns to products');
+
+    // Add logo_url and header_bg_url to store_settings
+    await pool.query(`
+      ALTER TABLE store_settings 
+      ADD COLUMN IF NOT EXISTS logo_url VARCHAR(500) DEFAULT '',
+      ADD COLUMN IF NOT EXISTS header_bg_url VARCHAR(500) DEFAULT ''
+    `);
+    changes.push('Added logo_url and header_bg_url to store_settings');
+
+    console.log('✅ All migrations completed');
 
     res.json({
       success: true,
       message: '🎉 Migrations completed!',
-      changes: ['Added additional_images column to products table']
+      changes
     });
 
   } catch (error) {

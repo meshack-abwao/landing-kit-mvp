@@ -36,7 +36,9 @@ router.put('/', authMiddleware, async (req, res) => {
       themeColor, theme_color,
       themeId, theme_id,
       fontFamily, font_family,
-      mpesaNumber, mpesa_number
+      mpesaNumber, mpesa_number,
+      logoUrl, logo_url,
+      headerBgUrl, header_bg_url
     } = req.body;
 
     // Build update query dynamically based on provided fields
@@ -83,6 +85,18 @@ router.put('/', authMiddleware, async (req, res) => {
     if (mpesaNumber || mpesa_number) {
       updates.push(`mpesa_number = $${paramCount}`);
       values.push(mpesaNumber || mpesa_number);
+      paramCount++;
+    }
+
+    if (logoUrl !== undefined || logo_url !== undefined) {
+      updates.push(`logo_url = $${paramCount}`);
+      values.push(logoUrl || logo_url || '');
+      paramCount++;
+    }
+
+    if (headerBgUrl !== undefined || header_bg_url !== undefined) {
+      updates.push(`header_bg_url = $${paramCount}`);
+      values.push(headerBgUrl || header_bg_url || '');
       paramCount++;
     }
 
