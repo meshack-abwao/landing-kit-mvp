@@ -6,6 +6,135 @@ const authMiddleware = require('../middleware/auth');
 const router = express.Router();
 
 // =============================================
+// EMAIL SERVICE - RESEND
+// =============================================
+const RESEND_API_KEY = process.env.RESEND_API_KEY || 're_RDCENxkv_PZX2YppsjP9FPUuCy1VDbNty';
+const EMAIL_FROM = process.env.EMAIL_FROM || 'Jari.Ecom <onboarding@resend.dev>';
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5176';
+
+async function sendEmail(to, subject, html) {
+  try {
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: EMAIL_FROM,
+        to: [to],
+        subject: subject,
+        html: html,
+      }),
+    });
+
+    const data = await response.json();
+    
+    if (!response.ok) {
+      console.error('Resend API error:', data);
+      return { success: false, error: data.message || 'Failed to send email' };
+    }
+
+    console.log('📧 Email sent successfully:', data.id);
+    return { success: true, id: data.id };
+  } catch (error) {
+    console.error('Email send error:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+// Email Templates
+function getVerificationEmailHTML(code) {
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f5f5f7;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; margin: 0 auto; background: white; border-radius: 16px; overflow: hidden; margin-top: 40px; margin-bottom: 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+    <tr>
+      <td style="background: linear-gradient(135deg, #ff9f0a 0%, #ff375f 100%); padding: 40px; text-align: center;">
+        <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 800;">Jari.Ecom</h1>
+        <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0; font-size: 16px;">Verify Your Email</p>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding: 40px;">
+        <p style="color: #1d1d1f; font-size: 16px; line-height: 1.6; margin: 0 0 24px;">
+          Here's your verification code. Enter this code to verify your email address:
+        </p>
+        <div style="background: linear-gradient(135deg, #f5f5f7 0%, #e8e8ed 100%); border-radius: 12px; padding: 24px; text-align: center; margin: 0 0 24px;">
+          <span style="font-size: 36px; font-weight: 800; letter-spacing: 8px; color: #1d1d1f; font-family: monospace;">${code}</span>
+        </div>
+        <p style="color: #6e6e73; font-size: 14px; line-height: 1.6; margin: 0;">
+          This code expires in <strong>10 minutes</strong>. If you didn't request this code, you can safely ignore this email.
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <td style="background: #f5f5f7; padding: 24px; text-align: center;">
+        <p style="color: #6e6e73; font-size: 12px; margin: 0;">
+          © ${new Date().getFullYear()} Jari.Ecom. All rights reserved.
+        </p>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
+
+function getPasswordResetEmailHTML(resetLink) {
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f5f5f7;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; margin: 0 auto; background: white; border-radius: 16px; overflow: hidden; margin-top: 40px; margin-bottom: 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+    <tr>
+      <td style="background: linear-gradient(135deg, #ff9f0a 0%, #ff375f 100%); padding: 40px; text-align: center;">
+        <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 800;">Jari.Ecom</h1>
+        <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0; font-size: 16px;">Reset Your Password</p>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding: 40px;">
+        <p style="color: #1d1d1f; font-size: 16px; line-height: 1.6; margin: 0 0 24px;">
+          We received a request to reset your password. Click the button below to create a new password:
+        </p>
+        <div style="text-align: center; margin: 0 0 24px;">
+          <a href="${resetLink}" style="display: inline-block; background: linear-gradient(135deg, #ff9f0a 0%, #ff375f 100%); color: white; text-decoration: none; padding: 16px 40px; border-radius: 12px; font-weight: 700; font-size: 16px;">
+            Reset Password
+          </a>
+        </div>
+        <p style="color: #6e6e73; font-size: 14px; line-height: 1.6; margin: 0 0 16px;">
+          Or copy and paste this link into your browser:
+        </p>
+        <div style="background: #f5f5f7; border-radius: 8px; padding: 12px; word-break: break-all; margin: 0 0 24px;">
+          <a href="${resetLink}" style="color: #ff9f0a; font-size: 13px; text-decoration: none;">${resetLink}</a>
+        </div>
+        <p style="color: #6e6e73; font-size: 14px; line-height: 1.6; margin: 0;">
+          This link expires in <strong>1 hour</strong>. If you didn't request a password reset, you can safely ignore this email.
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <td style="background: #f5f5f7; padding: 24px; text-align: center;">
+        <p style="color: #6e6e73; font-size: 12px; margin: 0;">
+          © ${new Date().getFullYear()} Jari.Ecom. All rights reserved.
+        </p>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
+
+// =============================================
 // SEND VERIFICATION EMAIL
 // =============================================
 router.post('/send-verification', authMiddleware, async (req, res) => {
@@ -32,17 +161,22 @@ router.post('/send-verification', authMiddleware, async (req, res) => {
       [userId, email, verificationCode, expiresAt]
     );
     
-    // TODO: Send actual email using Resend/SendGrid/etc.
-    // For now, log to console (replace with actual email service)
-    console.log('📧 VERIFICATION CODE:', verificationCode, 'for', email);
+    // Send verification email via Resend
+    const emailResult = await sendEmail(
+      email,
+      'Verify Your Email - Jari.Ecom',
+      getVerificationEmailHTML(verificationCode)
+    );
     
-    // In production, you'd call your email service here:
-    // await sendVerificationEmail(email, verificationCode);
+    if (!emailResult.success) {
+      console.error('Failed to send verification email:', emailResult.error);
+      // Still return success to not reveal email issues, but log it
+    }
     
     res.json({
       success: true,
       message: 'Verification code sent to your email',
-      // Remove this in production - only for testing
+      // Only for development testing
       ...(process.env.NODE_ENV === 'development' && { debug_code: verificationCode })
     });
   } catch (error) {
@@ -108,7 +242,7 @@ router.post('/forgot-password', async (req, res) => {
       [email]
     );
     
-    // Don't reveal if email exists or not
+    // Don't reveal if email exists or not (security)
     if (userResult.rows.length === 0) {
       return res.json({
         success: true,
@@ -137,14 +271,26 @@ router.post('/forgot-password', async (req, res) => {
       [user.id, email, resetToken, expiresAt]
     );
     
-    // TODO: Send actual email with reset link
-    const resetLink = `${process.env.FRONTEND_URL || 'http://localhost:5176'}/reset-password?token=${resetToken}`;
+    // Build reset link
+    const resetLink = `${FRONTEND_URL}/reset-password?token=${resetToken}`;
+    
+    // Send password reset email via Resend
+    const emailResult = await sendEmail(
+      email,
+      'Reset Your Password - Jari.Ecom',
+      getPasswordResetEmailHTML(resetLink)
+    );
+    
+    if (!emailResult.success) {
+      console.error('Failed to send reset email:', emailResult.error);
+    }
+    
     console.log('🔑 PASSWORD RESET LINK:', resetLink);
     
     res.json({
       success: true,
       message: 'If an account exists with this email, you will receive a reset link',
-      // Remove this in production - only for testing
+      // Only for development testing
       ...(process.env.NODE_ENV === 'development' && { debug_link: resetLink })
     });
   } catch (error) {

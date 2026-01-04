@@ -1,7 +1,10 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowRight, ArrowLeft, Check, Sparkles } from 'lucide-react';
+import api from '../../services/api.jsx';
 
 export default function TemplateQuestionnaire({ onComplete, onCancel }) {
+  const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [answers, setAnswers] = useState({
     industry: null,
@@ -42,18 +45,15 @@ export default function TemplateQuestionnaire({ onComplete, onCancel }) {
       // Get recommendation
       setLoading(true);
       try {
-        const response = await fetch('http://localhost:3000/api/templates/recommend', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(answers)
-        });
-        const data = await response.json();
-        if (data.success) {
-          setRecommendation(data);
+        const response = await api.post('/templates/recommend', answers);
+        if (response.data.success) {
+          setRecommendation(response.data);
           setStep(4);
         }
       } catch (error) {
         console.error('Failed to get recommendation:', error);
+        // Fallback - just go to dashboard
+        handleComplete({ slug: 'quick-decision' });
       } finally {
         setLoading(false);
       }
@@ -75,9 +75,40 @@ export default function TemplateQuestionnaire({ onComplete, onCancel }) {
     return true;
   };
 
+  const handleComplete = (template) => {
+    // Mark onboarding as done
+    localStorage.setItem('onboarding_done', 'true');
+    localStorage.setItem('recommended_template', template?.slug || 'quick-decision');
+    
+    // If used as a component with callback, call it
+    if (onComplete) {
+      onComplete(template);
+    } else {
+      // Otherwise navigate to dashboard
+      navigate('/dashboard');
+    }
+  };
+
+  const handleSkip = () => {
+    // Mark onboarding as done
+    localStorage.setItem('onboarding_done', 'true');
+    
+    if (onCancel) {
+      onCancel();
+    } else {
+      navigate('/dashboard/templates');
+    }
+  };
+
   return (
-    <div style={styles.overlay}>
+    <div style={styles.container}>
       <div style={styles.modal} className="glass-card">
+        {/* Header */}
+        <div style={styles.header}>
+          <h1 style={styles.logo}>🛍️ Jari.Ecom</h1>
+          <p style={styles.headerSub}>Let's find the perfect template for your business</p>
+        </div>
+
         {/* Progress */}
         <div style={styles.progress}>
           {[1, 2, 3].map(n => (
@@ -208,11 +239,11 @@ export default function TemplateQuestionnaire({ onComplete, onCancel }) {
             </div>
 
             <button 
-              onClick={() => onComplete(recommendation.recommended)}
+              onClick={() => handleComplete(recommendation.recommended)}
               style={styles.useTemplateBtn}
               className="btn btn-primary"
             >
-              Use This Template
+              Get Started with This Template
               <ArrowRight size={18} />
             </button>
 
@@ -223,7 +254,7 @@ export default function TemplateQuestionnaire({ onComplete, onCancel }) {
                   {recommendation.alternatives.map((alt, idx) => (
                     <button
                       key={idx}
-                      onClick={() => onComplete(alt)}
+                      onClick={() => handleComplete(alt)}
                       style={styles.altBtn}
                     >
                       {alt.name} - KES {parseInt(alt.price).toLocaleString()}
@@ -259,36 +290,49 @@ export default function TemplateQuestionnaire({ onComplete, onCancel }) {
             </button>
           )}
           
-          <button onClick={onCancel} style={styles.cancelBtn}>
-            Skip & Browse All
+          <button onClick={handleSkip} style={styles.cancelBtn}>
+            Skip & Browse All Templates
           </button>
         </div>
       </div>
+      
+      <div style={styles.bgGlow}></div>
     </div>
   );
 }
 
 const styles = {
-  overlay: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    background: 'rgba(0, 0, 0, 0.8)',
-    backdropFilter: 'blur(8px)',
+  container: {
+    minHeight: '100vh',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    zIndex: 1000,
-    padding: '20px'
+    padding: '20px',
+    background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%)',
+    position: 'relative',
+    overflow: 'hidden'
   },
   modal: {
     width: '100%',
     maxWidth: '700px',
     maxHeight: '90vh',
     overflowY: 'auto',
-    padding: '40px'
+    padding: '40px',
+    position: 'relative',
+    zIndex: 1
+  },
+  header: {
+    textAlign: 'center',
+    marginBottom: '32px'
+  },
+  logo: {
+    fontSize: '28px',
+    fontWeight: '800',
+    marginBottom: '8px'
+  },
+  headerSub: {
+    fontSize: '16px',
+    color: 'rgba(255, 255, 255, 0.6)'
   },
   
   progress: {
@@ -512,5 +556,17 @@ const styles = {
     fontSize: '14px',
     cursor: 'pointer',
     marginTop: '8px'
+  },
+  bgGlow: {
+    position: 'fixed',
+    width: '800px',
+    height: '800px',
+    background: 'radial-gradient(circle, rgba(255, 159, 10, 0.15) 0%, transparent 70%)',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    borderRadius: '50%',
+    filter: 'blur(120px)',
+    pointerEvents: 'none'
   }
 };

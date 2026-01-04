@@ -13,6 +13,7 @@ import Settings from './components/Dashboard/Settings';
 import Marketplace from './components/Dashboard/Marketplace';
 import AddOnDetail from './components/Dashboard/AddOnDetail';
 import TemplateShowcase from './components/Dashboard/TemplateShowcase';
+import TemplateQuestionnaire from './components/Dashboard/TemplateQuestionnaire';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -29,23 +30,63 @@ function ProtectedRoute({ children }) {
   return user ? children : <Navigate to="/login" />;
 }
 
+// New user route - shows questionnaire if not completed
+function OnboardingRoute({ children }) {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div style={styles.loading}>
+        <div style={styles.spinner}></div>
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/login" />;
+  }
+
+  // Check if user needs onboarding (hasn't completed questionnaire)
+  // Check for onboarding_completed flag or if they have products
+  const needsOnboarding = !user.onboarding_completed && !localStorage.getItem('onboarding_done');
+
+  if (needsOnboarding) {
+    return <Navigate to="/onboarding" />;
+  }
+
+  return children;
+}
+
 function App() {
   return (
     <BrowserRouter>
       <ThemeProvider>
         <AuthProvider>
           <Routes>
+            {/* Public routes */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             
+            {/* Onboarding route - shows questionnaire */}
+            <Route
+              path="/onboarding"
+              element={
+                <ProtectedRoute>
+                  <TemplateQuestionnaire />
+                </ProtectedRoute>
+              }
+            />
+            
+            {/* Dashboard routes - require onboarding completion */}
             <Route
               path="/dashboard"
               element={
-                <ProtectedRoute>
+                <OnboardingRoute>
                   <DashboardLayout />
-                </ProtectedRoute>
+                </OnboardingRoute>
               }
             >
               <Route index element={<Overview />} />
