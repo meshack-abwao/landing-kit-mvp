@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth.jsx';
 
+const JARI_LOGO = 'http://jarisolutions.com/wp-content/uploads/2025/11/cropped-Jari-Business-Solutions-1.png';
+
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -30,7 +32,7 @@ export default function Login() {
     <div style={styles.container}>
       <div style={styles.formCard} className="glass-card">
         <div style={styles.header}>
-          <div style={styles.logoIcon}>🚀</div>
+          <img src={JARI_LOGO} alt="Jari" style={styles.logoImg} />
           <h1 style={styles.title}>Jari.Ecom</h1>
           <p style={styles.subtitle}>Sign in to your account</p>
         </div>
@@ -105,28 +107,31 @@ const styles = {
     textAlign: 'center',
     marginBottom: '40px',
   },
-  logoIcon: {
-    fontSize: '56px',
+  logoImg: {
+    width: '72px',
+    height: '72px',
+    objectFit: 'contain',
     marginBottom: '20px',
+    borderRadius: '16px',
   },
   title: {
     fontSize: '36px',
     fontWeight: '800',
     marginBottom: '8px',
-    background: 'linear-gradient(135deg, #ff9f0a 0%, #ff375f 100%)',
+    background: 'linear-gradient(135deg, #2D5A27 0%, #D4A84B 100%)',
     WebkitBackgroundClip: 'text',
     WebkitTextFillColor: 'transparent',
   },
   subtitle: {
     fontSize: '16px',
-    color: 'rgba(255, 255, 255, 0.6)',
+    color: 'var(--text-muted)',
   },
   error: {
     padding: '14px 18px',
-    background: 'rgba(255, 55, 95, 0.1)',
-    border: '1px solid rgba(255, 55, 95, 0.3)',
+    background: 'rgba(220, 38, 38, 0.1)',
+    border: '1px solid rgba(220, 38, 38, 0.3)',
     borderRadius: '12px',
-    color: '#ff375f',
+    color: '#dc2626',
     fontSize: '14px',
     marginBottom: '24px',
     textAlign: 'center',
@@ -144,7 +149,7 @@ const styles = {
   label: {
     fontSize: '14px',
     fontWeight: '600',
-    color: 'rgba(255, 255, 255, 0.8)',
+    color: 'var(--text-secondary)',
   },
   submitBtn: {
     marginTop: '8px',
@@ -154,7 +159,7 @@ const styles = {
   forgotLink: {
     textAlign: 'center',
     fontSize: '14px',
-    color: 'rgba(255, 255, 255, 0.5)',
+    color: 'var(--text-muted)',
     textDecoration: 'none',
     marginTop: '-8px',
   },
@@ -162,10 +167,10 @@ const styles = {
     textAlign: 'center',
     marginTop: '32px',
     fontSize: '14px',
-    color: 'rgba(255, 255, 255, 0.6)',
+    color: 'var(--text-muted)',
   },
   link: {
-    color: '#ff9f0a',
+    color: '#D4A84B',
     textDecoration: 'none',
     fontWeight: '600',
   },
@@ -173,7 +178,7 @@ const styles = {
     position: 'fixed',
     width: '1000px',
     height: '1000px',
-    background: 'radial-gradient(circle, rgba(255, 159, 10, 0.15) 0%, transparent 70%)',
+    background: 'radial-gradient(circle, rgba(45, 90, 39, 0.15) 0%, transparent 70%)',
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',

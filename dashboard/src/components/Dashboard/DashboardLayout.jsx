@@ -127,7 +127,7 @@ export default function DashboardLayout() {
             <div style={styles.modalContent}>
               {/* Business Info */}
               <div style={styles.infoBox}>
-                <User size={20} style={{ color: '#8b5cf6' }} />
+                <User size={20} style={{ color: '#2D5A27' }} />
                 <div>
                   <p style={styles.infoLabel}>Business Name</p>
                   <p style={styles.infoValue}>{accountData.businessName}</p>
@@ -135,7 +135,7 @@ export default function DashboardLayout() {
               </div>
 
               <div style={styles.infoBox}>
-                <Store size={20} style={{ color: '#8b5cf6' }} />
+                <Store size={20} style={{ color: '#2D5A27' }} />
                 <div>
                   <p style={styles.infoLabel}>Instagram Handle</p>
                   <p style={styles.infoValue}>{accountData.instagramHandle}</p>
@@ -228,7 +228,11 @@ export default function DashboardLayout() {
 
       <aside className={`dashboard-sidebar glass-card ${mobileMenuOpen ? 'mobile-open' : ''}`}>
         <div style={styles.logo}>
-          <div style={styles.logoIcon}>🛍️</div>
+          <img 
+            src="http://jarisolutions.com/wp-content/uploads/2025/11/cropped-Jari-Business-Solutions-1.png" 
+            alt="Jari" 
+            style={styles.logoImg}
+          />
           <div>
             <h2 style={styles.logoText}>Jari.Ecom</h2>
             <p style={styles.logoSub}>Dashboard</p>
@@ -307,46 +311,46 @@ export default function DashboardLayout() {
 }
 
 const styles = {
-  logo: { display: 'flex', alignItems: 'center', gap: '12px', paddingBottom: '20px', borderBottom: '1px solid rgba(255, 255, 255, 0.1)' },
-  logoIcon: { fontSize: '32px' },
-  logoText: { fontSize: '20px', fontWeight: '800', background: 'linear-gradient(135deg, #ff9f0a 0%, #ff375f 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' },
-  logoSub: { fontSize: '11px', color: 'rgba(255, 255, 255, 0.5)', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' },
+  logo: { display: 'flex', alignItems: 'center', gap: '12px', paddingBottom: '20px', borderBottom: '1px solid var(--border-color)' },
+  logoImg: { width: '48px', height: '48px', objectFit: 'contain', borderRadius: '10px' },
+  logoText: { fontSize: '20px', fontWeight: '800', background: 'linear-gradient(135deg, #2D5A27 0%, #D4A84B 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' },
+  logoSub: { fontSize: '11px', color: 'var(--text-muted)', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' },
   userCard: { display: 'flex', alignItems: 'center', gap: '12px', padding: '16px' },
-  avatar: { width: '48px', height: '48px', borderRadius: '50%', background: 'linear-gradient(135deg, #ff9f0a 0%, #bf5af2 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', fontWeight: '700', color: 'white', flexShrink: 0 },
-  userName: { fontSize: '15px', fontWeight: '600', color: 'white', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
-  userEmail: { fontSize: '13px', color: 'rgba(255, 255, 255, 0.5)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
-  greeting: { padding: '16px', background: 'rgba(255, 159, 10, 0.1)', border: '1px solid rgba(255, 159, 10, 0.2)', borderRadius: '12px', fontSize: '13px', lineHeight: '1.5', color: 'rgba(255, 255, 255, 0.8)', fontWeight: '500' },
-  themeToggle: { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '12px', borderRadius: '12px', cursor: 'pointer', fontSize: '14px', fontWeight: '600', color: 'white', transition: 'all 0.3s', border: 'none' },
+  avatar: { width: '48px', height: '48px', borderRadius: '50%', background: 'linear-gradient(135deg, #2D5A27 0%, #D4A84B 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', fontWeight: '700', color: 'white', flexShrink: 0 },
+  userName: { fontSize: '15px', fontWeight: '600', color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+  userEmail: { fontSize: '13px', color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+  greeting: { padding: '16px', background: 'rgba(45, 90, 39, 0.1)', border: '1px solid rgba(45, 90, 39, 0.2)', borderRadius: '12px', fontSize: '13px', lineHeight: '1.5', color: 'var(--text-secondary)', fontWeight: '500' },
+  themeToggle: { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '12px', borderRadius: '12px', cursor: 'pointer', fontSize: '14px', fontWeight: '600', color: 'var(--text-secondary)', transition: 'all 0.3s', border: 'none' },
   nav: { display: 'flex', flexDirection: 'column', gap: '8px', flex: 1 },
-  navLink: { display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 16px', borderRadius: '12px', color: 'rgba(255, 255, 255, 0.6)', textDecoration: 'none', fontSize: '15px', fontWeight: '600', transition: 'all 0.3s', background: 'transparent', border: 'none', width: '100%', cursor: 'pointer' },
-  logoutBtn: { display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 16px', borderRadius: '12px', background: 'rgba(255, 55, 95, 0.1)', border: '1px solid rgba(255, 55, 95, 0.2)', color: '#ff375f', fontSize: '15px', fontWeight: '600', cursor: 'pointer', transition: 'all 0.3s' },
-  bgGlow: { position: 'fixed', width: '800px', height: '800px', background: 'radial-gradient(circle, rgba(255, 159, 10, 0.08) 0%, transparent 70%)', top: '50%', right: '-400px', transform: 'translateY(-50%)', borderRadius: '50%', filter: 'blur(120px)', pointerEvents: 'none' },
+  navLink: { display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 16px', borderRadius: '12px', color: 'var(--text-muted)', textDecoration: 'none', fontSize: '15px', fontWeight: '600', transition: 'all 0.3s', background: 'transparent', border: 'none', width: '100%', cursor: 'pointer' },
+  logoutBtn: { display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 16px', borderRadius: '12px', background: 'rgba(220, 38, 38, 0.1)', border: '1px solid rgba(220, 38, 38, 0.2)', color: '#dc2626', fontSize: '15px', fontWeight: '600', cursor: 'pointer', transition: 'all 0.3s' },
+  bgGlow: { position: 'fixed', width: '800px', height: '800px', background: 'radial-gradient(circle, rgba(45, 90, 39, 0.08) 0%, transparent 70%)', top: '50%', right: '-400px', transform: 'translateY(-50%)', borderRadius: '50%', filter: 'blur(120px)', pointerEvents: 'none' },
   modalOverlay: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0, 0, 0, 0.7)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' },
   modal: { width: '100%', maxWidth: '650px', maxHeight: '90vh', overflowY: 'auto', padding: '32px' },
   modalHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' },
-  modalTitle: { fontSize: '28px', fontWeight: '800' },
-  closeBtn: { background: 'transparent', border: 'none', color: 'rgba(255, 255, 255, 0.6)', cursor: 'pointer', padding: '8px', borderRadius: '8px', transition: 'all 0.3s' },
+  modalTitle: { fontSize: '28px', fontWeight: '800', color: 'var(--text-primary)' },
+  closeBtn: { background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '8px', borderRadius: '8px', transition: 'all 0.3s' },
   modalContent: { display: 'flex', flexDirection: 'column', gap: '24px' },
   modalForm: { display: 'flex', flexDirection: 'column', gap: '24px' },
-  infoBox: { display: 'flex', alignItems: 'center', gap: '16px', padding: '16px', background: 'rgba(139, 92, 246, 0.05)', border: '1px solid rgba(139, 92, 246, 0.15)', borderRadius: '12px' },
-  infoLabel: { fontSize: '12px', color: 'rgba(255, 255, 255, 0.5)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' },
-  infoValue: { fontSize: '16px', fontWeight: '600', color: 'white' },
+  infoBox: { display: 'flex', alignItems: 'center', gap: '16px', padding: '16px', background: 'rgba(45, 90, 39, 0.05)', border: '1px solid rgba(45, 90, 39, 0.15)', borderRadius: '12px' },
+  infoLabel: { fontSize: '12px', color: 'var(--text-muted)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' },
+  infoValue: { fontSize: '16px', fontWeight: '600', color: 'var(--text-primary)' },
   formGroup: { display: 'flex', flexDirection: 'column', gap: '10px' },
-  label: { fontSize: '12px', fontWeight: '700', color: 'rgba(255, 255, 255, 0.6)', textTransform: 'uppercase', letterSpacing: '1px' },
-  input: { background: 'rgba(255, 255, 255, 0.08)', border: '1px solid rgba(255, 255, 255, 0.15)' },
-  hint: { fontSize: '12px', color: 'rgba(255, 255, 255, 0.4)', fontStyle: 'italic', marginTop: '-4px' },
+  label: { fontSize: '12px', fontWeight: '700', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px' },
+  input: { background: 'var(--glass-bg)', border: '1px solid var(--border-color)' },
+  hint: { fontSize: '12px', color: 'var(--text-muted)', fontStyle: 'italic', marginTop: '-4px' },
   modalActions: { display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '8px' },
-  cancelBtn: { padding: '14px 28px', borderRadius: '12px', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', color: 'rgba(255, 255, 255, 0.7)', fontWeight: '600', fontSize: '15px', cursor: 'pointer', transition: 'all 0.3s' },
-  subscriptionCard: { padding: '24px', background: 'rgba(255, 159, 10, 0.05)', border: '2px solid rgba(255, 159, 10, 0.2)', borderRadius: '16px', marginTop: '8px' },
+  cancelBtn: { padding: '14px 28px', borderRadius: '12px', background: 'var(--glass-bg)', border: '1px solid var(--border-color)', color: 'var(--text-secondary)', fontWeight: '600', fontSize: '15px', cursor: 'pointer', transition: 'all 0.3s' },
+  subscriptionCard: { padding: '24px', background: 'rgba(45, 90, 39, 0.05)', border: '2px solid rgba(45, 90, 39, 0.2)', borderRadius: '16px', marginTop: '8px' },
   subscriptionHeader: { display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '20px' },
-  crownIcon: { width: '56px', height: '56px', borderRadius: '16px', background: 'rgba(255, 159, 10, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ff9f0a', flexShrink: 0 },
-  subscriptionTitle: { fontSize: '14px', color: 'rgba(255, 255, 255, 0.6)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' },
-  subscriptionTier: { fontSize: '20px', fontWeight: '700', color: 'white' },
+  crownIcon: { width: '56px', height: '56px', borderRadius: '16px', background: 'rgba(212, 168, 75, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#D4A84B', flexShrink: 0 },
+  subscriptionTitle: { fontSize: '14px', color: 'var(--text-muted)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' },
+  subscriptionTier: { fontSize: '20px', fontWeight: '700', color: 'var(--text-primary)' },
   priceBox: { textAlign: 'right' },
-  priceAmount: { fontSize: '28px', fontWeight: '800', color: '#ff9f0a', display: 'block', lineHeight: '1' },
-  pricePeriod: { fontSize: '14px', color: 'rgba(255, 255, 255, 0.5)' },
+  priceAmount: { fontSize: '28px', fontWeight: '800', color: '#D4A84B', display: 'block', lineHeight: '1' },
+  pricePeriod: { fontSize: '14px', color: 'var(--text-muted)' },
   subscriptionFeatures: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' },
-  feature: { display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: 'rgba(255, 255, 255, 0.8)' },
-  checkmark: { width: '20px', height: '20px', borderRadius: '50%', background: 'rgba(48, 209, 88, 0.2)', color: '#30d158', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: '700', flexShrink: 0 },
-  upgradeBtn: { width: '100%', padding: '14px 20px', borderRadius: '12px', background: 'linear-gradient(135deg, #ff9f0a 0%, #ff375f 100%)', border: 'none', color: 'white', fontSize: '15px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', transition: 'all 0.3s' },
+  feature: { display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: 'var(--text-secondary)' },
+  checkmark: { width: '20px', height: '20px', borderRadius: '50%', background: 'rgba(45, 90, 39, 0.2)', color: '#2D5A27', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: '700', flexShrink: 0 },
+  upgradeBtn: { width: '100%', padding: '14px 20px', borderRadius: '12px', background: 'linear-gradient(135deg, #D4A84B 0%, #E07B39 100%)', border: 'none', color: 'white', fontSize: '15px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', transition: 'all 0.3s' },
 };
