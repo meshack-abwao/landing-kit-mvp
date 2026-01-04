@@ -426,6 +426,36 @@ function renderSingleProduct(product) {
     quantity = 1;
     currentImageIndex = 0;
     productImages = getProductImages(product);
+    
+    // Route to appropriate template renderer based on template_type
+    const templateType = product.template_type || 'quick-decision';
+    
+    switch(templateType) {
+        case 'portfolio-booking':
+            renderPortfolioBookingTemplate(product);
+            break;
+        case 'visual-menu':
+            renderVisualMenuTemplate(product);
+            break;
+        case 'deep-dive':
+            renderDeepDiveTemplate(product);
+            break;
+        case 'event-landing':
+            renderEventLandingTemplate(product);
+            break;
+        case 'catalog-nav':
+            // Catalog navigator is a homepage, not a product template
+            renderQuickDecisionTemplate(product);
+            break;
+        default:
+            renderQuickDecisionTemplate(product);
+    }
+}
+
+// ===========================================
+// TEMPLATE 1: QUICK DECISION (Default)
+// ===========================================
+function renderQuickDecisionTemplate(product) {
     const stories = getStoryMedia(product);
     const isLiked = isProductLiked(product.id);
     
@@ -567,6 +597,462 @@ function setupSwipeGestures() {
         }
     }, { passive: true });
 }
+
+// ===========================================
+// TEMPLATE 2: PORTFOLIO + BOOKING
+// ===========================================
+function renderPortfolioBookingTemplate(product) {
+    const stories = getStoryMedia(product);
+    const isLiked = isProductLiked(product.id);
+    let servicePackages = [];
+    
+    try {
+        servicePackages = JSON.parse(product.service_packages || '[]');
+    } catch (e) {
+        servicePackages = [];
+    }
+    
+    const main = document.getElementById('main');
+    
+    const backButton = storeData.products.length > 1 ? `
+        <button onclick="backToCollections()" class="back-btn">
+            ← Back to All Services
+        </button>
+    ` : '';
+    
+    const hasMultipleImages = productImages.length > 1;
+    
+    // Portfolio gallery
+    const galleryHTML = `
+        <div class="portfolio-gallery">
+            <div class="gallery-grid">
+                ${productImages.slice(0, 6).map((img, idx) => `
+                    <div class="gallery-item ${idx === 0 ? 'featured' : ''}" onclick="setMainImage(${idx})">
+                        <img src="${img}" alt="Portfolio ${idx + 1}">
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+    
+    // Story circles for testimonials/process
+    const storyHTML = stories.length > 0 ? `
+        <div class="story-section">
+            ${product.story_title ? `<p class="story-title">${product.story_title}</p>` : '<p class="story-title">See My Work</p>'}
+            <div class="story-circles">
+                ${stories.map((story, idx) => `
+                    <div class="story-circle" onclick="openStory(${idx})">
+                        <div class="story-ring">
+                            <img src="${story.thumbnail || story.url}" alt="Story ${idx + 1}">
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    ` : '';
+    
+    // Service packages
+    const packagesHTML = servicePackages.length > 0 ? `
+        <div class="service-packages">
+            <h3 class="packages-title">Service Packages</h3>
+            ${servicePackages.map((pkg, idx) => `
+                <div class="package-card ${idx === 0 ? 'featured' : ''}">
+                    <div class="package-header">
+                        <h4 class="package-name">${pkg.name || 'Package ' + (idx + 1)}</h4>
+                        <span class="package-price">KES ${parseInt(pkg.price || product.price).toLocaleString()}</span>
+                    </div>
+                    ${pkg.description ? `<p class="package-desc">${pkg.description}</p>` : ''}
+                    ${pkg.includes && pkg.includes.length > 0 ? `
+                        <ul class="package-includes">
+                            ${pkg.includes.map(item => `<li>✓ ${item}</li>`).join('')}
+                        </ul>
+                    ` : ''}
+                    <button class="package-select-btn" onclick="selectPackage(${idx})">Select Package</button>
+                </div>
+            `).join('')}
+        </div>
+    ` : '';
+    
+    // Availability notes
+    const availabilityHTML = product.availability_notes ? `
+        <div class="availability-section">
+            <span class="availability-label">📅 Availability</span>
+            <p class="availability-text">${product.availability_notes}</p>
+        </div>
+    ` : '';
+    
+    main.innerHTML = `
+        ${backButton}
+        <div class="product-container template-portfolio">
+            <div class="product-card">
+                ${galleryHTML}
+                
+                <div class="product-info">
+                    <div class="product-header">
+                        <h2 class="product-name">${product.name}</h2>
+                        <div class="social-actions">
+                            <button class="social-btn share-btn" onclick="shareProduct(${product.id}, event)">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                            </button>
+                            <button id="like-btn-${product.id}" class="social-btn like-btn" onclick="toggleLike(${product.id}, event)">
+                                <span class="heart-icon ${isLiked ? 'liked' : ''}">${isLiked ? '❤️' : '🤍'}</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <p class="product-description">${product.description || ''}</p>
+                    
+                    ${storyHTML}
+                    ${packagesHTML}
+                    ${availabilityHTML}
+                    
+                    <div class="price-display">
+                        <span class="price-label">Starting from</span>
+                        <div class="price">KES <span id="displayPrice">${parseInt(product.price).toLocaleString()}</span></div>
+                    </div>
+                    
+                    <button onclick="openCheckout()" class="buy-btn book-btn">
+                        <span class="btn-text">Book Now</span>
+                        <span class="btn-arrow">→</span>
+                    </button>
+                </div>
+            </div>
+            <div class="store-footer">
+                <p class="powered-by">Powered by <a href="https://jarisolutionsecom.store" target="_blank">jarisolutionsecom.store</a></p>
+            </div>
+        </div>
+    `;
+}
+
+// ===========================================
+// TEMPLATE 3: VISUAL MENU (Food/Restaurant)
+// ===========================================
+function renderVisualMenuTemplate(product) {
+    const isLiked = isProductLiked(product.id);
+    
+    // Parse dietary tags
+    let dietaryTags = [];
+    try {
+        dietaryTags = JSON.parse(product.dietary_tags || '[]');
+    } catch (e) {
+        dietaryTags = [];
+    }
+    
+    const main = document.getElementById('main');
+    
+    const backButton = storeData.products.length > 1 ? `
+        <button onclick="backToCollections()" class="back-btn">
+            ← Back to Menu
+        </button>
+    ` : '';
+    
+    // Dietary tags display
+    const dietaryHTML = dietaryTags.length > 0 ? `
+        <div class="dietary-tags">
+            ${dietaryTags.map(tag => {
+                const tagIcons = {
+                    'vegetarian': '🥬',
+                    'vegan': '🌱',
+                    'spicy': '🌶️',
+                    'hot': '🔥',
+                    'gluten-free': '🌾',
+                    'halal': '☪️',
+                    'contains-nuts': '🥜',
+                    'dairy-free': '🥛'
+                };
+                return `<span class="dietary-tag">${tagIcons[tag.toLowerCase()] || '•'} ${tag}</span>`;
+            }).join('')}
+        </div>
+    ` : '';
+    
+    // Prep time and calories
+    const metaHTML = `
+        <div class="food-meta">
+            ${product.prep_time ? `<span class="meta-item">⏱️ ${product.prep_time}</span>` : ''}
+            ${product.calories ? `<span class="meta-item">🔥 ${product.calories} cal</span>` : ''}
+        </div>
+    `;
+    
+    // Ingredients
+    const ingredientsHTML = product.ingredients ? `
+        <div class="ingredients-section">
+            <h4 class="ingredients-title">Ingredients</h4>
+            <p class="ingredients-list">${product.ingredients}</p>
+        </div>
+    ` : '';
+    
+    main.innerHTML = `
+        ${backButton}
+        <div class="product-container template-menu">
+            <div class="product-card food-card">
+                <div class="food-image">
+                    ${productImages[0] ? 
+                        `<img src="${productImages[0]}" alt="${product.name}">` :
+                        '<div class="image-placeholder">🍽️</div>'
+                    }
+                    ${dietaryHTML}
+                </div>
+                
+                <div class="product-info">
+                    <div class="product-header">
+                        <h2 class="product-name">${product.name}</h2>
+                        <div class="social-actions">
+                            <button class="social-btn share-btn" onclick="shareProduct(${product.id}, event)">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                            </button>
+                            <button id="like-btn-${product.id}" class="social-btn like-btn" onclick="toggleLike(${product.id}, event)">
+                                <span class="heart-icon ${isLiked ? 'liked' : ''}">${isLiked ? '❤️' : '🤍'}</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <p class="product-description">${product.description || ''}</p>
+                    
+                    ${metaHTML}
+                    ${ingredientsHTML}
+                    
+                    <div class="price-display">
+                        <span class="price-label">Price</span>
+                        <div class="price">KES <span id="displayPrice">${parseInt(product.price).toLocaleString()}</span></div>
+                    </div>
+                    
+                    <div class="quantity-section">
+                        <label class="quantity-label">Quantity</label>
+                        <div class="quantity-controls">
+                            <button onclick="decreaseQuantity()" id="decreaseBtn" class="quantity-btn" ${quantity <= 1 ? 'disabled' : ''}>−</button>
+                            <span class="quantity-value" id="quantityDisplay">1</span>
+                            <button onclick="increaseQuantity()" id="increaseBtn" class="quantity-btn">+</button>
+                        </div>
+                    </div>
+                    
+                    <div class="total-section">
+                        <span class="total-label">Total</span>
+                        <div class="total-price">KES <span id="totalPrice">${parseInt(product.price).toLocaleString()}</span></div>
+                    </div>
+                    
+                    <button onclick="openCheckout()" class="buy-btn order-btn">
+                        <span class="btn-text">Add to Order</span>
+                        <span class="btn-arrow">→</span>
+                    </button>
+                </div>
+            </div>
+            <div class="store-footer">
+                <p class="powered-by">Powered by <a href="https://jarisolutionsecom.store" target="_blank">jarisolutionsecom.store</a></p>
+            </div>
+        </div>
+    `;
+}
+
+// ===========================================
+// TEMPLATE 5: DEEP DIVE EVALUATOR (High-Ticket)
+// ===========================================
+function renderDeepDiveTemplate(product) {
+    const stories = getStoryMedia(product);
+    const isLiked = isProductLiked(product.id);
+    
+    // Parse specifications
+    let specifications = {};
+    try {
+        specifications = JSON.parse(product.specifications || '{}');
+    } catch (e) {
+        specifications = {};
+    }
+    
+    // Parse trust badges
+    let trustBadges = [];
+    try {
+        trustBadges = JSON.parse(product.trust_badges || '[]');
+    } catch (e) {
+        trustBadges = [];
+    }
+    
+    const main = document.getElementById('main');
+    
+    const backButton = storeData.products.length > 1 ? `
+        <button onclick="backToCollections()" class="back-btn">
+            ← Back to All Products
+        </button>
+    ` : '';
+    
+    const hasMultipleImages = productImages.length > 1;
+    
+    // Trust badges header
+    const trustHTML = trustBadges.length > 0 ? `
+        <div class="trust-badges-bar">
+            ${trustBadges.map(badge => `
+                <span class="trust-badge">${badge.icon || '✓'} ${badge.text}</span>
+            `).join('')}
+        </div>
+    ` : '';
+    
+    // Gallery with thumbnails for multiple angles
+    const galleryHTML = `
+        <div class="product-gallery deep-dive-gallery">
+            <div class="main-image-container">
+                ${hasMultipleImages ? `<button class="gallery-nav prev" onclick="prevImage()">‹</button>` : ''}
+                ${productImages[0] ? 
+                    `<img id="mainProductImage" src="${productImages[0]}" alt="${product.name}" class="main-gallery-image">` :
+                    '<div class="image-placeholder">📸</div>'
+                }
+                ${hasMultipleImages ? `<button class="gallery-nav next" onclick="nextImage()">›</button>` : ''}
+            </div>
+            ${hasMultipleImages ? `
+                <div class="thumbnail-strip">
+                    ${productImages.map((img, idx) => `
+                        <div class="thumbnail ${idx === 0 ? 'active' : ''}" onclick="setMainImage(${idx})">
+                            <img src="${img}" alt="View ${idx + 1}">
+                        </div>
+                    `).join('')}
+                </div>
+            ` : ''}
+        </div>
+    `;
+    
+    // Specifications table
+    const specsHTML = Object.keys(specifications).length > 0 ? `
+        <div class="specifications-section">
+            <h3 class="specs-title">Specifications</h3>
+            <table class="specs-table">
+                ${Object.entries(specifications).map(([key, value]) => `
+                    <tr>
+                        <td class="spec-key">${key}</td>
+                        <td class="spec-value">${value}</td>
+                    </tr>
+                `).join('')}
+            </table>
+        </div>
+    ` : '';
+    
+    // Warranty and return policy
+    const warrantyHTML = `
+        <div class="guarantees-section">
+            ${product.warranty_info ? `
+                <div class="guarantee-item">
+                    <span class="guarantee-icon">🛡️</span>
+                    <div class="guarantee-content">
+                        <h4>Warranty</h4>
+                        <p>${product.warranty_info}</p>
+                    </div>
+                </div>
+            ` : ''}
+            ${product.return_policy_days ? `
+                <div class="guarantee-item">
+                    <span class="guarantee-icon">↩️</span>
+                    <div class="guarantee-content">
+                        <h4>${product.return_policy_days}-Day Returns</h4>
+                        <p>Not satisfied? Return within ${product.return_policy_days} days for a full refund.</p>
+                    </div>
+                </div>
+            ` : ''}
+        </div>
+    `;
+    
+    // Story section for reviews/testimonials
+    const storyHTML = stories.length > 0 ? `
+        <div class="story-section">
+            <p class="story-title">${product.story_title || 'Customer Reviews'}</p>
+            <div class="story-circles">
+                ${stories.map((story, idx) => `
+                    <div class="story-circle" onclick="openStory(${idx})">
+                        <div class="story-ring">
+                            <img src="${story.thumbnail || story.url}" alt="Review ${idx + 1}">
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    ` : '';
+    
+    main.innerHTML = `
+        ${backButton}
+        <div class="product-container template-deep-dive">
+            ${trustHTML}
+            <div class="product-card">
+                ${galleryHTML}
+                
+                <div class="product-info">
+                    <div class="product-header">
+                        <h2 class="product-name">${product.name}</h2>
+                        <div class="social-actions">
+                            <button class="social-btn share-btn" onclick="shareProduct(${product.id}, event)">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                            </button>
+                            <button id="like-btn-${product.id}" class="social-btn like-btn" onclick="toggleLike(${product.id}, event)">
+                                <span class="heart-icon ${isLiked ? 'liked' : ''}">${isLiked ? '❤️' : '🤍'}</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <p class="product-description">${product.rich_description || product.description || ''}</p>
+                    
+                    ${specsHTML}
+                    ${warrantyHTML}
+                    ${storyHTML}
+                    
+                    <div class="price-display premium-price">
+                        <span class="price-label">Investment</span>
+                        <div class="price">KES <span id="displayPrice">${parseInt(product.price).toLocaleString()}</span></div>
+                    </div>
+                    
+                    <div class="quantity-section">
+                        <label class="quantity-label">Quantity</label>
+                        <div class="quantity-controls">
+                            <button onclick="decreaseQuantity()" id="decreaseBtn" class="quantity-btn" ${quantity <= 1 ? 'disabled' : ''}>−</button>
+                            <span class="quantity-value" id="quantityDisplay">1</span>
+                            <button onclick="increaseQuantity()" id="increaseBtn" class="quantity-btn">+</button>
+                        </div>
+                    </div>
+                    
+                    <div class="total-section">
+                        <span class="total-label">Total</span>
+                        <div class="total-price">KES <span id="totalPrice">${parseInt(product.price).toLocaleString()}</span></div>
+                    </div>
+                    
+                    <button onclick="openCheckout()" class="buy-btn invest-btn">
+                        <span class="btn-text">Secure Your Order</span>
+                        <span class="btn-arrow">→</span>
+                    </button>
+                </div>
+            </div>
+            <div class="store-footer">
+                <p class="powered-by">Powered by <a href="https://jarisolutionsecom.store" target="_blank">jarisolutionsecom.store</a></p>
+            </div>
+        </div>
+    `;
+    
+    if (hasMultipleImages) {
+        setTimeout(() => setupSwipeGestures(), 100);
+    }
+}
+
+// ===========================================
+// TEMPLATE 4: EVENT LANDING
+// ===========================================
+function renderEventLandingTemplate(product) {
+    // User is building this themselves - use quick decision as fallback
+    renderQuickDecisionTemplate(product);
+}
+
+// Helper function for portfolio template
+function selectPackage(index) {
+    // Update the display price based on selected package
+    try {
+        const packages = JSON.parse(currentProduct.service_packages || '[]');
+        if (packages[index] && packages[index].price) {
+            currentProduct.selectedPackagePrice = packages[index].price;
+            document.getElementById('displayPrice').textContent = parseInt(packages[index].price).toLocaleString();
+            document.getElementById('totalPrice').textContent = parseInt(packages[index].price).toLocaleString();
+        }
+        
+        // Highlight selected package
+        document.querySelectorAll('.package-card').forEach((card, idx) => {
+            card.classList.toggle('selected', idx === index);
+        });
+    } catch (e) {}
+}
+
+// Expose new functions to window
+window.selectPackage = selectPackage;
 
 function backToCollections() {
     const url = new URL(window.location);
