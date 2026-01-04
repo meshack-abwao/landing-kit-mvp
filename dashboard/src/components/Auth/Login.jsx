@@ -70,6 +70,8 @@ export default function Login() {
           >
             {loading ? 'Signing in...' : 'Sign In'}
           </button>
+
+          <a href="/forgot-password" style={styles.forgotLink}>Forgot password?</a>
         </form>
 
         <p style={styles.footer}>
@@ -148,6 +150,13 @@ const styles = {
     marginTop: '8px',
     padding: '16px',
     fontSize: '16px',
+  },
+  forgotLink: {
+    textAlign: 'center',
+    fontSize: '14px',
+    color: 'rgba(255, 255, 255, 0.5)',
+    textDecoration: 'none',
+    marginTop: '-8px',
   },
   footer: {
     textAlign: 'center',

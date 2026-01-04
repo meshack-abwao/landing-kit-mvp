@@ -3,6 +3,8 @@ import { AuthProvider, useAuth } from './hooks/useAuth.jsx';
 import { ThemeProvider } from './context/ThemeContext.jsx';
 import Login from './components/Auth/Login';
 import Register from './components/Auth/Register';
+import ForgotPassword from './components/Auth/ForgotPassword';
+import ResetPassword from './components/Auth/ResetPassword';
 import DashboardLayout from './components/Dashboard/DashboardLayout';
 import Overview from './components/Dashboard/Overview';
 import ProductList from './components/Dashboard/ProductList';
@@ -10,6 +12,7 @@ import OrdersTable from './components/Dashboard/OrdersTable';
 import Settings from './components/Dashboard/Settings';
 import Marketplace from './components/Dashboard/Marketplace';
 import AddOnDetail from './components/Dashboard/AddOnDetail';
+import TemplateShowcase from './components/Dashboard/TemplateShowcase';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -34,6 +37,8 @@ function App() {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             
             <Route
               path="/dashboard"
@@ -48,6 +53,7 @@ function App() {
               <Route path="orders" element={<OrdersTable />} />
               <Route path="marketplace" element={<Marketplace />} />
               <Route path="marketplace/:addonName" element={<AddOnDetail />} />
+              <Route path="templates" element={<TemplateShowcase />} />
               <Route path="settings" element={<Settings />} />
             </Route>
 

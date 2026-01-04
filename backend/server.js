@@ -65,6 +65,8 @@ const productsRoutes = require('./routes/products');
 const ordersRoutes = require('./routes/orders');
 const settingsRoutes = require('./routes/settings');
 const publicRoutes = require('./routes/public');
+const templatesRoutes = require('./routes/templates');
+const verificationRoutes = require('./routes/verification');
 
 // Database initialization route - REMOVE AFTER SETUP IN PRODUCTION!
 const initRoutes = require('./routes/init');
@@ -75,6 +77,8 @@ app.use('/api/products', productsRoutes);
 app.use('/api/orders', ordersRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/public', publicRoutes);
+app.use('/api/templates', templatesRoutes);
+app.use('/api/verification', verificationRoutes);
 
 // ===========================================
 // HEALTH CHECK - Railway uses this
