@@ -159,13 +159,26 @@ export default function ProductList() {
   }, []);
 
   const loadTemplates = async () => {
+    // Hardcoded templates - backend API may not be deployed
+    const HARDCODED_TEMPLATES = [
+      { slug: 'quick-decision', name: 'Quick Decision', price: 250 },
+      { slug: 'portfolio-booking', name: 'Portfolio + Booking', price: 500 },
+      { slug: 'visual-menu', name: 'Visual Menu', price: 600 },
+      { slug: 'deep-dive', name: 'Deep Dive', price: 800 },
+      { slug: 'event-landing', name: 'Event Landing', price: 700 },
+      { slug: 'catalog-nav', name: 'Catalog Navigator', price: 400 },
+    ];
+    
     try {
       const response = await api.get('/templates');
-      if (response.data.success) {
+      if (response.data.success && response.data.templates?.length > 0) {
         setTemplates(response.data.templates);
+      } else {
+        setTemplates(HARDCODED_TEMPLATES);
       }
     } catch (error) {
-      console.error('Failed to load templates:', error);
+      // API not available, use hardcoded
+      setTemplates(HARDCODED_TEMPLATES);
     }
   };
 

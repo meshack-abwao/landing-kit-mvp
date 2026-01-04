@@ -91,22 +91,27 @@ export default function TemplateShowcase() {
   }, []);
 
   const loadTemplates = async () => {
+    // Use hardcoded templates directly (backend route may not be deployed yet)
+    const HARDCODED_TEMPLATES = [
+      { slug: 'quick-decision', name: 'Quick Decision', price: 250, best_for: 'Fashion, accessories, beauty', features: ['Story circles', 'Quick checkout', 'Social proof'] },
+      { slug: 'portfolio-booking', name: 'Portfolio + Booking', price: 500, best_for: 'Photographers, consultants', features: ['Gallery showcase', 'Service packages', 'Booking'] },
+      { slug: 'visual-menu', name: 'Visual Menu', price: 600, best_for: 'Restaurants, food delivery', features: ['Dietary tags', 'Categories', 'Photo gallery'] },
+      { slug: 'deep-dive', name: 'Deep Dive', price: 800, best_for: 'Electronics, luxury items', features: ['Spec tables', 'Trust badges', 'Video', 'Warranty'] },
+      { slug: 'event-landing', name: 'Event Landing', price: 700, best_for: 'Events, workshops', features: ['Countdown timer', 'Speaker bios', 'RSVP'] },
+      { slug: 'catalog-nav', name: 'Catalog Navigator', price: 400, best_for: 'Large catalogs', features: ['Category filters', 'Search', 'Featured'] },
+    ];
+    
+    // Try to load from API first, fall back to hardcoded
     try {
       const response = await api.get('/templates');
-      if (response.data.success) {
+      if (response.data.success && response.data.templates?.length > 0) {
         setTemplates(response.data.templates);
+      } else {
+        setTemplates(HARDCODED_TEMPLATES);
       }
     } catch (error) {
-      console.error('Failed to load templates:', error);
-      // Fallback to hardcoded templates
-      setTemplates([
-        { slug: 'quick-decision', name: 'Quick Decision', price: 250, best_for: 'Fashion, accessories, beauty', features: ['Story circles', 'Quick checkout'] },
-        { slug: 'portfolio-booking', name: 'Portfolio + Booking', price: 500, best_for: 'Photographers, consultants', features: ['Gallery', 'Packages'] },
-        { slug: 'visual-menu', name: 'Visual Menu', price: 600, best_for: 'Restaurants, food delivery', features: ['Dietary tags', 'Categories'] },
-        { slug: 'deep-dive', name: 'Deep Dive', price: 800, best_for: 'Electronics, luxury items', features: ['Specs', 'Trust badges'] },
-        { slug: 'event-landing', name: 'Event Landing', price: 700, best_for: 'Events, workshops', features: ['Countdown', 'RSVP'] },
-        { slug: 'catalog-nav', name: 'Catalog Navigator', price: 400, best_for: 'Large catalogs', features: ['Search', 'Filters'] },
-      ]);
+      // API not available, use hardcoded templates
+      setTemplates(HARDCODED_TEMPLATES);
     } finally {
       setLoading(false);
     }
