@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wedding Photography - Service Detail</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+            background: #000;
+            color: #fff;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* HERO IMAGE - Like Job 1 Product Image */
+        .service-hero {
+            width: 100%;
+            aspect-ratio: 1/1;
+            object-fit: cover;
+            border-radius: 20px;
+            margin-bottom: 20px;
+        }
+
+        /* TITLE, SHARE, LIKE - Instagram Style (Like Job 1) */
+        .service-header {
+            margin-bottom: 24px;
+        }
+
+        .service-title {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .service-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .service-price {
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ff9f0a 0%, #ff375f 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .price-note {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .actions {
+            display: flex;
+            gap: 16px;
+        }
+
+        .action-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* SEE IT IN ACTION - Gallery/Video (Like Job 1) */
+        .see-it-section {
+            margin: 40px 0;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .action-gallery {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .action-image {
+            width: 100%;
+            aspect-ratio: 1/1;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+
+        .video-embed {
+            width: 100%;
+            aspect-ratio: 16/9;
+            border-radius: 16px;
+            background: #1a1a1a;
+            margin-bottom: 16px;
+        }
+
+        /* FEATURES/DELIVERABLES - What's Included */
+        .features-section {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 24px;
+            border-radius: 16px;
+            margin-bottom: 32px;
+        }
+
+        .features-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .feature-list {
+            list-style: none;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 14px;
+        }
+
+        .feature-item:last-child {
+            border-bottom: none;
+        }
+
+        .check-icon {
+            color: #30d158;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        /* TESTIMONIALS */
+        .testimonials-section {
+            margin: 40px 0;
+        }
+
+        .testimonial-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 24px;
+            border-radius: 16px;
+            border-left: 3px solid #ff9f0a;
+            margin-bottom: 16px;
+        }
+
+        .stars {
+            color: #ff9f0a;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .testimonial-text {
+            font-size: 14px;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 12px;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .author-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #30d158 0%, #00c7be 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .author-name {
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .author-detail {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* CTA SECTION */
+        .cta-section {
+            position: sticky;
+            bottom: 20px;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .cta-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #ff9f0a 0%, #ff375f 100%);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.3s;
+            box-shadow: 0 8px 24px rgba(255, 159, 10, 0.3);
+            margin-bottom: 12px;
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .secondary-btn {
+            width: 100%;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .secondary-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        @media (max-width: 480px) {
+            .service-title {
+                font-size: 24px;
+            }
+
+            .service-price {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- HERO IMAGE -->
+        <img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=600" alt="Wedding Photography" class="service-hero">
+
+        <!-- TITLE, PRICE, SHARE, LIKE -->
+        <div class="service-header">
+            <h1 class="service-title">Wedding Photography</h1>
+            <div class="service-meta">
+                <div>
+                    <div class="service-price">KES 50,000</div>
+                    <div class="price-note">Full Day Coverage</div>
+                </div>
+                <div class="actions">
+                    <button class="action-btn">🔗</button>
+                    <button class="action-btn">❤️</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEE IT IN ACTION - Gallery/Video -->
+        <section class="see-it-section">
+            <h2 class="section-title">See It In Action</h2>
+            
+            <!-- Video Embed (if applicable) -->
+            <div class="video-embed">
+                <!-- Placeholder for video - could be YouTube/Vimeo embed -->
+                <img src="https://images.unsplash.com/photo-1606800052052-a08af7148866?w=600" alt="Video" style="width:100%; height:100%; object-fit:cover; border-radius:16px;">
+            </div>
+
+            <!-- Gallery -->
+            <div class="action-gallery">
+                <img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=200" alt="Sample 1" class="action-image">
+                <img src="https://images.unsplash.com/photo-1606800052052-a08af7148866?w=200" alt="Sample 2" class="action-image">
+                <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=200" alt="Sample 3" class="action-image">
+                <img src="https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=200" alt="Sample 4" class="action-image">
+                <img src="https://images.unsplash.com/photo-1522413452208-996ff3f3e740?w=200" alt="Sample 5" class="action-image">
+                <img src="https://images.unsplash.com/photo-1529636798458-92182e662485?w=200" alt="Sample 6" class="action-image">
+            </div>
+        </section>
+
+        <!-- FEATURES/DELIVERABLES -->
+        <section class="features-section">
+            <h3 class="features-title">What's Included</h3>
+            <ul class="feature-list">
+                <li class="feature-item">
+                    <span class="check-icon">✓</span>
+                    <span>8-10 hours of coverage on your wedding day</span>
+                </li>
+                <li class="feature-item">
+                    <span class="check-icon">✓</span>
+                    <span>500+ professionally edited high-resolution photos</span>
+                </li>
+                <li class="feature-item">
+                    <span class="check-icon">✓</span>
+                    <span>Private online gallery for easy sharing</span>
+                </li>
+                <li class="feature-item">
+                    <span class="check-icon">✓</span>
+                    <span>USB drive with all photos included</span>
+                </li>
+                <li class="feature-item">
+                    <span class="check-icon">✓</span>
+                    <span>Pre-wedding consultation to plan shots</span>
+                </li>
+                <li class="feature-item">
+                    <span class="check-icon">✓</span>
+                    <span>2-week delivery of final edited gallery</span>
+                </li>
+            </ul>
+        </section>
+
+        <!-- TESTIMONIALS -->
+        <section class="testimonials-section">
+            <h2 class="section-title">What Clients Say</h2>
+            
+            <div class="testimonial-card">
+                <div class="stars">★★★★★</div>
+                <p class="testimonial-text">
+                    "John captured our wedding PERFECTLY. Every emotion, every detail. 
+                    When I look at these photos, I'm transported back to that day. 
+                    Worth every shilling and more!"
+                </p>
+                <div class="testimonial-author">
+                    <div class="author-avatar">S</div>
+                    <div>
+                        <div class="author-name">Sarah & David</div>
+                        <div class="author-detail">Married Dec 2024</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="testimonial-card">
+                <div class="stars">★★★★★</div>
+                <p class="testimonial-text">
+                    "Professional, punctual, and incredibly talented. 
+                    The photos exceeded our expectations!"
+                </p>
+                <div class="testimonial-author">
+                    <div class="author-avatar">A</div>
+                    <div>
+                        <div class="author-name">Amina & Hassan</div>
+                        <div class="author-detail">Married Nov 2024</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA STICKY FOOTER -->
+        <div class="cta-section">
+            <button class="cta-btn">Book This Service</button>
+            <button class="secondary-btn">Check Availability</button>
+        </div>
+    </div>
+</body>
+</html>
