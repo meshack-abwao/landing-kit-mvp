@@ -1,0 +1,12 @@
+{
+  "name": "landing-kit-mvp",
+  "version": "1.0.0",
+  "description": "Jari.Ecom - Landing Kit MVP",
+  "scripts": {
+    "start": "cd backend && npm start",
+    "install": "cd backend && npm install"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
