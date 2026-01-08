@@ -233,13 +233,8 @@ app.post('/api/products', auth, async (req, res) => {
 
 app.put('/api/products/:id', auth, async (req, res) => {
   try {
-    const { 
-      name, description, price, imageUrl, stockQuantity, isActive, templateType,
-      storyMedia, storyTitle, additionalImages, servicePackages, dietaryTags,
-      prepTime, calories, ingredients, specifications, trustBadges,
-      warrantyInfo, returnPolicyDays, richDescription, privacyPolicy, 
-      termsOfService, refundPolicy, availabilityNotes
-    } = req.body;
+    const { name, description, price, imageUrl, stockQuantity, isActive, templateType } = req.body;
+    console.log('📝 Updating product:', req.params.id, { name, templateType });
     
     const result = await pool.query(
       `UPDATE products SET 
@@ -248,40 +243,24 @@ app.put('/api/products/:id', auth, async (req, res) => {
         price = COALESCE($3, price), 
         image_url = COALESCE($4, image_url), 
         stock_quantity = COALESCE($5, stock_quantity), 
-        is_active = COALESCE($6, is_active),
-        template_type = COALESCE($7, template_type),
-        story_media = COALESCE($8, story_media),
-        story_title = COALESCE($9, story_title),
-        additional_images = COALESCE($10, additional_images),
-        service_packages = COALESCE($11, service_packages),
-        dietary_tags = COALESCE($12, dietary_tags),
-        prep_time = COALESCE($13, prep_time),
-        calories = COALESCE($14, calories),
-        ingredients = COALESCE($15, ingredients),
-        specifications = COALESCE($16, specifications),
-        trust_badges = COALESCE($17, trust_badges),
-        warranty_info = COALESCE($18, warranty_info),
-        return_policy_days = COALESCE($19, return_policy_days),
-        rich_description = COALESCE($20, rich_description),
-        privacy_policy = COALESCE($21, privacy_policy),
-        terms_of_service = COALESCE($22, terms_of_service),
-        refund_policy = COALESCE($23, refund_policy),
-        availability_notes = COALESCE($24, availability_notes)
-       WHERE id = $25 AND user_id = $26 RETURNING *`,
-      [name, description, price, imageUrl, stockQuantity, isActive, templateType,
-       storyMedia ? JSON.stringify(storyMedia) : null, storyTitle, 
-       additionalImages ? JSON.stringify(additionalImages) : null,
-       servicePackages ? JSON.stringify(servicePackages) : null,
-       dietaryTags ? JSON.stringify(dietaryTags) : null,
-       prepTime, calories, ingredients,
-       specifications ? JSON.stringify(specifications) : null,
-       trustBadges ? JSON.stringify(trustBadges) : null,
-       warrantyInfo, returnPolicyDays, richDescription, privacyPolicy,
-       termsOfService, refundPolicy, availabilityNotes,
-       req.params.id, req.user.userId]
+        is_active = COALESCE($6, is_active)
+       WHERE id = $7 AND user_id = $8 RETURNING *`,
+      [name, description, price, imageUrl, stockQuantity, isActive, req.params.id, req.user.userId]
     );
+    
+    // Try to update template_type separately (column might not exist)
+    if (templateType) {
+      try {
+        await pool.query('UPDATE products SET template_type = $1 WHERE id = $2', [templateType, req.params.id]);
+      } catch (e) {
+        console.log('template_type column not available yet');
+      }
+    }
+    
+    console.log('✅ Product updated');
     res.json({ success: true, product: result.rows[0] });
   } catch (err) {
+    console.error('❌ Product update error:', err.message);
     res.status(500).json({ success: false, error: err.message });
   }
 });
@@ -374,19 +353,23 @@ app.get('/api/settings', auth, async (req, res) => {
 
 app.put('/api/settings', auth, async (req, res) => {
   try {
-    const { logo_text, tagline, theme_color, font_family, theme_id } = req.body;
+    const { logo_text, tagline, theme_color, font_family } = req.body;
+    console.log('📝 Updating settings:', { logo_text, tagline, theme_color, font_family });
+    
     const result = await pool.query(
       `UPDATE store_settings SET 
         logo_text = COALESCE($1, logo_text), 
         tagline = COALESCE($2, tagline),
         theme_color = COALESCE($3, theme_color), 
-        font_family = COALESCE($4, font_family),
-        theme_id = COALESCE($5, theme_id)
-       WHERE user_id = $6 RETURNING *`,
-      [logo_text, tagline, theme_color, font_family, theme_id, req.user.userId]
+        font_family = COALESCE($4, font_family)
+       WHERE user_id = $5 RETURNING *`,
+      [logo_text, tagline, theme_color, font_family, req.user.userId]
     );
+    
+    console.log('✅ Settings updated');
     res.json({ success: true, settings: result.rows[0] });
   } catch (err) {
+    console.error('❌ Settings update error:', err.message);
     res.status(500).json({ success: false, error: err.message });
   }
 });
