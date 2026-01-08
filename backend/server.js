@@ -284,22 +284,62 @@ app.post('/api/products', auth, async (req, res) => {
   }
 });
 
-// UPDATE PRODUCT - ALL FIELDS
+// UPDATE PRODUCT - ALL FIELDS (with safe type handling)
 app.put('/api/products/:id', auth, async (req, res) => {
   try {
-    const {
-      name, description, price, imageUrl, stockQuantity, isActive, templateType,
-      storyMedia, storyTitle, additionalImages, servicePackages,
-      dietaryTags, prepTime, calories, ingredients, specifications,
-      trustBadges, warranty, returnPolicy, richDescription,
-      privacyPolicy, termsOfService, refundPolicy, videoUrl,
-      eventDate, eventLocation, availability
-    } = req.body;
+    const body = req.body;
+    console.log('📝 PUT /api/products/' + req.params.id);
+    console.log('📦 Body keys:', Object.keys(body).join(', '));
     
-    console.log('📝 Updating product:', req.params.id);
-    console.log('📝 Template:', templateType);
-    console.log('📸 Story media:', JSON.stringify(storyMedia));
-    console.log('🖼️ Additional images:', JSON.stringify(additionalImages));
+    // Helper to safely stringify JSON
+    const safeJson = (val) => {
+      if (val === null || val === undefined) return null;
+      if (typeof val === 'string') {
+        // Already a string - check if valid JSON or return as array
+        try { JSON.parse(val); return val; } catch (e) { return JSON.stringify([val]); }
+      }
+      return JSON.stringify(val);
+    };
+    
+    // Helper to safely parse int
+    const safeInt = (val) => {
+      if (val === null || val === undefined || val === '') return null;
+      const parsed = parseInt(val, 10);
+      return Number.isNaN(parsed) ? null : parsed;
+    };
+    
+    // Extract with BOTH camelCase and snake_case fallbacks (dashboard sends mixed!)
+    const name = body.name;
+    const description = body.description;
+    const price = body.price;
+    const imageUrl = body.imageUrl || body.image_url;
+    const stockQuantity = safeInt(body.stockQuantity || body.stock_quantity);
+    const isActive = body.isActive !== undefined ? body.isActive : body.is_active;
+    const templateType = body.templateType || body.template_type;
+    const storyMedia = body.storyMedia || body.story_media;
+    const storyTitle = body.storyTitle || body.story_title;
+    const additionalImages = body.additionalImages || body.additional_images;
+    const servicePackages = body.servicePackages || body.service_packages;
+    const dietaryTags = body.dietaryTags || body.dietary_tags;
+    const prepTime = body.prepTime || body.prep_time || null;
+    const calories = body.calories || null;
+    const ingredients = body.ingredients || null;
+    const specifications = body.specifications;
+    const trustBadges = body.trustBadges || body.trust_badges;
+    const warranty = body.warranty || body.warranty_info || null;
+    const returnPolicy = safeInt(body.returnPolicy || body.return_policy_days);
+    const richDescription = body.richDescription || body.rich_description || null;
+    const privacyPolicy = body.privacyPolicy || body.privacy_policy;
+    const termsOfService = body.termsOfService || body.terms_of_service;
+    const refundPolicy = body.refundPolicy || body.refund_policy;
+    const videoUrl = body.videoUrl || body.video_url || null;
+    const eventDate = body.eventDate || body.event_date || null;
+    const eventLocation = body.eventLocation || body.event_location || null;
+    const availability = body.availability || body.availability_notes || null;
+    
+    console.log('📸 storyMedia:', storyMedia);
+    console.log('🖼️ additionalImages:', additionalImages);
+    console.log('📝 templateType:', templateType);
     
     const result = await pool.query(
       `UPDATE products SET
@@ -315,52 +355,52 @@ app.put('/api/products/:id', auth, async (req, res) => {
         additional_images = COALESCE($10, additional_images),
         service_packages = COALESCE($11, service_packages),
         dietary_tags = COALESCE($12, dietary_tags),
-        prep_time = $13,
-        calories = $14,
-        ingredients = $15,
+        prep_time = COALESCE($13, prep_time),
+        calories = COALESCE($14, calories),
+        ingredients = COALESCE($15, ingredients),
         specifications = COALESCE($16, specifications),
         trust_badges = COALESCE($17, trust_badges),
-        warranty_info = $18,
-        return_policy_days = $19,
-        rich_description = $20,
+        warranty_info = COALESCE($18, warranty_info),
+        return_policy_days = COALESCE($19, return_policy_days),
+        rich_description = COALESCE($20, rich_description),
         privacy_policy = COALESCE($21, privacy_policy),
         terms_of_service = COALESCE($22, terms_of_service),
         refund_policy = COALESCE($23, refund_policy),
-        video_url = $24,
-        event_date = $25,
-        event_location = $26,
-        availability_notes = $27,
+        video_url = COALESCE($24, video_url),
+        event_date = COALESCE($25, event_date),
+        event_location = COALESCE($26, event_location),
+        availability_notes = COALESCE($27, availability_notes),
         updated_at = NOW()
       WHERE id = $28 AND user_id = $29
       RETURNING *`,
       [
-        name,
-        description,
-        price,
-        imageUrl,
+        name || null,
+        description || null,
+        price || null,
+        imageUrl || null,
         stockQuantity,
         isActive,
-        templateType,
-        storyMedia ? JSON.stringify(storyMedia) : null,
-        storyTitle,
-        additionalImages ? JSON.stringify(additionalImages) : null,
-        servicePackages ? JSON.stringify(servicePackages) : null,
-        dietaryTags ? JSON.stringify(dietaryTags) : null,
-        prepTime || null,
-        calories || null,
-        ingredients || null,
-        specifications ? JSON.stringify(specifications) : null,
-        trustBadges ? JSON.stringify(trustBadges) : null,
-        warranty || null,
-        returnPolicy ? parseInt(returnPolicy) : null,
-        richDescription || null,
-        privacyPolicy,
-        termsOfService,
-        refundPolicy,
-        videoUrl || null,
-        eventDate || null,
-        eventLocation || null,
-        availability || null,
+        templateType || null,
+        safeJson(storyMedia),
+        storyTitle || null,
+        safeJson(additionalImages),
+        safeJson(servicePackages),
+        safeJson(dietaryTags),
+        prepTime,
+        calories,
+        ingredients,
+        safeJson(specifications),
+        safeJson(trustBadges),
+        warranty,
+        returnPolicy,
+        richDescription,
+        privacyPolicy || null,
+        termsOfService || null,
+        refundPolicy || null,
+        videoUrl,
+        eventDate,
+        eventLocation,
+        availability,
         req.params.id,
         req.user.userId
       ]
@@ -371,12 +411,10 @@ app.put('/api/products/:id', auth, async (req, res) => {
     }
     
     console.log('✅ Product updated successfully');
-    console.log('📸 Saved story_media:', result.rows[0].story_media);
-    
     res.json({ success: true, product: result.rows[0] });
   } catch (err) {
     console.error('❌ Update product error:', err.message);
-    console.error('Full error:', err);
+    console.error('❌ Stack:', err.stack);
     res.status(500).json({ success: false, error: err.message });
   }
 });
