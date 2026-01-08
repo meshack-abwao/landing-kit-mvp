@@ -451,24 +451,22 @@ app.get('/api/public/store/:subdomain', async (req, res) => {
     
     const store = storeResult.rows[0];
     
-    // Get ALL product fields including template fields
+    // Get products - use SELECT * to avoid column existence issues
     const productsResult = await pool.query(
-      `SELECT id, name, description, price, image_url, stock_quantity, is_active,
-              template_type, story_media, story_title, additional_images,
-              service_packages, dietary_tags, prep_time, calories, ingredients,
-              specifications, trust_badges, warranty_info, return_policy_days,
-              rich_description, privacy_policy, terms_of_service, refund_policy,
-              availability_notes, created_at
-       FROM products WHERE user_id = $1 AND is_active = true ORDER BY created_at DESC`,
+      `SELECT * FROM products WHERE user_id = $1 AND is_active = true ORDER BY created_at DESC`,
       [store.user_id]
     );
     
     // Get theme by name (theme_color stores the theme name)
     let theme = null;
     if (store.theme_color) {
-      const themeResult = await pool.query('SELECT * FROM themes WHERE name = $1', [store.theme_color]);
-      if (themeResult.rows.length > 0) {
-        theme = themeResult.rows[0];
+      try {
+        const themeResult = await pool.query('SELECT * FROM themes WHERE name = $1', [store.theme_color]);
+        if (themeResult.rows.length > 0) {
+          theme = themeResult.rows[0];
+        }
+      } catch (e) {
+        console.log('Theme query failed, using default');
       }
     }
     
@@ -491,7 +489,7 @@ app.get('/api/public/store/:subdomain', async (req, res) => {
         logoText: store.logo_text, 
         tagline: store.tagline,
         fontFamily: store.font_family,
-        theme: theme  // Include theme in store object too
+        theme: theme
       },
       products: productsResult.rows,
       theme: theme
