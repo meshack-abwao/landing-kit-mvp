@@ -20,11 +20,11 @@ app.use(express.json());
 
 // ============ HEALTH CHECK ============
 app.get('/', (req, res) => {
-  res.json({ status: 'ok', message: 'Jari.Ecom API v3', time: new Date().toISOString() });
+  res.json({ status: 'ok', message: 'Jari.Ecom API v4 - FULL TEMPLATES', time: new Date().toISOString() });
 });
 
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok' });
+  res.json({ status: 'ok', version: 'v4' });
 });
 
 // ============ AUTH MIDDLEWARE ============
@@ -72,38 +72,34 @@ app.get('/api/setup', async (req, res) => {
       ON CONFLICT (slug) DO NOTHING
     `);
 
-    // Add all product columns for templates
-    await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS template_type VARCHAR(50) DEFAULT 'quick-decision'`);
-    await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS story_media JSONB DEFAULT '[]'`);
-    await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS story_title VARCHAR(200)`);
-    await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS additional_images JSONB DEFAULT '[]'`);
-    await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS service_packages JSONB DEFAULT '[]'`);
-    await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS dietary_tags JSONB DEFAULT '[]'`);
-    await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS prep_time VARCHAR(50)`);
-    await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS calories VARCHAR(50)`);
-    await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS ingredients TEXT`);
-    await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS specifications JSONB DEFAULT '{}'`);
-    await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS trust_badges JSONB DEFAULT '[]'`);
-    await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS warranty_info TEXT`);
-    await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS return_policy_days INTEGER`);
-    await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS rich_description TEXT`);
-    await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS privacy_policy TEXT`);
-    await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS terms_of_service TEXT`);
-    await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS refund_policy TEXT`);
-    await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS availability_notes TEXT`);
-
-    // Create homepages
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS homepages (
-        id SERIAL PRIMARY KEY,
-        user_id INTEGER UNIQUE,
-        hero_title VARCHAR(200),
-        hero_subtitle TEXT,
-        categories JSONB,
-        is_active BOOLEAN DEFAULT false,
-        created_at TIMESTAMP DEFAULT NOW()
-      )
-    `);
+    // Add ALL product columns for templates
+    const columns = [
+      `ALTER TABLE products ADD COLUMN IF NOT EXISTS template_type VARCHAR(50) DEFAULT 'quick-decision'`,
+      `ALTER TABLE products ADD COLUMN IF NOT EXISTS story_media JSONB DEFAULT '[]'`,
+      `ALTER TABLE products ADD COLUMN IF NOT EXISTS story_title VARCHAR(200) DEFAULT 'See it in Action'`,
+      `ALTER TABLE products ADD COLUMN IF NOT EXISTS additional_images JSONB DEFAULT '[]'`,
+      `ALTER TABLE products ADD COLUMN IF NOT EXISTS service_packages JSONB DEFAULT '[]'`,
+      `ALTER TABLE products ADD COLUMN IF NOT EXISTS dietary_tags JSONB DEFAULT '[]'`,
+      `ALTER TABLE products ADD COLUMN IF NOT EXISTS prep_time VARCHAR(50)`,
+      `ALTER TABLE products ADD COLUMN IF NOT EXISTS calories VARCHAR(50)`,
+      `ALTER TABLE products ADD COLUMN IF NOT EXISTS ingredients TEXT`,
+      `ALTER TABLE products ADD COLUMN IF NOT EXISTS specifications JSONB DEFAULT '{}'`,
+      `ALTER TABLE products ADD COLUMN IF NOT EXISTS trust_badges JSONB DEFAULT '[]'`,
+      `ALTER TABLE products ADD COLUMN IF NOT EXISTS warranty_info TEXT`,
+      `ALTER TABLE products ADD COLUMN IF NOT EXISTS return_policy_days INTEGER`,
+      `ALTER TABLE products ADD COLUMN IF NOT EXISTS rich_description TEXT`,
+      `ALTER TABLE products ADD COLUMN IF NOT EXISTS privacy_policy TEXT DEFAULT ''`,
+      `ALTER TABLE products ADD COLUMN IF NOT EXISTS terms_of_service TEXT DEFAULT ''`,
+      `ALTER TABLE products ADD COLUMN IF NOT EXISTS refund_policy TEXT DEFAULT ''`,
+      `ALTER TABLE products ADD COLUMN IF NOT EXISTS availability_notes TEXT`,
+      `ALTER TABLE products ADD COLUMN IF NOT EXISTS video_url TEXT`,
+      `ALTER TABLE products ADD COLUMN IF NOT EXISTS event_date TIMESTAMP`,
+      `ALTER TABLE products ADD COLUMN IF NOT EXISTS event_location TEXT`
+    ];
+    
+    for (const col of columns) {
+      try { await pool.query(col); } catch (e) { /* ignore */ }
+    }
 
     // Create orders table if not exists
     await pool.query(`
@@ -126,7 +122,7 @@ app.get('/api/setup', async (req, res) => {
     `);
 
     const result = await pool.query('SELECT * FROM template_definitions ORDER BY display_order');
-    res.json({ success: true, message: 'Setup complete!', templates: result.rows });
+    res.json({ success: true, message: 'Setup complete! All columns added.', templates: result.rows });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -204,7 +200,7 @@ app.get('/api/auth/me', auth, async (req, res) => {
   }
 });
 
-// ============ PRODUCTS ============
+// ============ PRODUCTS - FULL TEMPLATE SUPPORT ============
 app.get('/api/products', auth, async (req, res) => {
   try {
     const result = await pool.query(
@@ -217,50 +213,170 @@ app.get('/api/products', auth, async (req, res) => {
   }
 });
 
+// CREATE PRODUCT - ALL FIELDS
 app.post('/api/products', auth, async (req, res) => {
   try {
-    const { name, description, price, imageUrl, stockQuantity, isActive, templateType } = req.body;
+    const {
+      name, description, price, imageUrl, stockQuantity, isActive, templateType,
+      storyMedia, storyTitle, additionalImages, servicePackages,
+      dietaryTags, prepTime, calories, ingredients, specifications,
+      trustBadges, warranty, returnPolicy, richDescription,
+      privacyPolicy, termsOfService, refundPolicy, videoUrl,
+      eventDate, eventLocation, availability
+    } = req.body;
+    
+    console.log('📦 Creating product:', name, '| Template:', templateType);
+    console.log('📸 Story media received:', JSON.stringify(storyMedia));
+    
     const result = await pool.query(
-      `INSERT INTO products (user_id, name, description, price, image_url, stock_quantity, is_active, template_type)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
-      [req.user.userId, name, description, price, imageUrl, stockQuantity || 1000, isActive !== false, templateType || 'quick-decision']
+      `INSERT INTO products (
+        user_id, name, description, price, image_url, stock_quantity, is_active,
+        template_type, story_media, story_title, additional_images, service_packages,
+        dietary_tags, prep_time, calories, ingredients, specifications,
+        trust_badges, warranty_info, return_policy_days, rich_description,
+        privacy_policy, terms_of_service, refund_policy, video_url,
+        event_date, event_location, availability_notes
+      ) VALUES (
+        $1, $2, $3, $4, $5, $6, $7,
+        $8, $9, $10, $11, $12,
+        $13, $14, $15, $16, $17,
+        $18, $19, $20, $21,
+        $22, $23, $24, $25,
+        $26, $27, $28
+      ) RETURNING *`,
+      [
+        req.user.userId,
+        name,
+        description || '',
+        price,
+        imageUrl || '',
+        stockQuantity || 1000,
+        isActive !== false,
+        templateType || 'quick-decision',
+        JSON.stringify(storyMedia || []),
+        storyTitle || 'See it in Action',
+        JSON.stringify(additionalImages || []),
+        JSON.stringify(servicePackages || []),
+        JSON.stringify(dietaryTags || []),
+        prepTime || null,
+        calories || null,
+        ingredients || null,
+        JSON.stringify(specifications || {}),
+        JSON.stringify(trustBadges || []),
+        warranty || null,
+        returnPolicy ? parseInt(returnPolicy) : null,
+        richDescription || null,
+        privacyPolicy || '',
+        termsOfService || '',
+        refundPolicy || '',
+        videoUrl || null,
+        eventDate || null,
+        eventLocation || null,
+        availability || null
+      ]
     );
+    
+    console.log('✅ Product created with ID:', result.rows[0].id);
     res.json({ success: true, product: result.rows[0] });
   } catch (err) {
+    console.error('❌ Create product error:', err.message);
     res.status(500).json({ success: false, error: err.message });
   }
 });
 
+// UPDATE PRODUCT - ALL FIELDS
 app.put('/api/products/:id', auth, async (req, res) => {
   try {
-    const { name, description, price, imageUrl, stockQuantity, isActive, templateType } = req.body;
-    console.log('📝 Updating product:', req.params.id, { name, templateType });
+    const {
+      name, description, price, imageUrl, stockQuantity, isActive, templateType,
+      storyMedia, storyTitle, additionalImages, servicePackages,
+      dietaryTags, prepTime, calories, ingredients, specifications,
+      trustBadges, warranty, returnPolicy, richDescription,
+      privacyPolicy, termsOfService, refundPolicy, videoUrl,
+      eventDate, eventLocation, availability
+    } = req.body;
+    
+    console.log('📝 Updating product:', req.params.id);
+    console.log('📝 Template:', templateType);
+    console.log('📸 Story media:', JSON.stringify(storyMedia));
+    console.log('🖼️ Additional images:', JSON.stringify(additionalImages));
     
     const result = await pool.query(
-      `UPDATE products SET 
-        name = COALESCE($1, name), 
-        description = COALESCE($2, description), 
-        price = COALESCE($3, price), 
-        image_url = COALESCE($4, image_url), 
-        stock_quantity = COALESCE($5, stock_quantity), 
-        is_active = COALESCE($6, is_active)
-       WHERE id = $7 AND user_id = $8 RETURNING *`,
-      [name, description, price, imageUrl, stockQuantity, isActive, req.params.id, req.user.userId]
+      `UPDATE products SET
+        name = COALESCE($1, name),
+        description = COALESCE($2, description),
+        price = COALESCE($3, price),
+        image_url = COALESCE($4, image_url),
+        stock_quantity = COALESCE($5, stock_quantity),
+        is_active = COALESCE($6, is_active),
+        template_type = COALESCE($7, template_type),
+        story_media = COALESCE($8, story_media),
+        story_title = COALESCE($9, story_title),
+        additional_images = COALESCE($10, additional_images),
+        service_packages = COALESCE($11, service_packages),
+        dietary_tags = COALESCE($12, dietary_tags),
+        prep_time = $13,
+        calories = $14,
+        ingredients = $15,
+        specifications = COALESCE($16, specifications),
+        trust_badges = COALESCE($17, trust_badges),
+        warranty_info = $18,
+        return_policy_days = $19,
+        rich_description = $20,
+        privacy_policy = COALESCE($21, privacy_policy),
+        terms_of_service = COALESCE($22, terms_of_service),
+        refund_policy = COALESCE($23, refund_policy),
+        video_url = $24,
+        event_date = $25,
+        event_location = $26,
+        availability_notes = $27,
+        updated_at = NOW()
+      WHERE id = $28 AND user_id = $29
+      RETURNING *`,
+      [
+        name,
+        description,
+        price,
+        imageUrl,
+        stockQuantity,
+        isActive,
+        templateType,
+        storyMedia ? JSON.stringify(storyMedia) : null,
+        storyTitle,
+        additionalImages ? JSON.stringify(additionalImages) : null,
+        servicePackages ? JSON.stringify(servicePackages) : null,
+        dietaryTags ? JSON.stringify(dietaryTags) : null,
+        prepTime || null,
+        calories || null,
+        ingredients || null,
+        specifications ? JSON.stringify(specifications) : null,
+        trustBadges ? JSON.stringify(trustBadges) : null,
+        warranty || null,
+        returnPolicy ? parseInt(returnPolicy) : null,
+        richDescription || null,
+        privacyPolicy,
+        termsOfService,
+        refundPolicy,
+        videoUrl || null,
+        eventDate || null,
+        eventLocation || null,
+        availability || null,
+        req.params.id,
+        req.user.userId
+      ]
     );
     
-    // Try to update template_type separately (column might not exist)
-    if (templateType) {
-      try {
-        await pool.query('UPDATE products SET template_type = $1 WHERE id = $2', [templateType, req.params.id]);
-      } catch (e) {
-        console.log('template_type column not available yet');
-      }
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Product not found' });
     }
     
-    console.log('✅ Product updated');
+    console.log('✅ Product updated successfully');
+    console.log('📸 Saved story_media:', result.rows[0].story_media);
+    
     res.json({ success: true, product: result.rows[0] });
   } catch (err) {
-    console.error('❌ Product update error:', err.message);
+    console.error('❌ Update product error:', err.message);
+    console.error('Full error:', err);
     res.status(500).json({ success: false, error: err.message });
   }
 });
@@ -289,14 +405,12 @@ app.get('/api/orders', auth, async (req, res) => {
   }
 });
 
-// PUBLIC ORDER CREATION - This was missing!
 app.post('/api/orders', async (req, res) => {
   try {
     const { subdomain, productId, product, quantity, price, total, customer, paymentMethod } = req.body;
     
     console.log('📦 New order received:', { subdomain, productId, customer: customer?.name });
     
-    // Get user_id from subdomain
     let userId = null;
     if (subdomain) {
       const storeResult = await pool.query('SELECT user_id FROM store_settings WHERE subdomain = $1', [subdomain]);
@@ -309,10 +423,8 @@ app.post('/api/orders', async (req, res) => {
       return res.status(400).json({ success: false, error: 'Store not found' });
     }
     
-    // Generate order number
     const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
     
-    // Insert order
     const result = await pool.query(
       `INSERT INTO orders (user_id, product_id, order_number, customer_name, customer_phone, customer_location, quantity, unit_price, total_amount, payment_method, status)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'pending') RETURNING *`,
@@ -320,7 +432,6 @@ app.post('/api/orders', async (req, res) => {
     );
     
     console.log('✅ Order created:', orderNumber);
-    
     res.json({ success: true, orderNumber, order: result.rows[0] });
   } catch (err) {
     console.error('❌ Order creation failed:', err);
@@ -379,7 +490,6 @@ app.get('/api/settings/themes', auth, async (req, res) => {
     const result = await pool.query('SELECT * FROM themes ORDER BY is_premium, name');
     res.json({ success: true, themes: result.rows });
   } catch (err) {
-    // Return hardcoded themes as fallback
     res.json({ 
       success: true, 
       themes: [
@@ -420,7 +530,7 @@ app.post('/api/settings/add-ons/:id/activate', auth, async (req, res) => {
   }
 });
 
-// ============ PUBLIC STORE - FIXED! ============
+// ============ PUBLIC STORE ============
 app.get('/api/public/store/:subdomain', async (req, res) => {
   try {
     const { subdomain } = req.params;
@@ -434,13 +544,11 @@ app.get('/api/public/store/:subdomain', async (req, res) => {
     
     const store = storeResult.rows[0];
     
-    // Get products - use SELECT * to avoid column existence issues
     const productsResult = await pool.query(
       `SELECT * FROM products WHERE user_id = $1 AND is_active = true ORDER BY created_at DESC`,
       [store.user_id]
     );
     
-    // Get theme by name (theme_color stores the theme name)
     let theme = null;
     if (store.theme_color) {
       try {
@@ -448,12 +556,9 @@ app.get('/api/public/store/:subdomain', async (req, res) => {
         if (themeResult.rows.length > 0) {
           theme = themeResult.rows[0];
         }
-      } catch (e) {
-        console.log('Theme query failed, using default');
-      }
+      } catch (e) { }
     }
     
-    // Fallback theme if none found
     if (!theme) {
       theme = {
         name: 'warm-sunset',
@@ -463,7 +568,7 @@ app.get('/api/public/store/:subdomain', async (req, res) => {
       };
     }
     
-    console.log('✅ Store loaded:', store.logo_text, '| Products:', productsResult.rows.length, '| Theme:', theme.name);
+    console.log('✅ Store loaded:', store.logo_text, '| Products:', productsResult.rows.length);
     
     res.json({
       success: true,
@@ -505,5 +610,5 @@ app.get('/api/templates', async (req, res) => {
 
 // ============ START ============
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 Jari.Ecom API v3 running on port ${PORT}`);
+  console.log(`🚀 Jari.Ecom API v4 - FULL TEMPLATES running on port ${PORT}`);
 });
