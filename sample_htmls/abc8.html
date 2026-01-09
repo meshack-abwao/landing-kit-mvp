@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Collection - Portfolio + Booking</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+            background: #000;
+            color: #fff;
+            line-height: 1.6;
+        }
+
+        /* HERO SECTION - MATCHES JOB 1 STRUCTURE */
+        .hero-section {
+            position: relative;
+            min-height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 60px 20px;
+            overflow: hidden;
+        }
+
+        /* Background - Gradient OR Image (user chooses in dashboard) */
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 0;
+        }
+
+        /* Option 1: Gradient Background */
+        .hero-bg.gradient {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+        }
+
+        /* Option 2: Image Background (user uploads) */
+        .hero-bg.image {
+            background-image: url('user-uploaded-image.jpg');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.3;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Professional Photo (replaces logo in Job 1) */
+        .professional-photo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 24px;
+            border: 4px solid #30d158;
+            box-shadow: 0 8px 24px rgba(48, 209, 88, 0.3);
+        }
+
+        /* Name (replaces product title in Job 1) */
+        .professional-name {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            letter-spacing: -1px;
+        }
+
+        /* Tagline (replaces short description in Job 1) */
+        .tagline {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.8;
+            margin-bottom: 32px;
+        }
+
+        /* CTA Buttons - ONLY Book/See Availability */
+        .hero-cta {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .cta-btn {
+            flex: 1;
+            padding: 16px 32px;
+            border-radius: 12px;
+            border: none;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .primary-cta {
+            background: linear-gradient(135deg, #ff9f0a 0%, #ff375f 100%);
+            color: #fff;
+            box-shadow: 0 8px 24px rgba(255, 159, 10, 0.3);
+        }
+
+        .secondary-cta {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* SERVICES SECTION - Like "Shop All Products" */
+        .services-section {
+            padding: 60px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .section-subtitle {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.7);
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* FEATURED TESTIMONIAL - In Category Section */
+        .featured-testimonial {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 32px;
+            border-radius: 20px;
+            border-left: 4px solid #ff9f0a;
+            max-width: 700px;
+            margin: 0 auto 48px;
+        }
+
+        .testimonial-stars {
+            color: #ff9f0a;
+            font-size: 20px;
+            margin-bottom: 12px;
+        }
+
+        .testimonial-text {
+            font-size: 16px;
+            line-height: 1.7;
+            color: rgba(255, 255, 255, 0.9);
+            font-style: italic;
+            margin-bottom: 16px;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .author-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff9f0a 0%, #ff375f 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .author-name {
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .author-detail {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* SERVICE CARDS GRID - Like Product Cards */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .service-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .service-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .service-image {
+            width: 100%;
+            aspect-ratio: 4/3;
+            object-fit: cover;
+        }
+
+        .service-info {
+            padding: 24px;
+        }
+
+        .service-name {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .service-description {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .service-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .service-price {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ff9f0a 0%, #ff375f 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .price-note {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .view-details-btn {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .view-details-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        @media (max-width: 768px) {
+            .professional-name {
+                font-size: 36px;
+            }
+
+            .hero-cta {
+                flex-direction: column;
+            }
+
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- HERO SECTION -->
+    <section class="hero-section">
+        <!-- Background: Gradient OR Image (user chooses) -->
+        <div class="hero-bg gradient"></div>
+        
+        <div class="hero-content">
+            <!-- Professional Photo (like logo in Job 1) -->
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300" alt="Professional" class="professional-photo">
+            
+            <!-- Name (like product title in Job 1) -->
+            <h1 class="professional-name">John Kamau</h1>
+            
+            <!-- Tagline (like description in Job 1) -->
+            <p class="tagline">
+                Creating timeless memories through authentic storytelling. 
+                Every event deserves to be remembered beautifully.
+            </p>
+            
+            <!-- CTA Buttons - Book Now / See Availability ONLY -->
+            <div class="hero-cta">
+                <button class="cta-btn primary-cta">Book Now</button>
+                <button class="cta-btn secondary-cta">See Availability</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- SERVICES SECTION -->
+    <section class="services-section">
+        <div class="section-header">
+            <h2 class="section-title">Services & Investment</h2>
+            <p class="section-subtitle">Professional packages designed for your special moments</p>
+        </div>
+
+        <!-- FEATURED TESTIMONIAL IN CATEGORY -->
+        <div class="featured-testimonial">
+            <div class="testimonial-stars">★★★★★</div>
+            <p class="testimonial-text">
+                "John captured our wedding PERFECTLY. Every emotion, every detail. 
+                When I look at these photos, I'm transported back to that day. 
+                Worth every shilling and more. Highly recommend!"
+            </p>
+            <div class="testimonial-author">
+                <div class="author-avatar">S</div>
+                <div>
+                    <div class="author-name">Sarah & David</div>
+                    <div class="author-detail">Married Dec 2024 • Nairobi</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SERVICE CARDS - Each service is a card -->
+        <div class="services-grid">
+            <!-- Service Card 1 -->
+            <div class="service-card">
+                <img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=600" alt="Wedding Photography" class="service-image">
+                <div class="service-info">
+                    <h3 class="service-name">Wedding Photography</h3>
+                    <p class="service-description">
+                        Complete wedding day coverage from getting ready to reception. 
+                        Professional editing and gallery delivery.
+                    </p>
+                    <div class="service-footer">
+                        <div>
+                            <div class="service-price">KES 50,000</div>
+                            <div class="price-note">Full Day</div>
+                        </div>
+                        <button class="view-details-btn">View Details</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Service Card 2 -->
+            <div class="service-card">
+                <img src="https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=600" alt="Corporate Events" class="service-image">
+                <div class="service-info">
+                    <h3 class="service-name">Corporate Events</h3>
+                    <p class="service-description">
+                        Professional event documentation for corporate functions, 
+                        galas, and conferences.
+                    </p>
+                    <div class="service-footer">
+                        <div>
+                            <div class="service-price">KES 35,000</div>
+                            <div class="price-note">Per Event</div>
+                        </div>
+                        <button class="view-details-btn">View Details</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Service Card 3 -->
+            <div class="service-card">
+                <img src="https://images.unsplash.com/photo-1522413452208-996ff3f3e740?w=600" alt="Engagement Shoot" class="service-image">
+                <div class="service-info">
+                    <h3 class="service-name">Engagement Shoot</h3>
+                    <p class="service-description">
+                        Romantic couple session at location of your choice. 
+                        Perfect for save-the-dates.
+                    </p>
+                    <div class="service-footer">
+                        <div>
+                            <div class="service-price">KES 15,000</div>
+                            <div class="price-note">2 Hours</div>
+                        </div>
+                        <button class="view-details-btn">View Details</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

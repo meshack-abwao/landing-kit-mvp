@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Collection - Deep Dive Evaluator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+            background: #000;
+            color: #fff;
+            line-height: 1.6;
+        }
+
+        /* HERO SECTION */
+        .hero-section {
+            position: relative;
+            min-height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 60px 20px;
+            overflow: hidden;
+        }
+
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 0;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Brand Logo */
+        .brand-logo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 24px;
+            border: 4px solid #0071e3;
+            box-shadow: 0 8px 24px rgba(0, 113, 227, 0.3);
+        }
+
+        .brand-name {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            letter-spacing: -1px;
+        }
+
+        .tagline {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.8;
+            margin-bottom: 32px;
+        }
+
+        /* Trust Badges */
+        .trust-badges {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 32px;
+        }
+
+        .trust-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: rgba(48, 209, 88, 0.1);
+            border: 1px solid rgba(48, 209, 88, 0.3);
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #30d158;
+        }
+
+        /* CTA Buttons */
+        .hero-cta {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .cta-btn {
+            flex: 1;
+            padding: 16px 32px;
+            border-radius: 12px;
+            border: none;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .primary-cta {
+            background: linear-gradient(135deg, #0071e3 0%, #00d4ff 100%);
+            color: #fff;
+            box-shadow: 0 8px 24px rgba(0, 113, 227, 0.3);
+        }
+
+        .secondary-cta {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* PRODUCTS SECTION */
+        .products-section {
+            padding: 60px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .section-subtitle {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.7);
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Filter Tabs */
+        .filter-tabs {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding-bottom: 16px;
+            margin-bottom: 40px;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .filter-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .filter-tab {
+            flex-shrink: 0;
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .filter-tab:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .filter-tab.active {
+            background: linear-gradient(135deg, #0071e3 0%, #00d4ff 100%);
+            color: #fff;
+            border-color: transparent;
+        }
+
+        /* PRODUCT CARDS */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 60px;
+        }
+
+        .product-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .product-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .product-image {
+            width: 100%;
+            aspect-ratio: 4/3;
+            object-fit: cover;
+        }
+
+        .product-info {
+            padding: 24px;
+        }
+
+        .product-badges {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .badge {
+            padding: 4px 10px;
+            background: rgba(0, 113, 227, 0.2);
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #0071e3;
+        }
+
+        .badge-warranty {
+            background: rgba(48, 209, 88, 0.2);
+            color: #30d158;
+        }
+
+        .badge-new {
+            background: rgba(255, 159, 10, 0.2);
+            color: #ff9f0a;
+        }
+
+        .product-name {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .product-specs {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 16px;
+        }
+
+        .product-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .price-section {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-price {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #0071e3 0%, #00d4ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .price-installment {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 4px;
+        }
+
+        .view-details-btn {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .view-details-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* TESTIMONIAL - BELOW PRODUCTS */
+        .featured-testimonial {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 32px;
+            border-radius: 20px;
+            border-left: 4px solid #0071e3;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .testimonial-stars {
+            color: #ff9f0a;
+            font-size: 20px;
+            margin-bottom: 12px;
+        }
+
+        .testimonial-text {
+            font-size: 16px;
+            line-height: 1.7;
+            color: rgba(255, 255, 255, 0.9);
+            font-style: italic;
+            margin-bottom: 16px;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .author-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0071e3 0%, #00d4ff 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .author-name {
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .author-detail {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        @media (max-width: 768px) {
+            .brand-name {
+                font-size: 36px;
+            }
+
+            .hero-cta {
+                flex-direction: column;
+            }
+
+            .products-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- HERO SECTION -->
+    <section class="hero-section">
+        <div class="hero-bg"></div>
+        
+        <div class="hero-content">
+            <!-- Brand Logo -->
+            <img src="https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=300" alt="TechStore KE" class="brand-logo">
+            
+            <h1 class="brand-name">TechStore KE</h1>
+            
+            <p class="tagline">
+                Premium electronics with genuine warranties. 
+                Quality you can trust, prices that make sense.
+            </p>
+
+            <!-- Trust Badges -->
+            <div class="trust-badges">
+                <div class="trust-badge">
+                    <span>✓</span>
+                    <span>2-Year Warranty</span>
+                </div>
+                <div class="trust-badge">
+                    <span>✓</span>
+                    <span>Free Delivery</span>
+                </div>
+                <div class="trust-badge">
+                    <span>✓</span>
+                    <span>30-Day Returns</span>
+                </div>
+            </div>
+            
+            <div class="hero-cta">
+                <button class="cta-btn primary-cta">Shop Now</button>
+                <button class="cta-btn secondary-cta">Expert Advice</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- PRODUCTS SECTION -->
+    <section class="products-section">
+        <div class="section-header">
+            <h2 class="section-title">Premium Electronics</h2>
+            <p class="section-subtitle">Genuine products with full manufacturer warranty</p>
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="filter-tabs">
+            <button class="filter-tab active">All Products</button>
+            <button class="filter-tab">Laptops</button>
+            <button class="filter-tab">TVs & Audio</button>
+            <button class="filter-tab">Phones</button>
+            <button class="filter-tab">Accessories</button>
+        </div>
+
+        <!-- PRODUCT CARDS -->
+        <div class="products-grid">
+            <!-- Product 1 -->
+            <div class="product-card">
+                <img src="https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=600" alt="Laptop" class="product-image">
+                <div class="product-info">
+                    <div class="product-badges">
+                        <span class="badge badge-new">New Arrival</span>
+                        <span class="badge badge-warranty">2-Year Warranty</span>
+                    </div>
+                    
+                    <h3 class="product-name">MacBook Pro 14" M3</h3>
+                    <p class="product-specs">
+                        M3 Chip • 16GB RAM • 512GB SSD • Space Gray
+                    </p>
+                    
+                    <div class="product-footer">
+                        <div class="price-section">
+                            <div class="product-price">KES 285,000</div>
+                            <div class="price-installment">or KES 23,750/month × 12</div>
+                        </div>
+                        <button class="view-details-btn">View Details</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product 2 -->
+            <div class="product-card">
+                <img src="https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=600" alt="TV" class="product-image">
+                <div class="product-info">
+                    <div class="product-badges">
+                        <span class="badge">Best Seller</span>
+                        <span class="badge badge-warranty">2-Year Warranty</span>
+                    </div>
+                    
+                    <h3 class="product-name">65" 4K Smart TV</h3>
+                    <p class="product-specs">
+                        OLED • HDR10+ • Dolby Vision • Android TV
+                    </p>
+                    
+                    <div class="product-footer">
+                        <div class="price-section">
+                            <div class="product-price">KES 125,000</div>
+                            <div class="price-installment">or KES 10,420/month × 12</div>
+                        </div>
+                        <button class="view-details-btn">View Details</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product 3 -->
+            <div class="product-card">
+                <img src="https://images.unsplash.com/photo-1592286927505-2fd9c95c2f0f?w=600" alt="Phone" class="product-image">
+                <div class="product-info">
+                    <div class="product-badges">
+                        <span class="badge badge-new">Latest Model</span>
+                        <span class="badge badge-warranty">1-Year Warranty</span>
+                    </div>
+                    
+                    <h3 class="product-name">iPhone 15 Pro Max</h3>
+                    <p class="product-specs">
+                        256GB • Titanium Blue • A17 Pro Chip
+                    </p>
+                    
+                    <div class="product-footer">
+                        <div class="price-section">
+                            <div class="product-price">KES 195,000</div>
+                            <div class="price-installment">or KES 16,250/month × 12</div>
+                        </div>
+                        <button class="view-details-btn">View Details</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product 4 -->
+            <div class="product-card">
+                <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600" alt="Headphones" class="product-image">
+                <div class="product-info">
+                    <div class="product-badges">
+                        <span class="badge">Premium Audio</span>
+                        <span class="badge badge-warranty">2-Year Warranty</span>
+                    </div>
+                    
+                    <h3 class="product-name">AirPods Max</h3>
+                    <p class="product-specs">
+                        Active Noise Cancellation • Spatial Audio • 20hr Battery
+                    </p>
+                    
+                    <div class="product-footer">
+                        <div class="price-section">
+                            <div class="product-price">KES 85,000</div>
+                            <div class="price-installment">or KES 7,080/month × 12</div>
+                        </div>
+                        <button class="view-details-btn">View Details</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TESTIMONIAL - BELOW PRODUCTS -->
+        <div class="featured-testimonial">
+            <div class="testimonial-stars">★★★★★</div>
+            <p class="testimonial-text">
+                "Bought my MacBook here 2 years ago. Still running perfectly! 
+                Genuine product, great service, and they honored the warranty when I needed it. 
+                Highly recommend for anyone serious about quality electronics."
+            </p>
+            <div class="testimonial-author">
+                <div class="author-avatar">D</div>
+                <div>
+                    <div class="author-name">David M.</div>
+                    <div class="author-detail">Verified Purchase • 2 Years Ago</div>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>
