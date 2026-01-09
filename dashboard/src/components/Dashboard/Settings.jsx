@@ -1,11 +1,20 @@
 import { useState, useEffect } from 'react';
 import { settingsAPI } from '../../services/api.jsx';
-import { Save, Check, Crown, ExternalLink } from 'lucide-react';
+import { Save, Check, Crown, ExternalLink, ChevronDown, ChevronUp } from 'lucide-react';
 
 export default function Settings() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [expandedSections, setExpandedSections] = useState({
+    basic: true,
+    hero: false,
+    testimonial: false,
+    policies: false,
+    theme: true,
+  });
+  
   const [storeSettings, setStoreSettings] = useState({
+    // Basic
     logoText: '',
     tagline: '',
     subdomain: '',
@@ -13,6 +22,26 @@ export default function Settings() {
     fontFamily: '',
     logoUrl: '',
     headerBgUrl: '',
+    // Hero
+    heroBgType: 'gradient',
+    heroBgImage: '',
+    heroBgGradient: '',
+    heroPhotoUrl: '',
+    heroTitle: '',
+    heroSubtitle: '',
+    heroCtaPrimaryText: '',
+    heroCtaPrimaryLink: '',
+    heroCtaSecondaryText: '',
+    heroCtaSecondaryLink: '',
+    // Testimonial
+    showFeaturedTestimonial: true,
+    featuredTestimonialText: '',
+    featuredTestimonialAuthor: '',
+    featuredTestimonialDetail: '',
+    // Policies
+    privacyPolicy: '',
+    termsOfService: '',
+    refundPolicy: '',
   });
   const [themes, setThemes] = useState([]);
   const [storeUrl, setStoreUrl] = useState('');
@@ -34,24 +63,43 @@ export default function Settings() {
   const loadSettings = async () => {
     try {
       const response = await settingsAPI.getAll();
-      const settings = response.data.settings;
+      const s = response.data.settings;
       
-      console.log('Loaded settings:', settings);
+      console.log('Loaded settings:', s);
       
       setStoreSettings({
-        logoText: settings.logo_text || '',
-        tagline: settings.tagline || '',
-        subdomain: settings.subdomain || '',
-        themeColor: settings.theme_color || '',
-        fontFamily: settings.font_family || 'Inter',
-        logoUrl: settings.logo_url || '',
-        headerBgUrl: settings.header_bg_url || '',
+        logoText: s.logo_text || '',
+        tagline: s.tagline || '',
+        subdomain: s.subdomain || '',
+        themeColor: s.theme_color || '',
+        fontFamily: s.font_family || 'Inter',
+        logoUrl: s.logo_url || '',
+        headerBgUrl: s.header_bg_url || '',
+        // Hero
+        heroBgType: s.hero_bg_type || 'gradient',
+        heroBgImage: s.hero_bg_image || '',
+        heroBgGradient: s.hero_bg_gradient || '',
+        heroPhotoUrl: s.hero_photo_url || '',
+        heroTitle: s.hero_title || '',
+        heroSubtitle: s.hero_subtitle || '',
+        heroCtaPrimaryText: s.hero_cta_primary_text || '',
+        heroCtaPrimaryLink: s.hero_cta_primary_link || '',
+        heroCtaSecondaryText: s.hero_cta_secondary_text || '',
+        heroCtaSecondaryLink: s.hero_cta_secondary_link || '',
+        // Testimonial
+        showFeaturedTestimonial: s.show_featured_testimonial !== false,
+        featuredTestimonialText: s.featured_testimonial_text || '',
+        featuredTestimonialAuthor: s.featured_testimonial_author || '',
+        featuredTestimonialDetail: s.featured_testimonial_detail || '',
+        // Policies
+        privacyPolicy: s.privacy_policy || '',
+        termsOfService: s.terms_of_service || '',
+        refundPolicy: s.refund_policy || '',
       });
 
-      // Set store URL for preview link
-      if (settings.subdomain) {
+      if (s.subdomain) {
         const baseUrl = window.location.hostname === 'localhost' ? 'http://localhost:5177' : 'https://jariecomstore.netlify.app';
-        setStoreUrl(`${baseUrl}?subdomain=${settings.subdomain}`);
+        setStoreUrl(`${baseUrl}?subdomain=${s.subdomain}`);
       }
     } catch (error) {
       console.error('Failed to load settings:', error);
@@ -69,6 +117,10 @@ export default function Settings() {
     }
   };
 
+  const toggleSection = (section) => {
+    setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
+  };
+
   const handleSaveStore = async (e) => {
     e.preventDefault();
     setSaving(true);
@@ -80,28 +132,38 @@ export default function Settings() {
         font_family: storeSettings.fontFamily,
         logo_url: storeSettings.logoUrl,
         header_bg_url: storeSettings.headerBgUrl,
+        // Hero
+        hero_bg_type: storeSettings.heroBgType,
+        hero_bg_image: storeSettings.heroBgImage,
+        hero_bg_gradient: storeSettings.heroBgGradient,
+        hero_photo_url: storeSettings.heroPhotoUrl,
+        hero_title: storeSettings.heroTitle,
+        hero_subtitle: storeSettings.heroSubtitle,
+        hero_cta_primary_text: storeSettings.heroCtaPrimaryText,
+        hero_cta_primary_link: storeSettings.heroCtaPrimaryLink,
+        hero_cta_secondary_text: storeSettings.heroCtaSecondaryText,
+        hero_cta_secondary_link: storeSettings.heroCtaSecondaryLink,
+        // Testimonial
+        show_featured_testimonial: storeSettings.showFeaturedTestimonial,
+        featured_testimonial_text: storeSettings.featuredTestimonialText,
+        featured_testimonial_author: storeSettings.featuredTestimonialAuthor,
+        featured_testimonial_detail: storeSettings.featuredTestimonialDetail,
+        // Policies
+        privacy_policy: storeSettings.privacyPolicy,
+        terms_of_service: storeSettings.termsOfService,
+        refund_policy: storeSettings.refundPolicy,
       };
 
       console.log('Saving:', updateData);
+      await settingsAPI.update(updateData);
       
-      const response = await settingsAPI.update(updateData);
-      console.log('Save response:', response);
-      
-      // Show success message with instructions
-      alert('✅ Store settings saved successfully!\n\n💡 To see theme changes on your live store:\n1. Open your store in a new tab\n2. Refresh the page (Ctrl+R or Cmd+R)\n\nYour dashboard will now reload to show the changes here.');
-      
+      alert('✅ Settings saved! Refresh your store to see changes.');
       window.location.reload();
     } catch (error) {
       console.error('Save error:', error);
-      alert('Failed to save store settings. Please try again.');
+      alert('Failed to save settings. Please try again.');
     } finally {
       setSaving(false);
-    }
-  };
-
-  const openStorePreview = () => {
-    if (storeUrl) {
-      window.open(storeUrl, '_blank');
     }
   };
 
@@ -113,165 +175,332 @@ export default function Settings() {
     <div style={styles.container} className="fade-in">
       <div style={styles.header}>
         <div>
-          <h1 style={styles.title}>Store Appearance</h1>
-          <p style={styles.subtitle}>Customize how your store looks to customers</p>
+          <h1 style={styles.title}>Store Settings</h1>
+          <p style={styles.subtitle}>Customize your store appearance and content</p>
         </div>
         {storeUrl && (
-          <button onClick={openStorePreview} style={styles.previewBtn} className="btn btn-secondary">
+          <button onClick={() => window.open(storeUrl, '_blank')} style={styles.previewBtn} className="btn btn-secondary">
             <ExternalLink size={18} />
             Preview Store
           </button>
         )}
       </div>
 
-      <div style={styles.infoCard} className="glass-card">
-        <div style={styles.infoIcon}>💡</div>
-        <div style={styles.infoContent}>
-          <h4 style={styles.infoTitle}>How Theme Changes Work</h4>
-          <p style={styles.infoText}>
-            After saving your theme changes, refresh your live store page to see the updates. 
-            Your dashboard will reload automatically.
-          </p>
-        </div>
-      </div>
-
       <form onSubmit={handleSaveStore}>
+        {/* BASIC INFORMATION */}
         <div style={styles.card} className="glass-card">
-          <h3 style={styles.cardTitle}>Basic Information</h3>
+          <div style={styles.sectionHeader} onClick={() => toggleSection('basic')}>
+            <h3 style={styles.cardTitle}>📝 Basic Information</h3>
+            {expandedSections.basic ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+          </div>
           
-          <div style={styles.formGroup}>
-            <label style={styles.label}>STORE NAME</label>
-            <input
-              type="text"
-              value={storeSettings.logoText}
-              onChange={(e) => setStoreSettings({ ...storeSettings, logoText: e.target.value })}
-              placeholder="My Fashion Store"
-              className="dashboard-input"
-              style={styles.input}
-            />
-          </div>
+          {expandedSections.basic && (
+            <div style={styles.sectionContent}>
+              <div style={styles.formGroup}>
+                <label style={styles.label}>STORE NAME</label>
+                <input
+                  type="text"
+                  value={storeSettings.logoText}
+                  onChange={(e) => setStoreSettings({ ...storeSettings, logoText: e.target.value })}
+                  placeholder="My Fashion Store"
+                  className="dashboard-input"
+                />
+              </div>
 
-          <div style={styles.formGroup}>
-            <label style={styles.label}>TAGLINE</label>
-            <input
-              type="text"
-              value={storeSettings.tagline}
-              onChange={(e) => setStoreSettings({ ...storeSettings, tagline: e.target.value })}
-              placeholder="Premium fashion for everyone"
-              className="dashboard-input"
-              style={styles.input}
-            />
-          </div>
+              <div style={styles.formGroup}>
+                <label style={styles.label}>TAGLINE</label>
+                <input
+                  type="text"
+                  value={storeSettings.tagline}
+                  onChange={(e) => setStoreSettings({ ...storeSettings, tagline: e.target.value })}
+                  placeholder="Premium fashion for everyone"
+                  className="dashboard-input"
+                />
+              </div>
 
-          <div style={styles.formGroup}>
-            <label style={styles.label}>STORE URL</label>
-            <input
-              type="text"
-              value={storeSettings.subdomain}
-              className="dashboard-input"
-              disabled
-              style={styles.inputDisabled}
-            />
-            <p style={styles.hint}>jari.ecom/{storeSettings.subdomain}</p>
-          </div>
+              <div style={styles.formGroup}>
+                <label style={styles.label}>STORE URL</label>
+                <input type="text" value={storeSettings.subdomain} disabled className="dashboard-input" style={styles.inputDisabled} />
+              </div>
 
-          <div style={styles.formGroup}>
-            <label style={styles.label}>LOGO IMAGE URL <span style={styles.optional}>(Optional)</span></label>
-            <input
-              type="url"
-              value={storeSettings.logoUrl}
-              onChange={(e) => setStoreSettings({ ...storeSettings, logoUrl: e.target.value })}
-              placeholder="https://example.com/your-logo.png"
-              className="dashboard-input"
-              style={styles.input}
-            />
-            <p style={styles.hint}>If provided, displays instead of store name text</p>
-          </div>
-
-          <div style={styles.formGroup}>
-            <label style={styles.label}>HEADER BACKGROUND IMAGE <span style={styles.optional}>(Optional)</span></label>
-            <input
-              type="url"
-              value={storeSettings.headerBgUrl}
-              onChange={(e) => setStoreSettings({ ...storeSettings, headerBgUrl: e.target.value })}
-              placeholder="https://example.com/header-bg.jpg"
-              className="dashboard-input"
-              style={styles.input}
-            />
-            <p style={styles.hint}>Displays behind your header with a slight blur for legibility</p>
-          </div>
+              <div style={styles.formGroup}>
+                <label style={styles.label}>LOGO IMAGE URL <span style={styles.optional}>(Optional)</span></label>
+                <input
+                  type="url"
+                  value={storeSettings.logoUrl}
+                  onChange={(e) => setStoreSettings({ ...storeSettings, logoUrl: e.target.value })}
+                  placeholder="https://example.com/logo.png"
+                  className="dashboard-input"
+                />
+              </div>
+            </div>
+          )}
         </div>
 
+        {/* HERO SECTION */}
         <div style={styles.card} className="glass-card">
-          <h3 style={styles.cardTitle}>Choose Your Theme</h3>
-          <p style={styles.cardDesc}>Select a color theme that matches your brand</p>
+          <div style={styles.sectionHeader} onClick={() => toggleSection('hero')}>
+            <h3 style={styles.cardTitle}>🎨 Hero Section</h3>
+            {expandedSections.hero ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+          </div>
           
-          <div style={styles.themesGrid}>
-            {themes.map((theme) => (
-              <div
-                key={theme.id}
-                onClick={() => setStoreSettings({ ...storeSettings, themeColor: theme.name })}
-                style={{
-                  ...styles.themeCard,
-                  border: storeSettings.themeColor === theme.name ? '2px solid #8b5cf6' : '1px solid rgba(255, 255, 255, 0.1)',
-                }}
-                className="glass-card"
-              >
-                <div style={{
-                  ...styles.themePreview,
-                  background: theme.gradient,
-                }}>
-                  {storeSettings.themeColor === theme.name && (
-                    <div style={styles.themeCheck}>
-                      <Check size={24} />
-                    </div>
-                  )}
+          {expandedSections.hero && (
+            <div style={styles.sectionContent}>
+              <div style={styles.formGroup}>
+                <label style={styles.label}>HERO TITLE</label>
+                <input
+                  type="text"
+                  value={storeSettings.heroTitle}
+                  onChange={(e) => setStoreSettings({ ...storeSettings, heroTitle: e.target.value })}
+                  placeholder="Your main headline"
+                  className="dashboard-input"
+                />
+                <p style={styles.hint}>Defaults to store name if empty</p>
+              </div>
+
+              <div style={styles.formGroup}>
+                <label style={styles.label}>HERO SUBTITLE</label>
+                <input
+                  type="text"
+                  value={storeSettings.heroSubtitle}
+                  onChange={(e) => setStoreSettings({ ...storeSettings, heroSubtitle: e.target.value })}
+                  placeholder="Your tagline or description"
+                  className="dashboard-input"
+                />
+              </div>
+
+              <div style={styles.formGroup}>
+                <label style={styles.label}>PROFILE PHOTO URL</label>
+                <input
+                  type="url"
+                  value={storeSettings.heroPhotoUrl}
+                  onChange={(e) => setStoreSettings({ ...storeSettings, heroPhotoUrl: e.target.value })}
+                  placeholder="https://example.com/photo.jpg"
+                  className="dashboard-input"
+                />
+                <p style={styles.hint}>Circular photo displayed in hero section</p>
+              </div>
+
+              <div style={styles.formRow}>
+                <div style={styles.formGroup}>
+                  <label style={styles.label}>PRIMARY CTA TEXT</label>
+                  <input
+                    type="text"
+                    value={storeSettings.heroCtaPrimaryText}
+                    onChange={(e) => setStoreSettings({ ...storeSettings, heroCtaPrimaryText: e.target.value })}
+                    placeholder="Shop Now"
+                    className="dashboard-input"
+                  />
                 </div>
-                <p style={styles.themeName}>{theme.display_name}</p>
-                {theme.is_premium && (
-                  <div style={styles.premiumBadge}>
-                    <Crown size={12} />
-                    Premium
+                <div style={styles.formGroup}>
+                  <label style={styles.label}>PRIMARY CTA LINK</label>
+                  <input
+                    type="text"
+                    value={storeSettings.heroCtaPrimaryLink}
+                    onChange={(e) => setStoreSettings({ ...storeSettings, heroCtaPrimaryLink: e.target.value })}
+                    placeholder="#products or URL"
+                    className="dashboard-input"
+                  />
+                </div>
+              </div>
+
+              <div style={styles.formRow}>
+                <div style={styles.formGroup}>
+                  <label style={styles.label}>SECONDARY CTA TEXT</label>
+                  <input
+                    type="text"
+                    value={storeSettings.heroCtaSecondaryText}
+                    onChange={(e) => setStoreSettings({ ...storeSettings, heroCtaSecondaryText: e.target.value })}
+                    placeholder="Contact Me"
+                    className="dashboard-input"
+                  />
+                </div>
+                <div style={styles.formGroup}>
+                  <label style={styles.label}>SECONDARY CTA LINK</label>
+                  <input
+                    type="text"
+                    value={storeSettings.heroCtaSecondaryLink}
+                    onChange={(e) => setStoreSettings({ ...storeSettings, heroCtaSecondaryLink: e.target.value })}
+                    placeholder="https://wa.me/254..."
+                    className="dashboard-input"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* TESTIMONIAL */}
+        <div style={styles.card} className="glass-card">
+          <div style={styles.sectionHeader} onClick={() => toggleSection('testimonial')}>
+            <h3 style={styles.cardTitle}>⭐ Featured Testimonial</h3>
+            {expandedSections.testimonial ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+          </div>
+          
+          {expandedSections.testimonial && (
+            <div style={styles.sectionContent}>
+              <div style={styles.formGroup}>
+                <label style={styles.toggleLabel}>
+                  <input
+                    type="checkbox"
+                    checked={storeSettings.showFeaturedTestimonial}
+                    onChange={(e) => setStoreSettings({ ...storeSettings, showFeaturedTestimonial: e.target.checked })}
+                    style={styles.checkbox}
+                  />
+                  <span>Show testimonial section</span>
+                </label>
+              </div>
+
+              {storeSettings.showFeaturedTestimonial && (
+                <>
+                  <div style={styles.formGroup}>
+                    <label style={styles.label}>TESTIMONIAL TEXT</label>
+                    <textarea
+                      value={storeSettings.featuredTestimonialText}
+                      onChange={(e) => setStoreSettings({ ...storeSettings, featuredTestimonialText: e.target.value })}
+                      placeholder="Amazing products! Fast delivery and great quality..."
+                      rows={3}
+                      className="dashboard-input"
+                      style={styles.textarea}
+                    />
                   </div>
-                )}
-              </div>
-            ))}
-          </div>
+
+                  <div style={styles.formRow}>
+                    <div style={styles.formGroup}>
+                      <label style={styles.label}>AUTHOR NAME</label>
+                      <input
+                        type="text"
+                        value={storeSettings.featuredTestimonialAuthor}
+                        onChange={(e) => setStoreSettings({ ...storeSettings, featuredTestimonialAuthor: e.target.value })}
+                        placeholder="Sarah M."
+                        className="dashboard-input"
+                      />
+                    </div>
+                    <div style={styles.formGroup}>
+                      <label style={styles.label}>AUTHOR DETAIL</label>
+                      <input
+                        type="text"
+                        value={storeSettings.featuredTestimonialDetail}
+                        onChange={(e) => setStoreSettings({ ...storeSettings, featuredTestimonialDetail: e.target.value })}
+                        placeholder="Verified Buyer"
+                        className="dashboard-input"
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
         </div>
 
+        {/* POLICIES */}
         <div style={styles.card} className="glass-card">
-          <h3 style={styles.cardTitle}>Choose Your Font</h3>
-          <p style={styles.cardDesc}>Select a font that represents your brand personality</p>
-          
-          <div style={styles.fontsGrid}>
-            {fontOptions.map((font) => (
-              <div
-                key={font.value}
-                onClick={() => setStoreSettings({ ...storeSettings, fontFamily: font.value })}
-                style={{
-                  ...styles.fontCard,
-                  border: storeSettings.fontFamily === font.value ? '2px solid #8b5cf6' : '1px solid rgba(255, 255, 255, 0.1)',
-                }}
-                className="glass-card"
-              >
-                <div style={styles.fontPreview}>
-                  <p style={{ ...styles.fontSample, fontFamily: font.value }}>Aa</p>
-                  {storeSettings.fontFamily === font.value && (
-                    <div style={styles.fontCheck}>
-                      <Check size={20} />
-                    </div>
-                  )}
-                </div>
-                <p style={styles.fontName}>{font.name}</p>
-                <p style={styles.fontDesc}>{font.preview}</p>
-              </div>
-            ))}
+          <div style={styles.sectionHeader} onClick={() => toggleSection('policies')}>
+            <h3 style={styles.cardTitle}>📋 Store Policies</h3>
+            {expandedSections.policies ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
           </div>
+          
+          {expandedSections.policies && (
+            <div style={styles.sectionContent}>
+              <div style={styles.formGroup}>
+                <label style={styles.label}>PRIVACY POLICY</label>
+                <textarea
+                  value={storeSettings.privacyPolicy}
+                  onChange={(e) => setStoreSettings({ ...storeSettings, privacyPolicy: e.target.value })}
+                  placeholder="Your privacy policy text..."
+                  rows={5}
+                  className="dashboard-input"
+                  style={styles.textarea}
+                />
+              </div>
+
+              <div style={styles.formGroup}>
+                <label style={styles.label}>TERMS OF SERVICE</label>
+                <textarea
+                  value={storeSettings.termsOfService}
+                  onChange={(e) => setStoreSettings({ ...storeSettings, termsOfService: e.target.value })}
+                  placeholder="Your terms of service..."
+                  rows={5}
+                  className="dashboard-input"
+                  style={styles.textarea}
+                />
+              </div>
+
+              <div style={styles.formGroup}>
+                <label style={styles.label}>REFUND POLICY</label>
+                <textarea
+                  value={storeSettings.refundPolicy}
+                  onChange={(e) => setStoreSettings({ ...storeSettings, refundPolicy: e.target.value })}
+                  placeholder="Your refund and return policy..."
+                  rows={5}
+                  className="dashboard-input"
+                  style={styles.textarea}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* THEME SELECTION */}
+        <div style={styles.card} className="glass-card">
+          <div style={styles.sectionHeader} onClick={() => toggleSection('theme')}>
+            <h3 style={styles.cardTitle}>🎨 Theme & Font</h3>
+            {expandedSections.theme ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+          </div>
+          
+          {expandedSections.theme && (
+            <div style={styles.sectionContent}>
+              <p style={styles.cardDesc}>Select a color theme for your store</p>
+              
+              <div style={styles.themesGrid}>
+                {themes.map((theme) => (
+                  <div
+                    key={theme.id}
+                    onClick={() => setStoreSettings({ ...storeSettings, themeColor: theme.name })}
+                    style={{
+                      ...styles.themeCard,
+                      border: storeSettings.themeColor === theme.name ? '2px solid #8b5cf6' : '1px solid rgba(255, 255, 255, 0.1)',
+                    }}
+                    className="glass-card"
+                  >
+                    <div style={{ ...styles.themePreview, background: theme.gradient }}>
+                      {storeSettings.themeColor === theme.name && (
+                        <div style={styles.themeCheck}><Check size={24} /></div>
+                      )}
+                    </div>
+                    <p style={styles.themeName}>{theme.display_name}</p>
+                    {theme.is_premium && (
+                      <div style={styles.premiumBadge}><Crown size={12} /> Premium</div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              <h4 style={{ ...styles.cardTitle, marginTop: '24px', fontSize: '18px' }}>Choose Font</h4>
+              <div style={styles.fontsGrid}>
+                {fontOptions.map((font) => (
+                  <div
+                    key={font.value}
+                    onClick={() => setStoreSettings({ ...storeSettings, fontFamily: font.value })}
+                    style={{
+                      ...styles.fontCard,
+                      border: storeSettings.fontFamily === font.value ? '2px solid #8b5cf6' : '1px solid rgba(255, 255, 255, 0.1)',
+                    }}
+                    className="glass-card"
+                  >
+                    <p style={{ ...styles.fontSample, fontFamily: font.value }}>Aa</p>
+                    <p style={styles.fontName}>{font.name}</p>
+                    <p style={styles.fontDesc}>{font.preview}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         <button type="submit" disabled={saving} className="btn btn-primary" style={styles.saveBtn}>
           <Save size={18} />
-          {saving ? 'Saving...' : 'Save Changes'}
+          {saving ? 'Saving...' : 'Save All Settings'}
         </button>
       </form>
     </div>
@@ -281,36 +510,34 @@ export default function Settings() {
 const styles = {
   container: { maxWidth: '1200px' },
   loading: { textAlign: 'center', padding: '40px', color: 'rgba(255, 255, 255, 0.5)' },
-  header: { marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' },
+  header: { marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' },
   title: { fontSize: '36px', fontWeight: '800', marginBottom: '8px' },
   subtitle: { fontSize: '16px', color: 'rgba(255, 255, 255, 0.5)' },
-  previewBtn: { display: 'flex', alignItems: 'center', gap: '8px' },
-  infoCard: { padding: '20px', marginBottom: '24px', display: 'flex', gap: '16px', alignItems: 'flex-start', background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.2)' },
-  infoIcon: { fontSize: '32px', flexShrink: 0 },
-  infoContent: { flex: 1 },
-  infoTitle: { fontSize: '16px', fontWeight: '700', marginBottom: '8px', color: 'white' },
-  infoText: { fontSize: '14px', color: 'rgba(255, 255, 255, 0.7)', lineHeight: '1.5' },
-  card: { padding: '32px', marginBottom: '24px' },
-  cardTitle: { fontSize: '24px', fontWeight: '700', marginBottom: '8px' },
-  cardDesc: { fontSize: '14px', color: 'rgba(255, 255, 255, 0.6)', marginBottom: '24px' },
-  formGroup: { marginBottom: '24px' },
+  previewBtn: { display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 20px', background: 'rgba(255, 159, 10, 0.1)', border: '1px solid rgba(255, 159, 10, 0.3)', borderRadius: '12px', color: '#ff9f0a', cursor: 'pointer' },
+  card: { padding: '24px', marginBottom: '20px' },
+  sectionHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', marginBottom: '8px' },
+  sectionContent: { paddingTop: '16px', borderTop: '1px solid rgba(255, 255, 255, 0.1)', marginTop: '16px' },
+  cardTitle: { fontSize: '20px', fontWeight: '700', margin: 0 },
+  cardDesc: { fontSize: '14px', color: 'rgba(255, 255, 255, 0.6)', marginBottom: '20px' },
+  formGroup: { marginBottom: '20px' },
+  formRow: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' },
   label: { fontSize: '12px', fontWeight: '700', color: 'rgba(255, 255, 255, 0.6)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px', display: 'block' },
   optional: { fontSize: '10px', fontWeight: '400', color: 'rgba(255, 255, 255, 0.4)', textTransform: 'none' },
-  input: { background: 'rgba(255, 255, 255, 0.08)', border: '1px solid rgba(255, 255, 255, 0.15)', width: '100%' },
-  inputDisabled: { background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)', color: 'rgba(255, 255, 255, 0.4)', cursor: 'not-allowed', width: '100%' },
-  hint: { fontSize: '12px', color: 'rgba(255, 255, 255, 0.4)', fontStyle: 'italic', marginTop: '8px' },
-  themesGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '20px' },
-  themeCard: { padding: '20px', cursor: 'pointer', transition: 'all 0.3s', textAlign: 'center' },
-  themePreview: { height: '120px', borderRadius: '16px', marginBottom: '16px', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' },
-  themeCheck: { width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(255, 255, 255, 0.95)', color: '#8b5cf6', display: 'flex', alignItems: 'center', justifyContent: 'center' },
-  themeName: { fontSize: '16px', fontWeight: '700', marginBottom: '8px' },
-  premiumBadge: { display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '6px 12px', background: 'rgba(255, 159, 10, 0.2)', color: '#ff9f0a', borderRadius: '12px', fontSize: '12px', fontWeight: '700', marginTop: '8px' },
-  fontsGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '16px' },
-  fontCard: { padding: '20px', cursor: 'pointer', transition: 'all 0.3s', textAlign: 'center' },
-  fontPreview: { height: '100px', borderRadius: '12px', marginBottom: '12px', background: 'rgba(255, 255, 255, 0.03)', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' },
-  fontSample: { fontSize: '48px', fontWeight: '700', margin: 0, color: 'white' },
-  fontCheck: { position: 'absolute', top: '8px', right: '8px', width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(139, 92, 246, 0.9)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' },
-  fontName: { fontSize: '14px', fontWeight: '700', marginBottom: '4px' },
-  fontDesc: { fontSize: '12px', color: 'rgba(255, 255, 255, 0.5)' },
-  saveBtn: { display: 'flex', alignItems: 'center', gap: '8px' },
+  inputDisabled: { background: 'rgba(255, 255, 255, 0.03)', color: 'rgba(255, 255, 255, 0.4)', cursor: 'not-allowed' },
+  hint: { fontSize: '12px', color: 'rgba(255, 255, 255, 0.4)', fontStyle: 'italic', marginTop: '6px' },
+  textarea: { resize: 'vertical', minHeight: '80px' },
+  toggleLabel: { display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer', fontSize: '15px' },
+  checkbox: { width: '20px', height: '20px', cursor: 'pointer' },
+  themesGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '16px' },
+  themeCard: { padding: '16px', cursor: 'pointer', transition: 'all 0.3s', textAlign: 'center' },
+  themePreview: { height: '80px', borderRadius: '12px', marginBottom: '12px', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+  themeCheck: { width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(255, 255, 255, 0.95)', color: '#8b5cf6', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+  themeName: { fontSize: '14px', fontWeight: '600', marginBottom: '4px' },
+  premiumBadge: { display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '4px 8px', background: 'rgba(255, 159, 10, 0.2)', color: '#ff9f0a', borderRadius: '8px', fontSize: '11px', fontWeight: '600' },
+  fontsGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '12px' },
+  fontCard: { padding: '16px', cursor: 'pointer', transition: 'all 0.3s', textAlign: 'center' },
+  fontSample: { fontSize: '32px', fontWeight: '700', marginBottom: '8px' },
+  fontName: { fontSize: '13px', fontWeight: '600', marginBottom: '2px' },
+  fontDesc: { fontSize: '11px', color: 'rgba(255, 255, 255, 0.5)' },
+  saveBtn: { display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px' },
 };

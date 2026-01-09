@@ -543,6 +543,11 @@ app.put('/api/settings', auth, async (req, res) => {
     if (b.footer_terms_url !== undefined) { updates.push(`footer_terms_url = $${idx++}`); values.push(b.footer_terms_url); }
     if (b.footer_refund_url !== undefined) { updates.push(`footer_refund_url = $${idx++}`); values.push(b.footer_refund_url); }
     
+    // Policy content
+    if (b.privacy_policy !== undefined) { updates.push(`privacy_policy = $${idx++}`); values.push(b.privacy_policy); }
+    if (b.terms_of_service !== undefined) { updates.push(`terms_of_service = $${idx++}`); values.push(b.terms_of_service); }
+    if (b.refund_policy !== undefined) { updates.push(`refund_policy = $${idx++}`); values.push(b.refund_policy); }
+    
     if (updates.length === 0) {
       return res.json({ success: true, settings: {} });
     }
@@ -682,7 +687,11 @@ app.get('/api/public/store/:subdomain', async (req, res) => {
         tagline: store.tagline,
         fontFamily: store.font_family,
         theme: theme,
-        mode: store.store_mode || 'dark'
+        mode: store.store_mode || 'dark',
+        // Store-level policies
+        privacy_policy: store.privacy_policy || '',
+        terms_of_service: store.terms_of_service || '',
+        refund_policy: store.refund_policy || ''
       },
       hero: hero,
       testimonial: testimonial,
@@ -786,7 +795,10 @@ async function migratePhase2Collection() {
       `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS footer_powered_by BOOLEAN DEFAULT true`,
       `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS footer_privacy_url VARCHAR(255)`,
       `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS footer_terms_url VARCHAR(255)`,
-      `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS footer_refund_url VARCHAR(255)`
+      `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS footer_refund_url VARCHAR(255)`,
+      `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS privacy_policy TEXT DEFAULT ''`,
+      `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS terms_of_service TEXT DEFAULT ''`,
+      `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS refund_policy TEXT DEFAULT ''`
     ];
     
     for (const sql of heroColumns) {

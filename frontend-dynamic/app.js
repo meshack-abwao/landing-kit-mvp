@@ -396,10 +396,12 @@ function showPolicy(type) {
         refund: 'Refund Policy'
     };
     
+    // Check store-level policies first, then product-level as fallback
+    const storePolicies = storeData?.store || {};
     const content = {
-        privacy: currentProduct.privacy_policy || 'No privacy policy available.',
-        terms: currentProduct.terms_of_service || 'No terms of service available.',
-        refund: currentProduct.refund_policy || 'No refund policy available.'
+        privacy: storePolicies.privacy_policy || currentProduct.privacy_policy || 'No privacy policy available.',
+        terms: storePolicies.terms_of_service || currentProduct.terms_of_service || 'No terms of service available.',
+        refund: storePolicies.refund_policy || currentProduct.refund_policy || 'No refund policy available.'
     };
     
     document.getElementById('policyTitle').textContent = titles[type];
@@ -575,17 +577,7 @@ function renderQuickDecisionTemplate(product) {
         </div>
     ` : '';
     
-    // Footer with policies
-    const footerHTML = `
-        <div class="store-footer">
-            <p class="powered-by">Powered by <a href="https://jarisolutionsecom.store" target="_blank">jarisolutionsecom.store</a></p>
-            <div class="policy-links">
-                <span onclick="showPolicy('privacy')">Privacy Policy</span>
-                <span onclick="showPolicy('terms')">Terms of Service</span>
-                <span onclick="showPolicy('refund')">Refund Policy</span>
-            </div>
-        </div>
-    `;
+
     
     main.innerHTML = `
         ${backButton}
@@ -634,7 +626,6 @@ function renderQuickDecisionTemplate(product) {
                     </button>
                 </div>
             </div>
-            ${footerHTML}
         </div>
     `;
     
@@ -785,9 +776,6 @@ function renderPortfolioBookingTemplate(product) {
                     </button>
                 </div>
             </div>
-            <div class="store-footer">
-                <p class="powered-by">Powered by <a href="https://jarisolutionsecom.store" target="_blank">jarisolutionsecom.store</a></p>
-            </div>
         </div>
     `;
 }
@@ -903,9 +891,6 @@ function renderVisualMenuTemplate(product) {
                         <span class="btn-arrow">→</span>
                     </button>
                 </div>
-            </div>
-            <div class="store-footer">
-                <p class="powered-by">Powered by <a href="https://jarisolutionsecom.store" target="_blank">jarisolutionsecom.store</a></p>
             </div>
         </div>
     `;
@@ -1081,9 +1066,6 @@ function renderDeepDiveTemplate(product) {
                         <span class="btn-arrow">→</span>
                     </button>
                 </div>
-            </div>
-            <div class="store-footer">
-                <p class="powered-by">Powered by <a href="https://jarisolutionsecom.store" target="_blank">jarisolutionsecom.store</a></p>
             </div>
         </div>
     `;
