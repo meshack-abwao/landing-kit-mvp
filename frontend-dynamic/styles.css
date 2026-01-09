@@ -2014,3 +2014,575 @@ body {
         font-size: 36px;
     }
 }
+
+
+/* ===========================================
+   PHASE 4: EVENT LANDING TEMPLATE
+   =========================================== */
+
+.template-event {
+    max-width: 600px;
+}
+
+.event-hero {
+    position: relative;
+    width: 100%;
+    height: 240px;
+    border-radius: 20px 20px 0 0;
+    overflow: hidden;
+    background: var(--gradient-primary);
+}
+
+.event-banner {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.event-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 80px;
+    background: var(--gradient-primary);
+}
+
+.event-overlay {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+}
+
+.event-badge {
+    display: inline-block;
+    padding: 8px 16px;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.event-card {
+    border-radius: 0 0 20px 20px;
+    margin-top: -20px;
+    position: relative;
+    z-index: 1;
+}
+
+.event-title {
+    font-size: 26px;
+}
+
+.event-countdown {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    margin: 20px 0;
+    padding: 20px;
+    background: rgba(255, 159, 10, 0.1);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 159, 10, 0.2);
+}
+
+.countdown-item {
+    text-align: center;
+}
+
+.countdown-value {
+    display: block;
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--color-primary);
+    line-height: 1;
+}
+
+.countdown-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.event-details {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 20px 0;
+    padding: 16px;
+    background: var(--bg-gray);
+    border-radius: 12px;
+}
+
+.event-detail-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.detail-icon {
+    font-size: 20px;
+}
+
+.detail-text {
+    font-size: 15px;
+    color: var(--text-primary);
+}
+
+.event-description {
+    line-height: 1.7;
+}
+
+/* Speakers Section */
+.speakers-section {
+    margin: 24px 0;
+}
+
+.speakers-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--text-primary);
+}
+
+.speakers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 16px;
+}
+
+.speaker-card {
+    text-align: center;
+}
+
+.speaker-photo {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin: 0 auto 8px;
+    border: 3px solid var(--color-primary);
+}
+
+.speaker-placeholder {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--bg-gray);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    margin: 0 auto 8px;
+}
+
+.speaker-name {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.speaker-title {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.event-price .price-label {
+    color: var(--color-primary);
+}
+
+.register-btn {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%) !important;
+}
+
+/* ===========================================
+   PHASE 5: ENHANCED CHECKOUT FLOWS
+   =========================================== */
+
+/* Booking-specific checkout */
+.checkout-booking-info {
+    background: rgba(255, 159, 10, 0.08);
+    border: 1px solid rgba(255, 159, 10, 0.2);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.booking-detail {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 159, 10, 0.1);
+}
+
+.booking-detail:last-child {
+    border-bottom: none;
+}
+
+.booking-label {
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.booking-value {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* Event ticket checkout */
+.ticket-summary {
+    background: linear-gradient(135deg, rgba(255, 107, 107, 0.1) 0%, rgba(238, 90, 36, 0.1) 100%);
+    border: 1px solid rgba(255, 107, 107, 0.2);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.ticket-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+}
+
+.ticket-event-name {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.ticket-date {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+/* Food order checkout */
+.order-summary-food {
+    background: linear-gradient(135deg, rgba(46, 204, 113, 0.1) 0%, rgba(39, 174, 96, 0.1) 100%);
+    border: 1px solid rgba(46, 204, 113, 0.2);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.food-order-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+}
+
+.food-order-image {
+    width: 50px;
+    height: 50px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.food-order-details {
+    flex: 1;
+}
+
+.food-order-name {
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.food-order-qty {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+/* Delivery time selector for food */
+.delivery-time-section {
+    margin: 20px 0;
+}
+
+.delivery-time-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+    display: block;
+}
+
+.delivery-time-options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.delivery-time-option {
+    padding: 12px;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: white;
+}
+
+.delivery-time-option:hover {
+    border-color: var(--color-primary);
+}
+
+.delivery-time-option.selected {
+    border-color: var(--color-primary);
+    background: rgba(17, 153, 142, 0.05);
+}
+
+.delivery-time-option .time {
+    font-size: 14px;
+    font-weight: 600;
+    display: block;
+}
+
+.delivery-time-option .label {
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+/* Special instructions */
+.special-instructions {
+    margin: 20px 0;
+}
+
+.special-instructions textarea {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 80px;
+}
+
+.special-instructions textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+}
+
+/* ===========================================
+   PHASE 6: TEMPLATE INDICATOR ON CARDS
+   =========================================== */
+
+.template-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    padding: 6px 12px;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.template-badge.quick-decision { background: rgba(255, 159, 10, 0.9); }
+.template-badge.portfolio-booking { background: rgba(139, 92, 246, 0.9); }
+.template-badge.visual-menu { background: rgba(46, 204, 113, 0.9); }
+.template-badge.deep-dive { background: rgba(59, 130, 246, 0.9); }
+.template-badge.event-landing { background: rgba(255, 107, 107, 0.9); }
+
+/* ===========================================
+   PHASE 7: ORDER STATUS INDICATORS
+   =========================================== */
+
+.order-status-tracker {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+    background: var(--bg-gray);
+    border-radius: 12px;
+    margin: 20px 0;
+}
+
+.status-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    position: relative;
+}
+
+.status-step::after {
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    width: 100%;
+    height: 2px;
+    background: var(--border);
+}
+
+.status-step:last-child::after {
+    display: none;
+}
+
+.status-step.completed::after {
+    background: var(--success-green);
+}
+
+.status-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    position: relative;
+    z-index: 1;
+}
+
+.status-step.completed .status-icon {
+    background: var(--success-green);
+    color: white;
+}
+
+.status-step.current .status-icon {
+    background: var(--color-primary);
+    color: white;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(17, 153, 142, 0.4); }
+    50% { box-shadow: 0 0 0 10px rgba(17, 153, 142, 0); }
+}
+
+.status-label {
+    font-size: 11px;
+    margin-top: 8px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-step.completed .status-label,
+.status-step.current .status-label {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+/* ===========================================
+   PHASE 8: MOBILE POLISH
+   =========================================== */
+
+/* Better touch targets */
+@media (max-width: 768px) {
+    .quantity-btn {
+        width: 48px;
+        height: 48px;
+        font-size: 24px;
+    }
+    
+    .buy-btn {
+        padding: 18px;
+        font-size: 18px;
+    }
+    
+    .gallery-nav {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .social-btn {
+        width: 44px;
+        height: 44px;
+    }
+    
+    /* Event template mobile */
+    .event-countdown {
+        gap: 24px;
+    }
+    
+    .countdown-value {
+        font-size: 42px;
+    }
+    
+    .speakers-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .speaker-photo,
+    .speaker-placeholder {
+        width: 60px;
+        height: 60px;
+    }
+    
+    /* Delivery options mobile */
+    .delivery-time-options {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Smooth scroll behavior */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Better focus states for accessibility */
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+/* Loading skeleton animation */
+.skeleton {
+    background: linear-gradient(90deg, var(--bg-gray) 25%, rgba(255,255,255,0.1) 50%, var(--bg-gray) 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite;
+}
+
+@keyframes skeleton-loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Haptic feedback simulation */
+.btn-haptic:active {
+    transform: scale(0.97);
+}
+
+/* Pull to refresh indicator */
+.pull-refresh-indicator {
+    position: fixed;
+    top: -60px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: white;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: top 0.3s;
+    z-index: 1000;
+}
+
+.pull-refresh-indicator.visible {
+    top: 20px;
+}
+
+.pull-refresh-indicator .spinner {
+    width: 24px;
+    height: 24px;
+    border: 3px solid var(--border);
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}

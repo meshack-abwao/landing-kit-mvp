@@ -446,6 +446,16 @@ function renderStore() {
 
 function renderCollectionsGrid(products) {
     const main = document.getElementById('main');
+    
+    // Template badge labels
+    const templateLabels = {
+        'quick-decision': '⚡ Quick Buy',
+        'portfolio-booking': '📅 Book Now',
+        'visual-menu': '🍽️ Menu',
+        'deep-dive': '🔍 Details',
+        'event-landing': '🎪 Event'
+    };
+    
     main.innerHTML = `
         <div class="collections-container">
             <div class="collections-header">
@@ -455,6 +465,8 @@ function renderCollectionsGrid(products) {
             <div class="collections-grid">
                 ${products.map(product => {
                     const imgCount = getProductImages(product).length;
+                    const template = product.template_type || 'quick-decision';
+                    const templateLabel = templateLabels[template] || '';
                     return `
                     <div class="collection-card" onclick="viewProduct(${product.id})">
                         <div class="collection-image">
@@ -463,6 +475,7 @@ function renderCollectionsGrid(products) {
                                 '<div class="image-placeholder">📸</div>'
                             }
                             ${imgCount > 1 ? `<span class="image-count-badge">📷 ${imgCount}</span>` : ''}
+                            ${templateLabel ? `<span class="template-badge ${template}">${templateLabel}</span>` : ''}
                         </div>
                         <div class="collection-content">
                             <h3 class="collection-name">${product.name}</h3>
@@ -1079,8 +1092,149 @@ function renderDeepDiveTemplate(product) {
 // TEMPLATE 4: EVENT LANDING
 // ===========================================
 function renderEventLandingTemplate(product) {
-    // User is building this themselves - use quick decision as fallback
-    renderQuickDecisionTemplate(product);
+    const isLiked = isProductLiked(product.id);
+    
+    const main = document.getElementById('main');
+    
+    const backButton = storeData.products.length > 1 ? `
+        <button onclick="backToCollections()" class="back-btn">
+            ← Back to All Events
+        </button>
+    ` : '';
+    
+    // Parse event date
+    let eventDateDisplay = '';
+    let countdown = '';
+    if (product.event_date) {
+        const eventDate = new Date(product.event_date);
+        eventDateDisplay = eventDate.toLocaleDateString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        
+        // Calculate countdown
+        const now = new Date();
+        const diff = eventDate - now;
+        if (diff > 0) {
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            countdown = `
+                <div class="event-countdown">
+                    <div class="countdown-item">
+                        <span class="countdown-value">${days}</span>
+                        <span class="countdown-label">Days</span>
+                    </div>
+                    <div class="countdown-item">
+                        <span class="countdown-value">${hours}</span>
+                        <span class="countdown-label">Hours</span>
+                    </div>
+                </div>
+            `;
+        }
+    }
+    
+    // Parse speakers/hosts
+    let speakers = [];
+    try {
+        speakers = JSON.parse(product.speakers || '[]');
+    } catch (e) {
+        speakers = [];
+    }
+    
+    const speakersHTML = speakers.length > 0 ? `
+        <div class="speakers-section">
+            <h3 class="speakers-title">Featured Speakers</h3>
+            <div class="speakers-grid">
+                ${speakers.map(speaker => `
+                    <div class="speaker-card">
+                        ${speaker.photo ? `<img src="${speaker.photo}" alt="${speaker.name}" class="speaker-photo">` : `<div class="speaker-placeholder">👤</div>`}
+                        <h4 class="speaker-name">${speaker.name}</h4>
+                        ${speaker.title ? `<p class="speaker-title">${speaker.title}</p>` : ''}
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    ` : '';
+    
+    main.innerHTML = `
+        ${backButton}
+        <div class="product-container template-event">
+            <div class="event-hero">
+                ${productImages[0] ? 
+                    `<img src="${productImages[0]}" alt="${product.name}" class="event-banner">` :
+                    '<div class="event-placeholder">🎪</div>'
+                }
+                <div class="event-overlay">
+                    <span class="event-badge">📅 Event</span>
+                </div>
+            </div>
+            
+            <div class="product-card event-card">
+                <div class="product-info">
+                    <div class="product-header">
+                        <h2 class="product-name event-title">${product.name}</h2>
+                        <div class="social-actions">
+                            <button class="social-btn share-btn" onclick="shareProduct(${product.id}, event)">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                            </button>
+                            <button id="like-btn-${product.id}" class="social-btn like-btn" onclick="toggleLike(${product.id}, event)">
+                                <span class="heart-icon ${isLiked ? 'liked' : ''}">${isLiked ? '❤️' : '🤍'}</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    ${countdown}
+                    
+                    <div class="event-details">
+                        ${eventDateDisplay ? `
+                            <div class="event-detail-item">
+                                <span class="detail-icon">📅</span>
+                                <span class="detail-text">${eventDateDisplay}</span>
+                            </div>
+                        ` : ''}
+                        ${product.event_location ? `
+                            <div class="event-detail-item">
+                                <span class="detail-icon">📍</span>
+                                <span class="detail-text">${product.event_location}</span>
+                            </div>
+                        ` : ''}
+                    </div>
+                    
+                    <p class="product-description event-description">${product.rich_description || product.description || ''}</p>
+                    
+                    ${speakersHTML}
+                    
+                    <div class="price-display event-price">
+                        <span class="price-label">Ticket Price</span>
+                        <div class="price">KES <span id="displayPrice">${parseInt(product.price).toLocaleString()}</span></div>
+                    </div>
+                    
+                    <div class="quantity-section">
+                        <label class="quantity-label">Number of Tickets</label>
+                        <div class="quantity-controls">
+                            <button onclick="decreaseQuantity()" id="decreaseBtn" class="quantity-btn" ${quantity <= 1 ? 'disabled' : ''}>−</button>
+                            <span class="quantity-value" id="quantityDisplay">1</span>
+                            <button onclick="increaseQuantity()" id="increaseBtn" class="quantity-btn">+</button>
+                        </div>
+                    </div>
+                    
+                    <div class="total-section">
+                        <span class="total-label">Total</span>
+                        <div class="total-price">KES <span id="totalPrice">${parseInt(product.price).toLocaleString()}</span></div>
+                    </div>
+                    
+                    <button onclick="openCheckout()" class="buy-btn register-btn">
+                        <span class="btn-text">Register Now</span>
+                        <span class="btn-arrow">→</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
 }
 
 // Helper function for portfolio template
