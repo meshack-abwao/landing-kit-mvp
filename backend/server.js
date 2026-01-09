@@ -502,18 +502,55 @@ app.get('/api/settings', auth, async (req, res) => {
 
 app.put('/api/settings', auth, async (req, res) => {
   try {
-    const { logo_text, tagline, theme_color, font_family } = req.body;
-    console.log('📝 Updating settings:', { logo_text, tagline, theme_color, font_family });
+    const b = req.body;
+    console.log('📝 Updating settings:', Object.keys(b).join(', '));
     
-    const result = await pool.query(
-      `UPDATE store_settings SET 
-        logo_text = COALESCE($1, logo_text), 
-        tagline = COALESCE($2, tagline),
-        theme_color = COALESCE($3, theme_color), 
-        font_family = COALESCE($4, font_family)
-       WHERE user_id = $5 RETURNING *`,
-      [logo_text, tagline, theme_color, font_family, req.user.userId]
-    );
+    // Build dynamic update query
+    const updates = [];
+    const values = [];
+    let idx = 1;
+    
+    // Basic settings
+    if (b.logo_text !== undefined) { updates.push(`logo_text = $${idx++}`); values.push(b.logo_text); }
+    if (b.tagline !== undefined) { updates.push(`tagline = $${idx++}`); values.push(b.tagline); }
+    if (b.theme_color !== undefined) { updates.push(`theme_color = $${idx++}`); values.push(b.theme_color); }
+    if (b.font_family !== undefined) { updates.push(`font_family = $${idx++}`); values.push(b.font_family); }
+    
+    // Hero settings
+    if (b.hero_bg_type !== undefined) { updates.push(`hero_bg_type = $${idx++}`); values.push(b.hero_bg_type); }
+    if (b.hero_bg_image !== undefined) { updates.push(`hero_bg_image = $${idx++}`); values.push(b.hero_bg_image); }
+    if (b.hero_bg_gradient !== undefined) { updates.push(`hero_bg_gradient = $${idx++}`); values.push(b.hero_bg_gradient); }
+    if (b.hero_photo_url !== undefined) { updates.push(`hero_photo_url = $${idx++}`); values.push(b.hero_photo_url); }
+    if (b.hero_title !== undefined) { updates.push(`hero_title = $${idx++}`); values.push(b.hero_title); }
+    if (b.hero_subtitle !== undefined) { updates.push(`hero_subtitle = $${idx++}`); values.push(b.hero_subtitle); }
+    if (b.hero_cta_primary_text !== undefined) { updates.push(`hero_cta_primary_text = $${idx++}`); values.push(b.hero_cta_primary_text); }
+    if (b.hero_cta_primary_link !== undefined) { updates.push(`hero_cta_primary_link = $${idx++}`); values.push(b.hero_cta_primary_link); }
+    if (b.hero_cta_secondary_text !== undefined) { updates.push(`hero_cta_secondary_text = $${idx++}`); values.push(b.hero_cta_secondary_text); }
+    if (b.hero_cta_secondary_link !== undefined) { updates.push(`hero_cta_secondary_link = $${idx++}`); values.push(b.hero_cta_secondary_link); }
+    
+    // Store mode (dark/light)
+    if (b.store_mode !== undefined) { updates.push(`store_mode = $${idx++}`); values.push(b.store_mode); }
+    
+    // Testimonial settings
+    if (b.show_featured_testimonial !== undefined) { updates.push(`show_featured_testimonial = $${idx++}`); values.push(b.show_featured_testimonial); }
+    if (b.featured_testimonial_text !== undefined) { updates.push(`featured_testimonial_text = $${idx++}`); values.push(b.featured_testimonial_text); }
+    if (b.featured_testimonial_author !== undefined) { updates.push(`featured_testimonial_author = $${idx++}`); values.push(b.featured_testimonial_author); }
+    if (b.featured_testimonial_detail !== undefined) { updates.push(`featured_testimonial_detail = $${idx++}`); values.push(b.featured_testimonial_detail); }
+    
+    // Footer settings
+    if (b.footer_powered_by !== undefined) { updates.push(`footer_powered_by = $${idx++}`); values.push(b.footer_powered_by); }
+    if (b.footer_privacy_url !== undefined) { updates.push(`footer_privacy_url = $${idx++}`); values.push(b.footer_privacy_url); }
+    if (b.footer_terms_url !== undefined) { updates.push(`footer_terms_url = $${idx++}`); values.push(b.footer_terms_url); }
+    if (b.footer_refund_url !== undefined) { updates.push(`footer_refund_url = $${idx++}`); values.push(b.footer_refund_url); }
+    
+    if (updates.length === 0) {
+      return res.json({ success: true, settings: {} });
+    }
+    
+    values.push(req.user.userId);
+    const query = `UPDATE store_settings SET ${updates.join(', ')} WHERE user_id = $${idx} RETURNING *`;
+    
+    const result = await pool.query(query, values);
     
     console.log('✅ Settings updated');
     res.json({ success: true, settings: result.rows[0] });
@@ -608,6 +645,35 @@ app.get('/api/public/store/:subdomain', async (req, res) => {
     
     console.log('✅ Store loaded:', store.logo_text, '| Products:', productsResult.rows.length);
     
+    // Build hero configuration
+    const hero = {
+      bgType: store.hero_bg_type || 'gradient',
+      bgImage: store.hero_bg_image || '',
+      bgGradient: store.hero_bg_gradient || 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)',
+      photoUrl: store.hero_photo_url || '',
+      title: store.hero_title || store.logo_text || 'Welcome',
+      subtitle: store.hero_subtitle || store.tagline || '',
+      ctaPrimaryText: store.hero_cta_primary_text || 'Shop Now',
+      ctaPrimaryLink: store.hero_cta_primary_link || '',
+      ctaSecondaryText: store.hero_cta_secondary_text || 'Learn More',
+      ctaSecondaryLink: store.hero_cta_secondary_link || ''
+    };
+    
+    // Build testimonial if enabled
+    const testimonial = store.show_featured_testimonial ? {
+      text: store.featured_testimonial_text || '',
+      author: store.featured_testimonial_author || '',
+      detail: store.featured_testimonial_detail || ''
+    } : null;
+    
+    // Build footer config
+    const footer = {
+      poweredBy: store.footer_powered_by !== false,
+      privacyUrl: store.footer_privacy_url || '',
+      termsUrl: store.footer_terms_url || '',
+      refundUrl: store.footer_refund_url || ''
+    };
+    
     res.json({
       success: true,
       store: { 
@@ -615,8 +681,12 @@ app.get('/api/public/store/:subdomain', async (req, res) => {
         logoText: store.logo_text, 
         tagline: store.tagline,
         fontFamily: store.font_family,
-        theme: theme
+        theme: theme,
+        mode: store.store_mode || 'dark'
       },
+      hero: hero,
+      testimonial: testimonial,
+      footer: footer,
       products: productsResult.rows,
       theme: theme
     });
@@ -688,7 +758,53 @@ async function migrateBlockSystem() {
     console.log('✅ Block system ready!');
   } catch (err) {
     console.error('⚠️ Block migration warning:', err.message);
-    // Don't crash - continue with existing functionality
+  }
+}
+
+// ============ PHASE 2: COLLECTION PAGE MIGRATION ============
+async function migratePhase2Collection() {
+  try {
+    console.log('🎨 Phase 2: Collection page upgrade...');
+    
+    // Hero customization columns for store_settings
+    const heroColumns = [
+      `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS hero_bg_type VARCHAR(20) DEFAULT 'gradient'`,
+      `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS hero_bg_image VARCHAR(500)`,
+      `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS hero_bg_gradient VARCHAR(255) DEFAULT 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)'`,
+      `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS hero_photo_url VARCHAR(500)`,
+      `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS hero_title VARCHAR(255)`,
+      `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS hero_subtitle TEXT`,
+      `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS hero_cta_primary_text VARCHAR(100) DEFAULT 'Shop Now'`,
+      `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS hero_cta_primary_link VARCHAR(255)`,
+      `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS hero_cta_secondary_text VARCHAR(100) DEFAULT 'Learn More'`,
+      `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS hero_cta_secondary_link VARCHAR(255)`,
+      `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS store_mode VARCHAR(10) DEFAULT 'dark'`,
+      `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS show_featured_testimonial BOOLEAN DEFAULT false`,
+      `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS featured_testimonial_text TEXT`,
+      `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS featured_testimonial_author VARCHAR(100)`,
+      `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS featured_testimonial_detail VARCHAR(100)`,
+      `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS footer_powered_by BOOLEAN DEFAULT true`,
+      `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS footer_privacy_url VARCHAR(255)`,
+      `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS footer_terms_url VARCHAR(255)`,
+      `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS footer_refund_url VARCHAR(255)`
+    ];
+    
+    for (const sql of heroColumns) {
+      try { await pool.query(sql); } catch (e) { /* column exists */ }
+    }
+    
+    // Set default hero values for existing stores
+    await pool.query(`
+      UPDATE store_settings 
+      SET 
+        hero_title = COALESCE(hero_title, logo_text),
+        hero_subtitle = COALESCE(hero_subtitle, tagline)
+      WHERE hero_title IS NULL OR hero_title = ''
+    `);
+    
+    console.log('✅ Phase 2 collection upgrade ready!');
+  } catch (err) {
+    console.error('⚠️ Phase 2 migration warning:', err.message);
   }
 }
 
@@ -696,6 +812,7 @@ async function migrateBlockSystem() {
 app.listen(PORT, '0.0.0.0', async () => {
   console.log(`🚀 Jari.Ecom API v4 - FULL TEMPLATES running on port ${PORT}`);
   
-  // Run block system migration on startup
+  // Run migrations on startup
   await migrateBlockSystem();
+  await migratePhase2Collection();
 });

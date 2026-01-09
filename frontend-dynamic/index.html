@@ -19,13 +19,40 @@
     </div>
 
     <div id="app" style="display: none;">
-        <header class="header">
-            <div class="logo" id="logo"></div>
-            <h1 class="business-name" id="businessName"></h1>
-            <p class="tagline" id="tagline"></p>
-        </header>
+        <!-- Hero Section (abc8 style) -->
+        <section class="hero-section" id="heroSection">
+            <div class="hero-bg" id="heroBg">
+                <div class="gradient"></div>
+            </div>
+            <div class="hero-content">
+                <div class="professional-photo" id="heroPhoto"></div>
+                <h1 class="professional-name" id="heroTitle"></h1>
+                <p class="tagline" id="heroSubtitle"></p>
+                <div class="hero-cta" id="heroCta"></div>
+            </div>
+        </section>
+
+        <!-- Featured Testimonial (optional) -->
+        <div class="featured-testimonial" id="featuredTestimonial" style="display: none;">
+            <div class="testimonial-content">
+                <div class="testimonial-stars">★★★★★</div>
+                <p class="testimonial-text" id="testimonialText"></p>
+                <p class="testimonial-author" id="testimonialAuthor"></p>
+            </div>
+        </div>
 
         <main class="main" id="main"></main>
+
+        <!-- Footer -->
+        <footer class="store-footer" id="storeFooter">
+            <div class="footer-content">
+                <div class="footer-brand" id="footerBrand">
+                    <span class="powered-by">Powered by</span>
+                    <span class="brand-name">Jari.Ecom</span>
+                </div>
+                <div class="footer-links" id="footerLinks"></div>
+            </div>
+        </footer>
 
         <div id="modalOverlay" class="modal-overlay" onclick="closeOnOverlay(event)">
             <div class="modal-content">

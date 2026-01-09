@@ -147,6 +147,118 @@ function loadGoogleFont(fontName) {
 }
 
 // ===========================================
+// HERO SECTION RENDERING (Phase 2)
+// ===========================================
+function renderHeroSection() {
+    const { store, hero, testimonial, footer } = storeData;
+    
+    // Apply store mode (dark/light)
+    if (store?.mode === 'light') {
+        document.body.classList.add('light-mode');
+    } else {
+        document.body.classList.remove('light-mode');
+    }
+    
+    // Hero Background
+    const heroBg = document.getElementById('heroBg');
+    if (heroBg && hero) {
+        if (hero.bgType === 'image' && hero.bgImage) {
+            heroBg.innerHTML = `<div class="image" style="background-image: url('${hero.bgImage}')"></div>`;
+        } else {
+            const gradient = hero.bgGradient || 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)';
+            heroBg.innerHTML = `<div class="gradient" style="background: ${gradient}"></div>`;
+        }
+    }
+    
+    // Hero Photo
+    const heroPhoto = document.getElementById('heroPhoto');
+    if (heroPhoto) {
+        if (hero?.photoUrl) {
+            heroPhoto.innerHTML = `<img src="${hero.photoUrl}" alt="${hero.title || 'Store'}" class="hero-photo-img">`;
+            heroPhoto.style.display = 'flex';
+        } else if (store?.logoText) {
+            heroPhoto.textContent = store.logoText.charAt(0).toUpperCase();
+            heroPhoto.style.display = 'flex';
+        } else {
+            heroPhoto.style.display = 'none';
+        }
+    }
+    
+    // Hero Title & Subtitle
+    const heroTitle = document.getElementById('heroTitle');
+    const heroSubtitle = document.getElementById('heroSubtitle');
+    
+    if (heroTitle) {
+        heroTitle.textContent = hero?.title || store?.logoText || 'Welcome';
+    }
+    if (heroSubtitle) {
+        heroSubtitle.textContent = hero?.subtitle || store?.tagline || '';
+        heroSubtitle.style.display = (hero?.subtitle || store?.tagline) ? 'block' : 'none';
+    }
+    
+    // Hero CTA Buttons
+    const heroCta = document.getElementById('heroCta');
+    if (heroCta && hero) {
+        let ctaHtml = '';
+        
+        if (hero.ctaPrimaryText) {
+            const primaryLink = hero.ctaPrimaryLink || '#main';
+            ctaHtml += `<a href="${primaryLink}" class="hero-btn primary">${hero.ctaPrimaryText}</a>`;
+        }
+        
+        if (hero.ctaSecondaryText) {
+            const secondaryLink = hero.ctaSecondaryLink || '#';
+            ctaHtml += `<a href="${secondaryLink}" class="hero-btn secondary">${hero.ctaSecondaryText}</a>`;
+        }
+        
+        heroCta.innerHTML = ctaHtml;
+        heroCta.style.display = ctaHtml ? 'flex' : 'none';
+    }
+    
+    // Featured Testimonial
+    const testimonialSection = document.getElementById('featuredTestimonial');
+    if (testimonialSection && testimonial && testimonial.text) {
+        document.getElementById('testimonialText').textContent = `"${testimonial.text}"`;
+        document.getElementById('testimonialAuthor').textContent = testimonial.author + (testimonial.detail ? ` - ${testimonial.detail}` : '');
+        testimonialSection.style.display = 'block';
+    } else if (testimonialSection) {
+        testimonialSection.style.display = 'none';
+    }
+    
+    // Footer
+    renderFooter(footer, store);
+}
+
+function renderFooter(footer, store) {
+    const footerEl = document.getElementById('storeFooter');
+    if (!footerEl) return;
+    
+    // Powered by
+    const brandEl = document.getElementById('footerBrand');
+    if (brandEl) {
+        brandEl.style.display = (footer?.poweredBy !== false) ? 'flex' : 'none';
+    }
+    
+    // Legal links
+    const linksEl = document.getElementById('footerLinks');
+    if (linksEl) {
+        let linksHtml = '';
+        
+        if (footer?.privacyUrl) {
+            linksHtml += `<a href="${footer.privacyUrl}" target="_blank" rel="noopener">Privacy Policy</a>`;
+        }
+        if (footer?.termsUrl) {
+            linksHtml += `<a href="${footer.termsUrl}" target="_blank" rel="noopener">Terms of Service</a>`;
+        }
+        if (footer?.refundUrl) {
+            linksHtml += `<a href="${footer.refundUrl}" target="_blank" rel="noopener">Refund Policy</a>`;
+        }
+        
+        linksEl.innerHTML = linksHtml;
+    }
+}
+
+// ===========================================
 // IMAGE GALLERY FUNCTIONS
 // ===========================================
 function getProductImages(product) {
@@ -343,16 +455,8 @@ function closePolicy() {
 function renderStore() {
     const { store, products } = storeData;
     
-    // Render header with logo URL option
-    const logoEl = document.getElementById('logo');
-    if (store?.logoUrl && store.logoUrl.trim()) {
-        logoEl.innerHTML = `<img src="${store.logoUrl}" alt="${store.logoText || 'Logo'}" class="logo-image">`;
-    } else {
-        logoEl.textContent = store?.logoText || store?.businessName?.charAt(0) || '🛍️';
-    }
-    
-    document.getElementById('businessName').textContent = store?.logoText || 'Store';
-    document.getElementById('tagline').textContent = store?.tagline || '';
+    // Render the new hero section (Phase 2)
+    renderHeroSection();
     
     const main = document.getElementById('main');
     
