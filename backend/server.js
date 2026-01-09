@@ -646,7 +646,56 @@ app.get('/api/templates', async (req, res) => {
   }
 });
 
+// ============ BLOCK SYSTEM MIGRATION (runs on startup) ============
+async function migrateBlockSystem() {
+  try {
+    console.log('🔧 Checking block system columns...');
+    
+    // Products table - block system columns
+    const productColumns = [
+      `ALTER TABLE products ADD COLUMN IF NOT EXISTS blocks JSONB DEFAULT '[]'`,
+      `ALTER TABLE products ADD COLUMN IF NOT EXISTS images JSONB DEFAULT '[]'`,
+      `ALTER TABLE products ADD COLUMN IF NOT EXISTS checkout_type VARCHAR(20) DEFAULT 'buy_now'`,
+      `ALTER TABLE products ADD COLUMN IF NOT EXISTS price_note VARCHAR(100)`,
+      `ALTER TABLE products ADD COLUMN IF NOT EXISTS customization_options JSONB DEFAULT '[]'`,
+      `ALTER TABLE products ADD COLUMN IF NOT EXISTS booking_config JSONB DEFAULT '{}'`
+    ];
+    
+    for (const sql of productColumns) {
+      try { await pool.query(sql); } catch (e) { /* column exists */ }
+    }
+    
+    // Orders table - booking/customization columns
+    const orderColumns = [
+      `ALTER TABLE orders ADD COLUMN IF NOT EXISTS customizations JSONB DEFAULT '{}'`,
+      `ALTER TABLE orders ADD COLUMN IF NOT EXISTS booking_date DATE`,
+      `ALTER TABLE orders ADD COLUMN IF NOT EXISTS booking_time TIME`
+    ];
+    
+    for (const sql of orderColumns) {
+      try { await pool.query(sql); } catch (e) { /* column exists */ }
+    }
+    
+    // Migrate existing image_url to images array (only if images is empty)
+    await pool.query(`
+      UPDATE products 
+      SET images = jsonb_build_array(jsonb_build_object('url', image_url, 'alt', name))
+      WHERE image_url IS NOT NULL 
+        AND image_url != '' 
+        AND (images IS NULL OR images = '[]'::jsonb)
+    `);
+    
+    console.log('✅ Block system ready!');
+  } catch (err) {
+    console.error('⚠️ Block migration warning:', err.message);
+    // Don't crash - continue with existing functionality
+  }
+}
+
 // ============ START ============
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, '0.0.0.0', async () => {
   console.log(`🚀 Jari.Ecom API v4 - FULL TEMPLATES running on port ${PORT}`);
+  
+  // Run block system migration on startup
+  await migrateBlockSystem();
 });
