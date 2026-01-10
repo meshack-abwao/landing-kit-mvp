@@ -769,7 +769,7 @@ body {
 
 .collection-image {
     width: 100%;
-    aspect-ratio: 4/5;
+    aspect-ratio: 3/4;
     background: var(--bg-gray, #f5f5f7);
     display: flex;
     align-items: center;
