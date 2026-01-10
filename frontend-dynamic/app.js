@@ -47,10 +47,21 @@ let likedProducts = JSON.parse(localStorage.getItem('likedProducts') || '{}');
 // TESTIMONIALS HELPER
 // ===========================================
 function generateTestimonialsHTML(testimonials, sectionTitle = 'What Our Customers Say') {
-    if (!testimonials || !Array.isArray(testimonials) || testimonials.length === 0) return '';
+    // Parse if string
+    let parsed = testimonials;
+    if (typeof testimonials === 'string') {
+        try {
+            parsed = JSON.parse(testimonials);
+        } catch (e) {
+            console.log('Failed to parse testimonials:', e);
+            return '';
+        }
+    }
+    
+    if (!parsed || !Array.isArray(parsed) || parsed.length === 0) return '';
     
     // Filter out empty testimonials
-    const validTestimonials = testimonials.filter(t => t && t.quote && t.quote.trim());
+    const validTestimonials = parsed.filter(t => t && t.quote && t.quote.trim());
     if (validTestimonials.length === 0) return '';
     
     return `
