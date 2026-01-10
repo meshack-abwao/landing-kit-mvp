@@ -223,7 +223,6 @@ body {
   display: flex;
   position: relative;
   overflow-x: hidden; /* Prevent horizontal scroll */
-  max-width: 100vw;
 }
 
 /* STICKY SIDEBAR */
@@ -251,7 +250,6 @@ body {
   position: relative;
   z-index: 1;
   overflow-x: hidden; /* Prevent horizontal scroll */
-  max-width: calc(100vw - 280px); /* Don't exceed viewport minus sidebar */
 }
 
 /* ===== MOBILE STYLES ===== */
