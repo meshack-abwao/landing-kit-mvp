@@ -23,8 +23,13 @@ app.get('/', (req, res) => {
   res.json({ status: 'ok', message: 'Jari.Ecom API v4 - FULL TEMPLATES', time: new Date().toISOString() });
 });
 
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', version: 'v4' });
+app.get('/health', async (req, res) => {
+  try {
+    await pool.query('SELECT 1');
+    res.json({ status: 'ok', version: 'v4', db: 'connected' });
+  } catch (err) {
+    res.status(500).json({ status: 'error', version: 'v4', db: 'disconnected', error: err.message });
+  }
 });
 
 // ============ AUTH MIDDLEWARE ============
@@ -824,10 +829,30 @@ async function migratePhase2Collection() {
 }
 
 // ============ START ============
-app.listen(PORT, '0.0.0.0', async () => {
-  console.log(`🚀 Jari.Ecom API v4 - FULL TEMPLATES running on port ${PORT}`);
-  
-  // Run migrations on startup
-  await migrateBlockSystem();
-  await migratePhase2Collection();
-});
+async function startServer() {
+  try {
+    // 1. Test database connection first
+    console.log('🔌 Connecting to database...');
+    await pool.query('SELECT 1');
+    console.log('✅ Database connected!');
+    
+    // 2. Run ALL migrations BEFORE accepting requests
+    console.log('🔧 Running database migrations...');
+    await migrateBlockSystem();
+    await migratePhase2Collection();
+    console.log('✅ All migrations complete!');
+    
+    // 3. NOW start accepting requests (only after DB is ready)
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`🚀 Jari.Ecom API v4 ready on port ${PORT}`);
+      console.log(`📊 Health check: http://localhost:${PORT}/health`);
+    });
+    
+  } catch (err) {
+    console.error('❌ FATAL: Server failed to start:', err.message);
+    process.exit(1); // Exit with error code so Railway knows to restart
+  }
+}
+
+// Start the server
+startServer();
