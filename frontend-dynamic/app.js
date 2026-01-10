@@ -696,6 +696,27 @@ function renderPortfolioBookingTemplate(product) {
         servicePackages = [];
     }
     
+    // Get gallery images (6 slots for portfolio)
+    let galleryImages = [];
+    try {
+        const parsed = product.gallery_images;
+        if (Array.isArray(parsed)) {
+            galleryImages = parsed.filter(url => url && url.trim());
+        } else if (typeof parsed === 'string') {
+            galleryImages = JSON.parse(parsed).filter(url => url && url.trim());
+        }
+    } catch (e) {
+        galleryImages = [];
+    }
+    
+    // Fallback to main image + additional images if no gallery
+    if (galleryImages.length === 0) {
+        galleryImages = productImages.slice(0, 6);
+    }
+    
+    console.log('🖼️ Portfolio galleryImages:', galleryImages);
+    console.log('📦 Portfolio servicePackages:', servicePackages);
+    
     const main = document.getElementById('main');
     
     const backButton = storeData.products.length > 1 ? `
@@ -704,20 +725,20 @@ function renderPortfolioBookingTemplate(product) {
         </button>
     ` : '';
     
-    const hasMultipleImages = productImages.length > 1;
+    const hasMultipleImages = galleryImages.length > 1;
     
-    // Portfolio gallery
-    const galleryHTML = `
+    // Portfolio gallery - use galleryImages specifically
+    const galleryHTML = galleryImages.length > 0 ? `
         <div class="portfolio-gallery">
             <div class="gallery-grid">
-                ${productImages.slice(0, 6).map((img, idx) => `
+                ${galleryImages.slice(0, 6).map((img, idx) => `
                     <div class="gallery-item ${idx === 0 ? 'featured' : ''}" onclick="setMainImage(${idx})">
                         <img src="${img}" alt="Portfolio ${idx + 1}">
                     </div>
                 `).join('')}
             </div>
         </div>
-    `;
+    ` : '';
     
     // Story circles for testimonials/process
     const storyHTML = stories.length > 0 ? `

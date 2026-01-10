@@ -58,24 +58,37 @@ const TEMPLATE_CONFIG = {
 const parseStoryMedia = (storyJson) => {
   const defaultStories = [{ url: '', type: 'image' }, { url: '', type: 'image' }, { url: '', type: 'image' }, { url: '', type: 'image' }];
   try {
-    const parsed = JSON.parse(storyJson || '[]');
+    // Handle already-parsed array (from JSONB column)
+    let parsed = storyJson;
+    if (typeof storyJson === 'string') {
+      parsed = JSON.parse(storyJson || '[]');
+    }
     if (Array.isArray(parsed)) {
       return [...parsed, ...defaultStories].slice(0, 4).map(s => ({
         url: s?.url || '',
         type: s?.type || 'image'
       }));
     }
-  } catch (e) {}
+  } catch (e) {
+    console.log('parseStoryMedia error:', e, storyJson);
+  }
   return defaultStories;
 };
 
 const parseGalleryImages = (galleryJson) => {
   try {
+    // Handle already-parsed array (from JSONB column)
+    if (Array.isArray(galleryJson)) {
+      return [...galleryJson, '', '', '', '', '', ''].slice(0, 6);
+    }
+    // Handle JSON string
     const parsed = JSON.parse(galleryJson || '[]');
     if (Array.isArray(parsed)) {
-      return [...parsed, '', '', '', '', ''].slice(0, 6);
+      return [...parsed, '', '', '', '', '', ''].slice(0, 6);
     }
-  } catch (e) {}
+  } catch (e) {
+    console.log('parseGalleryImages error:', e, galleryJson);
+  }
   return ['', '', '', '', '', ''];
 };
 
@@ -97,9 +110,18 @@ const parseTrustBadges = (badgesJson) => {
 
 const parseServicePackages = (packagesJson) => {
   try {
+    // Handle already-parsed array (from JSONB column)
+    if (Array.isArray(packagesJson)) {
+      return packagesJson.length > 0 ? packagesJson : [{ name: '', price: '', description: '', features: [] }];
+    }
+    // Handle JSON string
     const parsed = JSON.parse(packagesJson || '[]');
-    if (Array.isArray(parsed)) return parsed;
-  } catch (e) {}
+    if (Array.isArray(parsed)) {
+      return parsed.length > 0 ? parsed : [{ name: '', price: '', description: '', features: [] }];
+    }
+  } catch (e) {
+    console.log('parseServicePackages error:', e, packagesJson);
+  }
   return [{ name: '', price: '', description: '', features: [] }];
 };
 
