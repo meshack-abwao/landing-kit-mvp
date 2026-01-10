@@ -154,9 +154,9 @@ export default function Settings() {
         hero_cta_primary_link: storeSettings.heroCtaPrimaryLink,
         hero_cta_secondary_text: storeSettings.heroCtaSecondaryText,
         hero_cta_secondary_link: storeSettings.heroCtaSecondaryLink,
-        // Testimonials (array)
+        // Testimonials (array) - filter empty ones but keep at least one if any have data
         show_testimonials: storeSettings.showTestimonials,
-        collection_testimonials: storeSettings.collectionTestimonials.filter(t => t.quote && t.quote.trim()),
+        collection_testimonials: storeSettings.collectionTestimonials.filter(t => t.quote?.trim() || t.name?.trim()),
         // Policies
         privacy_policy: storeSettings.privacyPolicy,
         terms_of_service: storeSettings.termsOfService,

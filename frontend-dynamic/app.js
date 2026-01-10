@@ -47,21 +47,33 @@ let likedProducts = JSON.parse(localStorage.getItem('likedProducts') || '{}');
 // TESTIMONIALS HELPER
 // ===========================================
 function generateTestimonialsHTML(testimonials, sectionTitle = 'What Our Customers Say') {
+    console.log('📝 generateTestimonialsHTML called with:', {
+        type: typeof testimonials,
+        isArray: Array.isArray(testimonials),
+        raw: testimonials
+    });
+    
     // Parse if string
     let parsed = testimonials;
     if (typeof testimonials === 'string') {
         try {
             parsed = JSON.parse(testimonials);
+            console.log('📝 Parsed from string:', parsed);
         } catch (e) {
-            console.log('Failed to parse testimonials:', e);
+            console.log('❌ Failed to parse testimonials:', e);
             return '';
         }
     }
     
-    if (!parsed || !Array.isArray(parsed) || parsed.length === 0) return '';
+    if (!parsed || !Array.isArray(parsed) || parsed.length === 0) {
+        console.log('📝 No valid testimonials array');
+        return '';
+    }
     
     // Filter out empty testimonials
     const validTestimonials = parsed.filter(t => t && t.quote && t.quote.trim());
+    console.log('📝 Valid testimonials after filter:', validTestimonials.length);
+    
     if (validTestimonials.length === 0) return '';
     
     return `
@@ -101,6 +113,11 @@ async function init() {
 
         storeData = await response.json();
         console.log('✅ Store loaded:', storeData.store?.logoText || 'Unknown');
+        console.log('📝 Collection testimonials from API:', {
+            value: storeData.store?.collectionTestimonials,
+            type: typeof storeData.store?.collectionTestimonials,
+            showTestimonials: storeData.store?.showTestimonials
+        });
         
         applyTheme(storeData.store?.theme);
         // Note: applyHeaderBackground() moved to after renderStore() creates the header

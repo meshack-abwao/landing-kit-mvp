@@ -1,0 +1,41 @@
+/* ===========================================
+   GOLDEN RATIO TYPOGRAPHY SYSTEM
+   Apple/SF Pro Inspired - Clean & Balanced
+   
+   Scale (1.618 ratio from 10px base):
+   10px - micro (badges, counters)
+   11px - tiny (tags, meta)
+   12px - small (labels, captions)
+   13px - body-small (secondary text)
+   15px - body (main readable text)
+   17px - body-large (emphasis)
+   20px - heading-sm (h4, section titles)
+   22px - heading-md (h3, card titles)
+   24px - heading-lg (h2, page sections)
+   28px - heading-xl (h1, hero - MAX SIZE)
+   =========================================== */
+
+:root {
+    /* Typography Scale */
+    --fs-micro: 10px;
+    --fs-tiny: 11px;
+    --fs-small: 12px;
+    --fs-body-sm: 13px;
+    --fs-body: 15px;
+    --fs-body-lg: 17px;
+    --fs-heading-sm: 20px;
+    --fs-heading-md: 22px;
+    --fs-heading-lg: 24px;
+    --fs-heading-xl: 28px;
+    
+    /* Line Heights */
+    --lh-tight: 1.2;
+    --lh-snug: 1.3;
+    --lh-normal: 1.5;
+    --lh-relaxed: 1.6;
+    
+    /* Letter Spacing */
+    --ls-tight: -0.02em;
+    --ls-normal: -0.01em;
+    --ls-wide: 0.5px;
+}
