@@ -592,7 +592,7 @@ function renderCollectionsGrid(products) {
                 ${products.map(product => {
                     const imgCount = getProductImages(product).length;
                     const template = product.template_type || 'quick-decision';
-                    const templateLabel = templateLabels[template] || '';
+                    const tags = product.tags ? (typeof product.tags === 'string' ? JSON.parse(product.tags) : product.tags) : [];
                     return `
                     <div class="collection-card" onclick="viewProduct(${product.id})">
                         <div class="collection-image">
@@ -601,14 +601,21 @@ function renderCollectionsGrid(products) {
                                 '<div class="image-placeholder">📸</div>'
                             }
                             ${imgCount > 1 ? `<span class="image-count-badge">📷 ${imgCount}</span>` : ''}
-                            ${templateLabel ? `<span class="template-badge ${template}">${templateLabel}</span>` : ''}
                         </div>
                         <div class="collection-content">
-                            <h3 class="collection-name">${product.name}</h3>
-                            <p class="collection-description">${product.description ? (product.description.substring(0, 60) + (product.description.length > 60 ? '...' : '')) : 'No description'}</p>
+                            <div class="collection-title-row">
+                                <h3 class="collection-name">${product.name}</h3>
+                                <span class="collection-price">${parseInt(product.price).toLocaleString()}</span>
+                            </div>
+                            <p class="collection-description">${product.description ? (product.description.substring(0, 80) + (product.description.length > 80 ? '...' : '')) : ''}</p>
+                            ${tags.length > 0 ? `
+                                <div class="collection-tags">
+                                    ${tags.slice(0, 3).map(tag => `<span class="collection-tag">${tag.icon || '🏷️'} ${tag.label || tag}</span>`).join('')}
+                                </div>
+                            ` : ''}
                             <div class="collection-footer">
-                                <p class="collection-price">KES ${parseInt(product.price).toLocaleString()}</p>
-                                <button class="collection-btn">View Details →</button>
+                                ${product.serving_info ? `<span class="collection-serving">${product.serving_info}</span>` : '<span></span>'}
+                                <button class="collection-btn">Add to Order</button>
                             </div>
                         </div>
                     </div>

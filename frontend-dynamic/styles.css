@@ -747,32 +747,35 @@ body {
 
 .collections-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 24px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    max-width: 480px;
+    margin: 0 auto;
 }
 
 .collection-card {
-    background: white;
-    border-radius: 20px;
+    background: #1a1a1a;
+    border-radius: 16px;
     overflow: hidden;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
-    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.2);
 }
 
 .collection-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 32px rgba(0,0,0,0.16);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
 }
 
 .collection-image {
     width: 100%;
-    height: 240px;
-    background: var(--gradient-primary);
+    aspect-ratio: 4/5;
+    background: #2a2a2a;
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    position: relative;
 }
 
 .collection-image img {
@@ -782,52 +785,93 @@ body {
 }
 
 .collection-content {
-    padding: 24px;
+    padding: 16px;
+    background: #1a1a1a;
+}
+
+.collection-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 8px;
 }
 
 .collection-name {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 700;
-    margin-bottom: 8px;
+    color: #fff;
+    margin: 0;
+    flex: 1;
     letter-spacing: -0.01em;
+    line-height: 1.3;
+}
+
+.collection-price {
+    font-size: 18px;
+    font-weight: 700;
+    color: #ff9f0a;
+    white-space: nowrap;
 }
 
 .collection-description {
-    font-size: 14px;
-    color: var(--text-secondary);
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.6);
     line-height: 1.5;
-    margin-bottom: 16px;
-    min-height: 42px;
+    margin-bottom: 12px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.collection-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.collection-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 10px;
+    background: rgba(255, 159, 10, 0.15);
+    border: 1px solid rgba(255, 159, 10, 0.3);
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #ff9f0a;
 }
 
 .collection-footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-top: 8px;
 }
 
-.collection-price {
-    font-size: 24px;
-    font-weight: 800;
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+.collection-serving {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.5);
 }
 
 .collection-btn {
-    padding: 10px 20px;
-    background: var(--bg-gray);
+    padding: 10px 16px;
+    background: var(--color-primary, #11998e);
     border: none;
-    border-radius: 10px;
-    font-size: 14px;
+    border-radius: 8px;
+    font-size: 13px;
     font-weight: 600;
+    color: white;
     cursor: pointer;
     transition: all 0.3s;
 }
 
 .collection-btn:hover {
-    background: var(--color-primary);
-    color: white;
+    filter: brightness(1.1);
+    transform: scale(1.02);
 }
 
 .back-btn {
@@ -852,12 +896,39 @@ body {
 
 @media (max-width: 768px) {
     .collections-grid {
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-        gap: 16px;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
     }
     
-    .collection-image {
-        height: 200px;
+    .collection-content {
+        padding: 12px;
+    }
+    
+    .collection-name {
+        font-size: 15px;
+    }
+    
+    .collection-price {
+        font-size: 15px;
+    }
+    
+    .collection-description {
+        font-size: 12px;
+        margin-bottom: 8px;
+    }
+    
+    .collection-tag {
+        font-size: 10px;
+        padding: 4px 8px;
+    }
+    
+    .collection-btn {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+    
+    .collection-serving {
+        font-size: 11px;
     }
 }
 
