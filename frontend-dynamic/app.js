@@ -61,7 +61,7 @@ async function init() {
         console.log('✅ Store loaded:', storeData.store?.logoText || 'Unknown');
         
         applyTheme(storeData.store?.theme);
-        applyHeaderBackground();
+        // Note: applyHeaderBackground() moved to after renderStore() creates the header
         
         if (storeData.store?.fontFamily) {
             document.documentElement.style.setProperty('--font-family', storeData.store.fontFamily, 'important');
@@ -80,6 +80,9 @@ async function init() {
         } else {
             renderStore();
         }
+        
+        // Apply header background AFTER the header is rendered
+        applyHeaderBackground();
         
         document.getElementById('loading').style.display = 'none';
         document.getElementById('app').style.display = 'block';
