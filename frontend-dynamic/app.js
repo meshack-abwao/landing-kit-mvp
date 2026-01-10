@@ -784,20 +784,6 @@ function renderPortfolioBookingTemplate(product) {
         </div>
     ` : '';
     
-    // Video section - click to expand and play
-    const videoHTML = product.video_url ? `
-        <div class="video-section" onclick="expandVideo('${product.video_url}')">
-            <div class="video-preview">
-                <div class="video-play-btn">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                    </svg>
-                </div>
-                <span class="video-label">Watch Video</span>
-            </div>
-        </div>
-    ` : '';
-    
     // Availability notes
     const availabilityHTML = product.availability_notes ? `
         <div class="availability-section">
@@ -829,7 +815,6 @@ function renderPortfolioBookingTemplate(product) {
                     <p class="product-description">${product.description || product.rich_description || ''}</p>
                     
                     ${storyHTML}
-                    ${videoHTML}
                     ${availabilityHTML}
                     
                     <div class="price-display portfolio-price">
@@ -837,7 +822,7 @@ function renderPortfolioBookingTemplate(product) {
                         <div class="price">KES <span id="displayPrice">${parseInt(product.price).toLocaleString()}</span></div>
                     </div>
                     
-                    <button onclick="openPortfolioCheckout()" class="buy-btn book-btn">
+                    <button onclick="handlePortfolioCheckout()" class="buy-btn book-btn">
                         <span class="btn-text">${servicePackages.length > 0 ? 'View Packages & Book' : 'Book Now'}</span>
                         <span class="btn-arrow">→</span>
                     </button>
@@ -1480,6 +1465,10 @@ function closeVideo() {
 // PORTFOLIO CHECKOUT (with packages)
 // ===========================================
 let selectedPackageIndex = -1;
+
+function handlePortfolioCheckout() {
+    openPortfolioCheckout();
+}
 
 function openPortfolioCheckout() {
     const packages = window.currentServicePackages || [];

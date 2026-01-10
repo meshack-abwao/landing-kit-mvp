@@ -3043,3 +3043,34 @@ textarea:focus-visible {
         align-items: center;
     }
 }
+
+
+/* ===========================================
+   PORTFOLIO DESKTOP - iPhone-like container
+   =========================================== */
+@media (min-width: 600px) {
+    .template-portfolio.edge-to-edge {
+        max-width: 480px;
+        margin: 0 auto;
+        padding: 20px 0;
+    }
+    
+    .template-portfolio .product-card.portfolio-card {
+        border-radius: 24px !important;
+        overflow: hidden;
+        box-shadow: 0 8px 40px rgba(0,0,0,0.12) !important;
+    }
+    
+    .template-portfolio .portfolio-hero-image {
+        border-radius: 24px 24px 0 0;
+    }
+    
+    .template-portfolio .portfolio-thumbnails {
+        padding: 8px 12px;
+        border-radius: 0;
+    }
+    
+    .template-portfolio .portfolio-info {
+        padding: 24px;
+    }
+}

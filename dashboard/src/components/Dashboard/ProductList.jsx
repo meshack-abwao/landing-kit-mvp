@@ -33,25 +33,25 @@ const TEMPLATE_CONFIG = {
     name: 'Portfolio + Booking',
     price: 500,
     description: 'For service providers with packages and booking',
-    fields: ['name', 'richDescription', 'price', 'imageUrl', 'galleryImages', 'storyMedia', 'storyTitle', 'servicePackages', 'videoUrl', 'availability']
+    fields: ['name', 'richDescription', 'price', 'imageUrl', 'galleryImages', 'storyMedia', 'storyTitle', 'servicePackages', 'availability']
   },
   'visual-menu': {
     name: 'Visual Menu',
     price: 600,
     description: 'For restaurants and food businesses',
-    fields: ['name', 'description', 'price', 'imageUrl', 'galleryImages', 'dietaryTags', 'ingredients', 'prepTime', 'calories']
+    fields: ['name', 'description', 'price', 'imageUrl', 'galleryImages', 'storyMedia', 'storyTitle', 'dietaryTags', 'ingredients', 'prepTime', 'calories']
   },
   'deep-dive': {
     name: 'Deep Dive Evaluator',
     price: 800,
     description: 'For high-ticket items needing detailed specs',
-    fields: ['name', 'richDescription', 'price', 'imageUrl', 'galleryImages', 'specifications', 'trustBadges', 'videoUrl', 'warranty', 'returnPolicy']
+    fields: ['name', 'richDescription', 'price', 'imageUrl', 'galleryImages', 'storyMedia', 'storyTitle', 'specifications', 'trustBadges', 'warranty', 'returnPolicy']
   },
   'event-landing': {
     name: 'Event Landing',
     price: 700,
     description: 'For events, workshops, and courses',
-    fields: ['name', 'richDescription', 'price', 'imageUrl', 'galleryImages', 'eventDate', 'eventLocation', 'speakers']
+    fields: ['name', 'richDescription', 'price', 'imageUrl', 'galleryImages', 'storyMedia', 'storyTitle', 'eventDate', 'eventLocation', 'speakers']
   }
 };
 
