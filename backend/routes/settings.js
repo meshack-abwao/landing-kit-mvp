@@ -113,9 +113,10 @@ router.put('/', authMiddleware, async (req, res) => {
       const dbField = fieldMap[key];
       if (dbField && !processedFields.has(dbField)) {
         updates.push(`${dbField} = $${paramCount}`);
-        // Handle JSONB fields
+        // Handle JSONB fields - pg driver accepts JS objects directly for JSONB
         if (dbField === 'collection_testimonials') {
-          values.push(value ? (typeof value === 'string' ? value : JSON.stringify(value)) : '[]');
+          // Pass array directly - pg driver handles JSONB serialization
+          values.push(Array.isArray(value) ? value : (value || []));
         } else {
           values.push(value === undefined ? null : value);
         }
