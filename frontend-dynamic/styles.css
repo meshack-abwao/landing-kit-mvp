@@ -746,10 +746,10 @@ body {
 }
 
 .collections-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    max-width: 480px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    max-width: 1200px;
     margin: 0 auto;
 }
 
@@ -897,7 +897,13 @@ body {
 
 @media (max-width: 768px) {
     .collections-grid {
-        gap: 12px;
+        grid-template-columns: 1fr;
+        gap: 16px;
+        max-width: 480px;
+    }
+    
+    .collection-image {
+        height: 380px;
     }
     
     .collection-content {
