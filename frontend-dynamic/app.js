@@ -122,14 +122,23 @@ function applyTheme(theme) {
 
 function applyHeaderBackground() {
     const header = document.querySelector('.header');
-    if (!header || !storeData?.store) return;
+    if (!header || !storeData?.store) {
+        console.log('⚠️ applyHeaderBackground: No header or store data');
+        return;
+    }
     
     const bgUrl = storeData.store.headerBgUrl;
+    console.log('🖼️ Header background URL:', bgUrl);
+    
     if (bgUrl && bgUrl.trim()) {
-        header.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('${bgUrl}')`;
-        header.style.backgroundSize = 'cover';
-        header.style.backgroundPosition = 'center';
+        // Use !important via cssText to override the gradient
+        header.style.cssText += `
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('${bgUrl}') !important;
+            background-size: cover !important;
+            background-position: center !important;
+        `;
         header.classList.add('has-bg-image');
+        console.log('✅ Header background applied');
     }
 }
 

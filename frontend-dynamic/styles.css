@@ -1030,9 +1030,11 @@ body {
    PREMIUM IG SHOPPING EXPERIENCE - NEW STYLES
    =========================================== */
 
-/* Header with background image support */
+/* Header with background image support - inline styles from JS will override */
 .header.has-bg-image {
     position: relative;
+    background-size: cover !important;
+    background-position: center !important;
 }
 
 .header.has-bg-image::before {
