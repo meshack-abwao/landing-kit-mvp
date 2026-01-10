@@ -26,85 +26,99 @@ router.get('/', authMiddleware, async (req, res) => {
   }
 });
 
-// Update settings
+// Update settings - handles ALL fields dynamically
 router.put('/', authMiddleware, async (req, res) => {
   try {
-    const { 
-      logoText, logo_text,
-      tagline, 
-      subdomain, 
-      themeColor, theme_color,
-      themeId, theme_id,
-      fontFamily, font_family,
-      mpesaNumber, mpesa_number,
-      logoUrl, logo_url,
-      headerBgUrl, header_bg_url
-    } = req.body;
+    console.log('📝 Settings update request:', JSON.stringify(req.body, null, 2));
+    
+    // Map of camelCase to snake_case field names
+    const fieldMap = {
+      // Basic
+      logoText: 'logo_text',
+      logo_text: 'logo_text',
+      tagline: 'tagline',
+      subdomain: 'subdomain',
+      themeColor: 'theme_color',
+      theme_color: 'theme_color',
+      themeId: 'theme_id',
+      theme_id: 'theme_id',
+      fontFamily: 'font_family',
+      font_family: 'font_family',
+      mpesaNumber: 'mpesa_number',
+      mpesa_number: 'mpesa_number',
+      logoUrl: 'logo_url',
+      logo_url: 'logo_url',
+      // Header Background
+      headerBgUrl: 'header_bg_url',
+      header_bg_url: 'header_bg_url',
+      headerBgType: 'header_bg_type',
+      header_bg_type: 'header_bg_type',
+      // Hero Section
+      heroBgType: 'hero_bg_type',
+      hero_bg_type: 'hero_bg_type',
+      heroBgImage: 'hero_bg_image',
+      hero_bg_image: 'hero_bg_image',
+      heroBgGradient: 'hero_bg_gradient',
+      hero_bg_gradient: 'hero_bg_gradient',
+      heroPhotoUrl: 'hero_photo_url',
+      hero_photo_url: 'hero_photo_url',
+      heroTitle: 'hero_title',
+      hero_title: 'hero_title',
+      heroSubtitle: 'hero_subtitle',
+      hero_subtitle: 'hero_subtitle',
+      heroCtaPrimaryText: 'hero_cta_primary_text',
+      hero_cta_primary_text: 'hero_cta_primary_text',
+      heroCtaPrimaryLink: 'hero_cta_primary_link',
+      hero_cta_primary_link: 'hero_cta_primary_link',
+      heroCtaSecondaryText: 'hero_cta_secondary_text',
+      hero_cta_secondary_text: 'hero_cta_secondary_text',
+      heroCtaSecondaryLink: 'hero_cta_secondary_link',
+      hero_cta_secondary_link: 'hero_cta_secondary_link',
+      // Testimonial
+      showFeaturedTestimonial: 'show_featured_testimonial',
+      show_featured_testimonial: 'show_featured_testimonial',
+      featuredTestimonialText: 'featured_testimonial_text',
+      featured_testimonial_text: 'featured_testimonial_text',
+      featuredTestimonialAuthor: 'featured_testimonial_author',
+      featured_testimonial_author: 'featured_testimonial_author',
+      featuredTestimonialDetail: 'featured_testimonial_detail',
+      featured_testimonial_detail: 'featured_testimonial_detail',
+      // Policies
+      privacyPolicy: 'privacy_policy',
+      privacy_policy: 'privacy_policy',
+      termsOfService: 'terms_of_service',
+      terms_of_service: 'terms_of_service',
+      refundPolicy: 'refund_policy',
+      refund_policy: 'refund_policy',
+      // Light mode
+      lightModeEnabled: 'light_mode_enabled',
+      light_mode_enabled: 'light_mode_enabled',
+      brandColorPrimary: 'brand_color_primary',
+      brand_color_primary: 'brand_color_primary',
+      brandColorSecondary: 'brand_color_secondary',
+      brand_color_secondary: 'brand_color_secondary',
+    };
 
-    // Build update query dynamically based on provided fields
     const updates = [];
     const values = [];
     let paramCount = 1;
+    const processedFields = new Set();
 
-    if (logoText || logo_text) {
-      updates.push(`logo_text = $${paramCount}`);
-      values.push(logoText || logo_text);
-      paramCount++;
-    }
-
-    if (tagline !== undefined) {
-      updates.push(`tagline = $${paramCount}`);
-      values.push(tagline);
-      paramCount++;
-    }
-
-    if (subdomain) {
-      updates.push(`subdomain = $${paramCount}`);
-      values.push(subdomain);
-      paramCount++;
-    }
-
-    if (themeColor || theme_color) {
-      updates.push(`theme_color = $${paramCount}`);
-      values.push(themeColor || theme_color);
-      paramCount++;
-    }
-
-    if (themeId || theme_id) {
-      updates.push(`theme_id = $${paramCount}`);
-      values.push(themeId || theme_id);
-      paramCount++;
-    }
-
-    if (fontFamily || font_family) {
-      updates.push(`font_family = $${paramCount}`);
-      values.push(fontFamily || font_family);
-      paramCount++;
-    }
-
-    if (mpesaNumber || mpesa_number) {
-      updates.push(`mpesa_number = $${paramCount}`);
-      values.push(mpesaNumber || mpesa_number);
-      paramCount++;
-    }
-
-    if (logoUrl !== undefined || logo_url !== undefined) {
-      updates.push(`logo_url = $${paramCount}`);
-      values.push(logoUrl || logo_url || '');
-      paramCount++;
-    }
-
-    if (headerBgUrl !== undefined || header_bg_url !== undefined) {
-      updates.push(`header_bg_url = $${paramCount}`);
-      values.push(headerBgUrl || header_bg_url || '');
-      paramCount++;
+    // Process each field in the request body
+    for (const [key, value] of Object.entries(req.body)) {
+      const dbField = fieldMap[key];
+      if (dbField && !processedFields.has(dbField)) {
+        updates.push(`${dbField} = $${paramCount}`);
+        values.push(value === undefined ? null : value);
+        paramCount++;
+        processedFields.add(dbField);
+      }
     }
 
     if (updates.length === 0) {
-      return res.status(400).json({ success: false, error: 'No fields to update' });
+      return res.status(400).json({ success: false, error: 'No valid fields to update' });
     }
 
-    // Add user_id for WHERE clause
     values.push(req.user.userId);
 
     const query = `
@@ -114,8 +128,8 @@ router.put('/', authMiddleware, async (req, res) => {
       RETURNING *
     `;
 
-    console.log('Update query:', query);
-    console.log('Update values:', values);
+    console.log('📝 Update query:', query);
+    console.log('📝 Values:', values);
 
     const result = await pool.query(query, values);
 
@@ -123,13 +137,15 @@ router.put('/', authMiddleware, async (req, res) => {
       return res.status(404).json({ success: false, error: 'Settings not found' });
     }
 
+    console.log('✅ Settings updated successfully');
+
     res.json({
       success: true,
       settings: result.rows[0]
     });
   } catch (error) {
-    console.error('Update settings error:', error);
-    res.status(500).json({ success: false, error: 'Failed to update settings' });
+    console.error('❌ Update settings error:', error);
+    res.status(500).json({ success: false, error: 'Failed to update settings: ' + error.message });
   }
 });
 
@@ -175,7 +191,6 @@ router.post('/add-ons/:id/activate', authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Check if already activated
     const existing = await pool.query(
       'SELECT id FROM user_add_ons WHERE user_id = $1 AND add_on_id = $2',
       [req.user.userId, id]
@@ -185,7 +200,6 @@ router.post('/add-ons/:id/activate', authMiddleware, async (req, res) => {
       return res.json({ success: false, error: 'Add-on already activated' });
     }
 
-    // Activate add-on
     await pool.query(
       'INSERT INTO user_add_ons (user_id, add_on_id) VALUES ($1, $2)',
       [req.user.userId, id]
