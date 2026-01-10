@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useState, useEffect } from 'react';
 import { settingsAPI } from '../../services/api.jsx';
 import { Save, Check, Crown, ExternalLink, ChevronDown, ChevronUp, Plus, Trash2 } from 'lucide-react';
 
