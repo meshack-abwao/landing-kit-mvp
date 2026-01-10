@@ -33,7 +33,7 @@ const TEMPLATE_CONFIG = {
     name: 'Portfolio + Booking',
     price: 500,
     description: 'For service providers with packages and booking',
-    fields: ['name', 'richDescription', 'price', 'imageUrl', 'galleryImages', 'servicePackages', 'videoUrl', 'availability']
+    fields: ['name', 'richDescription', 'price', 'imageUrl', 'galleryImages', 'storyMedia', 'storyTitle', 'servicePackages', 'videoUrl', 'availability']
   },
   'visual-menu': {
     name: 'Visual Menu',

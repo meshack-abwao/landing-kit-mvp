@@ -688,13 +688,21 @@ function setupSwipeGestures() {
 function renderPortfolioBookingTemplate(product) {
     const stories = getStoryMedia(product);
     const isLiked = isProductLiked(product.id);
-    let servicePackages = [];
     
+    // Parse service packages (handle both array and string)
+    let servicePackages = [];
     try {
-        servicePackages = JSON.parse(product.service_packages || '[]');
+        if (Array.isArray(product.service_packages)) {
+            servicePackages = product.service_packages;
+        } else {
+            servicePackages = JSON.parse(product.service_packages || '[]');
+        }
     } catch (e) {
         servicePackages = [];
     }
+    
+    // Store packages globally for checkout
+    window.currentServicePackages = servicePackages;
     
     // Get gallery images (6 slots for portfolio)
     let galleryImages = [];
@@ -714,8 +722,14 @@ function renderPortfolioBookingTemplate(product) {
         galleryImages = productImages.slice(0, 6);
     }
     
+    // If still empty, use main image
+    if (galleryImages.length === 0 && product.image_url) {
+        galleryImages = [product.image_url];
+    }
+    
     console.log('🖼️ Portfolio galleryImages:', galleryImages);
     console.log('📦 Portfolio servicePackages:', servicePackages);
+    console.log('🎬 Portfolio videoUrl:', product.video_url);
     
     const main = document.getElementById('main');
     
@@ -725,25 +739,39 @@ function renderPortfolioBookingTemplate(product) {
         </button>
     ` : '';
     
-    const hasMultipleImages = galleryImages.length > 1;
+    // Main hero image - edge to edge
+    const heroImageHTML = `
+        <div class="portfolio-hero-image">
+            <img id="mainProductImage" src="${galleryImages[0] || product.image_url}" alt="${product.name}">
+            ${galleryImages.length > 1 ? `
+                <div class="image-nav">
+                    <button class="nav-btn prev-btn" onclick="prevImage()">‹</button>
+                    <button class="nav-btn next-btn" onclick="nextImage()">›</button>
+                </div>
+                <div class="gallery-dots">
+                    ${galleryImages.map((_, idx) => `
+                        <span class="gallery-dot ${idx === 0 ? 'active' : ''}" onclick="setMainImage(${idx})"></span>
+                    `).join('')}
+                </div>
+            ` : ''}
+        </div>
+    `;
     
-    // Portfolio gallery - use galleryImages specifically
-    const galleryHTML = galleryImages.length > 0 ? `
-        <div class="portfolio-gallery">
-            <div class="gallery-grid">
-                ${galleryImages.slice(0, 6).map((img, idx) => `
-                    <div class="gallery-item ${idx === 0 ? 'featured' : ''}" onclick="setMainImage(${idx})">
-                        <img src="${img}" alt="Portfolio ${idx + 1}">
-                    </div>
-                `).join('')}
-            </div>
+    // Thumbnail gallery strip - edge to edge scroll
+    const thumbnailsHTML = galleryImages.length > 1 ? `
+        <div class="portfolio-thumbnails">
+            ${galleryImages.map((img, idx) => `
+                <div class="thumb-item ${idx === 0 ? 'active' : ''}" onclick="setMainImage(${idx})">
+                    <img src="${img}" alt="Gallery ${idx + 1}">
+                </div>
+            `).join('')}
         </div>
     ` : '';
     
     // Story circles for testimonials/process
     const storyHTML = stories.length > 0 ? `
-        <div class="story-section">
-            ${product.story_title ? `<p class="story-title">${product.story_title}</p>` : '<p class="story-title">See My Work</p>'}
+        <div class="story-section portfolio-stories">
+            <p class="story-title">${product.story_title || 'See My Work'}</p>
             <div class="story-circles">
                 ${stories.map((story, idx) => `
                     <div class="story-circle" onclick="openStory(${idx})">
@@ -756,48 +784,41 @@ function renderPortfolioBookingTemplate(product) {
         </div>
     ` : '';
     
-    // Service packages
-    const packagesHTML = servicePackages.length > 0 ? `
-        <div class="service-packages">
-            <h3 class="packages-title">Service Packages</h3>
-            ${servicePackages.map((pkg, idx) => `
-                <div class="package-card ${idx === 0 ? 'featured' : ''}">
-                    <div class="package-header">
-                        <h4 class="package-name">${pkg.name || 'Package ' + (idx + 1)}</h4>
-                        <span class="package-price">KES ${parseInt(pkg.price || product.price).toLocaleString()}</span>
-                    </div>
-                    ${pkg.description ? `<p class="package-desc">${pkg.description}</p>` : ''}
-                    ${pkg.includes && pkg.includes.length > 0 ? `
-                        <ul class="package-includes">
-                            ${pkg.includes.map(item => `<li>✓ ${item}</li>`).join('')}
-                        </ul>
-                    ` : ''}
-                    <button class="package-select-btn" onclick="selectPackage(${idx})">Select Package</button>
+    // Video section - click to expand and play
+    const videoHTML = product.video_url ? `
+        <div class="video-section" onclick="expandVideo('${product.video_url}')">
+            <div class="video-preview">
+                <div class="video-play-btn">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
                 </div>
-            `).join('')}
+                <span class="video-label">Watch Video</span>
+            </div>
         </div>
     ` : '';
     
     // Availability notes
     const availabilityHTML = product.availability_notes ? `
         <div class="availability-section">
-            <span class="availability-label">📅 Availability</span>
-            <p class="availability-text">${product.availability_notes}</p>
+            <span class="availability-icon">📅</span>
+            <span class="availability-text">${product.availability_notes}</span>
         </div>
     ` : '';
     
     main.innerHTML = `
         ${backButton}
-        <div class="product-container template-portfolio">
-            <div class="product-card">
-                ${galleryHTML}
+        <div class="product-container template-portfolio edge-to-edge">
+            <div class="product-card portfolio-card">
+                ${heroImageHTML}
+                ${thumbnailsHTML}
                 
-                <div class="product-info">
+                <div class="product-info portfolio-info">
                     <div class="product-header">
                         <h2 class="product-name">${product.name}</h2>
                         <div class="social-actions">
                             <button class="social-btn share-btn" onclick="shareProduct(${product.id}, event)">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
                             </button>
                             <button id="like-btn-${product.id}" class="social-btn like-btn" onclick="toggleLike(${product.id}, event)">
                                 <span class="heart-icon ${isLiked ? 'liked' : ''}">${isLiked ? '❤️' : '🤍'}</span>
@@ -805,25 +826,28 @@ function renderPortfolioBookingTemplate(product) {
                         </div>
                     </div>
                     
-                    <p class="product-description">${product.description || ''}</p>
+                    <p class="product-description">${product.description || product.rich_description || ''}</p>
                     
                     ${storyHTML}
-                    ${packagesHTML}
+                    ${videoHTML}
                     ${availabilityHTML}
                     
-                    <div class="price-display">
-                        <span class="price-label">Starting from</span>
+                    <div class="price-display portfolio-price">
+                        <span class="price-label">${servicePackages.length > 0 ? 'Starting from' : 'Price'}</span>
                         <div class="price">KES <span id="displayPrice">${parseInt(product.price).toLocaleString()}</span></div>
                     </div>
                     
-                    <button onclick="openCheckout()" class="buy-btn book-btn">
-                        <span class="btn-text">Book Now</span>
+                    <button onclick="openPortfolioCheckout()" class="buy-btn book-btn">
+                        <span class="btn-text">${servicePackages.length > 0 ? 'View Packages & Book' : 'Book Now'}</span>
                         <span class="btn-arrow">→</span>
                     </button>
                 </div>
             </div>
         </div>
     `;
+    
+    // Update productImages for navigation
+    productImages = galleryImages;
 }
 
 // ===========================================
@@ -832,12 +856,31 @@ function renderPortfolioBookingTemplate(product) {
 function renderVisualMenuTemplate(product) {
     const isLiked = isProductLiked(product.id);
     
-    // Parse dietary tags
+    // Parse dietary tags (handle both array and string)
     let dietaryTags = [];
     try {
-        dietaryTags = JSON.parse(product.dietary_tags || '[]');
+        if (Array.isArray(product.dietary_tags)) {
+            dietaryTags = product.dietary_tags;
+        } else {
+            dietaryTags = JSON.parse(product.dietary_tags || '[]');
+        }
     } catch (e) {
         dietaryTags = [];
+    }
+    
+    // Get gallery images (handle JSONB array)
+    let galleryImages = [];
+    try {
+        if (Array.isArray(product.gallery_images)) {
+            galleryImages = product.gallery_images.filter(url => url && url.trim());
+        } else if (typeof product.gallery_images === 'string') {
+            galleryImages = JSON.parse(product.gallery_images).filter(url => url && url.trim());
+        }
+    } catch (e) {}
+    
+    // Fallback to productImages if no gallery
+    if (galleryImages.length === 0) {
+        galleryImages = productImages;
     }
     
     const main = document.getElementById('main');
@@ -949,21 +992,47 @@ function renderDeepDiveTemplate(product) {
     const stories = getStoryMedia(product);
     const isLiked = isProductLiked(product.id);
     
-    // Parse specifications
+    // Parse specifications (handle both object and string)
     let specifications = {};
     try {
-        specifications = JSON.parse(product.specifications || '{}');
+        if (typeof product.specifications === 'object' && product.specifications !== null) {
+            specifications = product.specifications;
+        } else {
+            specifications = JSON.parse(product.specifications || '{}');
+        }
     } catch (e) {
         specifications = {};
     }
     
-    // Parse trust badges
+    // Parse trust badges (handle both array and string)
     let trustBadges = [];
     try {
-        trustBadges = JSON.parse(product.trust_badges || '[]');
+        if (Array.isArray(product.trust_badges)) {
+            trustBadges = product.trust_badges;
+        } else {
+            trustBadges = JSON.parse(product.trust_badges || '[]');
+        }
     } catch (e) {
         trustBadges = [];
     }
+    
+    // Get gallery images (handle JSONB array)
+    let galleryImages = [];
+    try {
+        if (Array.isArray(product.gallery_images)) {
+            galleryImages = product.gallery_images.filter(url => url && url.trim());
+        } else if (typeof product.gallery_images === 'string') {
+            galleryImages = JSON.parse(product.gallery_images).filter(url => url && url.trim());
+        }
+    } catch (e) {}
+    
+    // Fallback to productImages if no gallery
+    if (galleryImages.length === 0) {
+        galleryImages = productImages;
+    }
+    
+    // Update global for navigation
+    productImages = galleryImages;
     
     const main = document.getElementById('main');
     
@@ -1127,6 +1196,24 @@ function renderDeepDiveTemplate(product) {
 function renderEventLandingTemplate(product) {
     const isLiked = isProductLiked(product.id);
     
+    // Get gallery images (handle JSONB array)
+    let galleryImages = [];
+    try {
+        if (Array.isArray(product.gallery_images)) {
+            galleryImages = product.gallery_images.filter(url => url && url.trim());
+        } else if (typeof product.gallery_images === 'string') {
+            galleryImages = JSON.parse(product.gallery_images).filter(url => url && url.trim());
+        }
+    } catch (e) {}
+    
+    // Fallback to productImages if no gallery
+    if (galleryImages.length === 0) {
+        galleryImages = productImages;
+    }
+    
+    // Update global for navigation
+    productImages = galleryImages;
+    
     const main = document.getElementById('main');
     
     const backButton = storeData.products.length > 1 ? `
@@ -1170,10 +1257,14 @@ function renderEventLandingTemplate(product) {
         }
     }
     
-    // Parse speakers/hosts
+    // Parse speakers/hosts (handle both array and string)
     let speakers = [];
     try {
-        speakers = JSON.parse(product.speakers || '[]');
+        if (Array.isArray(product.speakers)) {
+            speakers = product.speakers;
+        } else {
+            speakers = JSON.parse(product.speakers || '[]');
+        }
     } catch (e) {
         speakers = [];
     }
@@ -1332,13 +1423,159 @@ function updateQuantityDisplay() {
 }
 
 // ===========================================
+// VIDEO EXPANSION
+// ===========================================
+function expandVideo(videoUrl) {
+    // Convert YouTube URLs to embed format
+    let embedUrl = videoUrl;
+    
+    if (videoUrl.includes('youtube.com/watch')) {
+        const videoId = videoUrl.split('v=')[1]?.split('&')[0];
+        embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+    } else if (videoUrl.includes('youtu.be/')) {
+        const videoId = videoUrl.split('youtu.be/')[1]?.split('?')[0];
+        embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+    } else if (videoUrl.includes('youtube.com/shorts/')) {
+        const videoId = videoUrl.split('shorts/')[1]?.split('?')[0];
+        embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+    } else if (videoUrl.includes('vimeo.com/')) {
+        const videoId = videoUrl.split('vimeo.com/')[1]?.split('?')[0];
+        embedUrl = `https://player.vimeo.com/video/${videoId}?autoplay=1`;
+    }
+    
+    const overlay = document.createElement('div');
+    overlay.className = 'video-overlay';
+    overlay.innerHTML = `
+        <div class="video-modal">
+            <button class="video-close" onclick="closeVideo()">✕</button>
+            <div class="video-wrapper">
+                <iframe 
+                    src="${embedUrl}" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen>
+                </iframe>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+    document.body.style.overflow = 'hidden';
+    
+    // Animate in
+    requestAnimationFrame(() => {
+        overlay.classList.add('active');
+    });
+}
+
+function closeVideo() {
+    const overlay = document.querySelector('.video-overlay');
+    if (overlay) {
+        overlay.classList.remove('active');
+        setTimeout(() => overlay.remove(), 300);
+        document.body.style.overflow = '';
+    }
+}
+
+// ===========================================
+// PORTFOLIO CHECKOUT (with packages)
+// ===========================================
+let selectedPackageIndex = -1;
+
+function openPortfolioCheckout() {
+    const packages = window.currentServicePackages || [];
+    
+    if (packages.length > 0) {
+        // Show package selection first
+        showPackageSelection(packages);
+    } else {
+        // No packages, go straight to regular checkout
+        openCheckout();
+    }
+}
+
+function showPackageSelection(packages) {
+    const overlay = document.createElement('div');
+    overlay.className = 'package-overlay';
+    overlay.id = 'packageOverlay';
+    
+    overlay.innerHTML = `
+        <div class="package-modal">
+            <button class="package-modal-close" onclick="closePackageSelection()">✕</button>
+            <h2 class="package-modal-title">Choose Your Package</h2>
+            <p class="package-modal-subtitle">Select the package that best fits your needs</p>
+            
+            <div class="package-options">
+                ${packages.map((pkg, idx) => `
+                    <div class="package-option ${idx === 0 ? 'recommended' : ''}" onclick="selectPackageOption(${idx})">
+                        ${idx === 0 ? '<span class="package-badge">Most Popular</span>' : ''}
+                        <h3 class="package-option-name">${pkg.name || 'Package ' + (idx + 1)}</h3>
+                        <div class="package-option-price">KES ${parseInt(pkg.price || currentProduct.price).toLocaleString()}</div>
+                        ${pkg.description ? `<p class="package-option-desc">${pkg.description}</p>` : ''}
+                        ${pkg.features && pkg.features.length > 0 ? `
+                            <ul class="package-option-features">
+                                ${pkg.features.map(f => `<li>✓ ${f}</li>`).join('')}
+                            </ul>
+                        ` : ''}
+                        <button class="package-option-btn">Select This Package</button>
+                    </div>
+                `).join('')}
+            </div>
+            
+            <button class="package-skip-btn" onclick="skipPackageSelection()">
+                Or continue without selecting a package →
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(overlay);
+    document.body.style.overflow = 'hidden';
+    
+    requestAnimationFrame(() => {
+        overlay.classList.add('active');
+    });
+}
+
+function selectPackageOption(index) {
+    const packages = window.currentServicePackages || [];
+    if (packages[index]) {
+        selectedPackageIndex = index;
+        // Update price to selected package price
+        const selectedPrice = parseInt(packages[index].price || currentProduct.price);
+        currentProduct.selectedPackage = packages[index];
+        currentProduct.selectedPrice = selectedPrice;
+    }
+    closePackageSelection();
+    openCheckout();
+}
+
+function skipPackageSelection() {
+    selectedPackageIndex = -1;
+    currentProduct.selectedPackage = null;
+    currentProduct.selectedPrice = currentProduct.price;
+    closePackageSelection();
+    openCheckout();
+}
+
+function closePackageSelection() {
+    const overlay = document.getElementById('packageOverlay');
+    if (overlay) {
+        overlay.classList.remove('active');
+        setTimeout(() => overlay.remove(), 300);
+        document.body.style.overflow = '';
+    }
+}
+
+// ===========================================
 // CHECKOUT FLOW
 // ===========================================
 function openCheckout() {
-    document.getElementById('summaryProductName').textContent = currentProduct.name;
+    const price = currentProduct.selectedPrice || currentProduct.price;
+    const packageName = currentProduct.selectedPackage ? ` (${currentProduct.selectedPackage.name})` : '';
+    
+    document.getElementById('summaryProductName').textContent = currentProduct.name + packageName;
     document.getElementById('summaryQuantity').textContent = quantity;
-    document.getElementById('summaryUnitPrice').textContent = parseInt(currentProduct.price).toLocaleString();
-    document.getElementById('summaryTotal').textContent = parseInt(currentProduct.price * quantity).toLocaleString();
+    document.getElementById('summaryUnitPrice').textContent = parseInt(price).toLocaleString();
+    document.getElementById('summaryTotal').textContent = parseInt(price * quantity).toLocaleString();
     
     document.getElementById('modalOverlay').classList.add('active');
     document.body.style.overflow = 'hidden';
