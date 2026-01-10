@@ -44,6 +44,37 @@ let productImages = [];
 let likedProducts = JSON.parse(localStorage.getItem('likedProducts') || '{}');
 
 // ===========================================
+// TESTIMONIALS HELPER
+// ===========================================
+function generateTestimonialsHTML(testimonials, sectionTitle = 'What Our Customers Say') {
+    if (!testimonials || !Array.isArray(testimonials) || testimonials.length === 0) return '';
+    
+    // Filter out empty testimonials
+    const validTestimonials = testimonials.filter(t => t && t.quote && t.quote.trim());
+    if (validTestimonials.length === 0) return '';
+    
+    return `
+        <section class="testimonials-section">
+            <h3 class="testimonials-title">${sectionTitle}</h3>
+            <div class="testimonials-grid">
+                ${validTestimonials.map(t => `
+                    <div class="testimonial-card">
+                        ${t.avatar ? `<img src="${t.avatar}" alt="${t.name || 'Customer'}" class="testimonial-avatar">` : 
+                            `<div class="testimonial-avatar-placeholder">${(t.name || 'C').charAt(0).toUpperCase()}</div>`}
+                        <p class="testimonial-quote">"${t.quote}"</p>
+                        <div class="testimonial-author">
+                            <span class="testimonial-name">${t.name || 'Happy Customer'}</span>
+                            ${t.role ? `<span class="testimonial-role">${t.role}</span>` : ''}
+                        </div>
+                        <div class="testimonial-rating">★★★★★</div>
+                    </div>
+                `).join('')}
+            </div>
+        </section>
+    `;
+}
+
+// ===========================================
 // INITIALIZATION
 // ===========================================
 async function init() {
@@ -583,6 +614,7 @@ function renderCollectionsGrid(products) {
                     </div>
                 `}).join('')}
             </div>
+            ${storeData.store?.showTestimonials !== false ? generateTestimonialsHTML(storeData.store?.collectionTestimonials, 'What Our Customers Say') : ''}
         </div>
     `;
 }
@@ -604,6 +636,12 @@ function renderSingleProduct(product) {
     quantity = 1;
     currentImageIndex = 0;
     productImages = getProductImages(product);
+    
+    // Apply compact header for landing pages (single products)
+    const heroSection = document.getElementById('heroSection');
+    if (heroSection) {
+        heroSection.classList.add('header-compact');
+    }
     
     // Route to appropriate template renderer based on template_type
     const templateType = product.template_type || 'quick-decision';
@@ -699,7 +737,7 @@ function renderQuickDecisionTemplate(product) {
                     
                     <!-- NEW LAYOUT: Price row with share/like -->
                     <div class="price-row">
-                        <div class="price">KES <span id="displayPrice">${parseInt(product.price).toLocaleString()}</span></div>
+                        <div class="price"><span class="currency">KES</span> <span id="displayPrice">${parseInt(product.price).toLocaleString()}</span></div>
                         <div class="social-actions">
                             <button class="social-btn share-btn" onclick="shareProduct(${product.id}, event)">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
@@ -736,6 +774,7 @@ function renderQuickDecisionTemplate(product) {
                     </button>
                 </div>
             </div>
+            ${generateTestimonialsHTML(product.testimonials, 'Customer Reviews')}
         </div>
     `;
     
@@ -890,7 +929,7 @@ function renderPortfolioBookingTemplate(product) {
                     
                     <!-- NEW LAYOUT: Price row with share/like -->
                     <div class="price-row">
-                        <div class="price">${servicePackages.length > 0 ? '<span class="price-prefix">From </span>' : ''}KES <span id="displayPrice">${parseInt(product.price).toLocaleString()}</span></div>
+                        <div class="price">${servicePackages.length > 0 ? '<span class="price-prefix">From </span>' : ''}<span class="currency">KES</span> <span id="displayPrice">${parseInt(product.price).toLocaleString()}</span></div>
                         <div class="social-actions">
                             <button class="social-btn share-btn" onclick="shareProduct(${product.id}, event)">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
@@ -916,6 +955,7 @@ function renderPortfolioBookingTemplate(product) {
                     </button>
                 </div>
             </div>
+            ${generateTestimonialsHTML(product.testimonials, 'Client Reviews')}
         </div>
     `;
     
@@ -1033,7 +1073,7 @@ function renderVisualMenuTemplate(product) {
                     
                     <!-- NEW LAYOUT: Price row with share/like -->
                     <div class="price-row">
-                        <div class="price">KES <span id="displayPrice">${parseInt(product.price).toLocaleString()}</span></div>
+                        <div class="price"><span class="currency">KES</span> <span id="displayPrice">${parseInt(product.price).toLocaleString()}</span></div>
                         <div class="social-actions">
                             <button class="social-btn share-btn" onclick="shareProduct(${product.id}, event)">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
@@ -1075,6 +1115,7 @@ function renderVisualMenuTemplate(product) {
                     </button>
                 </div>
             </div>
+            ${generateTestimonialsHTML(product.testimonials, 'Customer Reviews')}
         </div>
     `;
 }
@@ -1237,7 +1278,7 @@ function renderDeepDiveTemplate(product) {
                     
                     <!-- NEW LAYOUT: Price row with share/like -->
                     <div class="price-row">
-                        <div class="price">KES <span id="displayPrice">${parseInt(product.price).toLocaleString()}</span></div>
+                        <div class="price"><span class="currency">KES</span> <span id="displayPrice">${parseInt(product.price).toLocaleString()}</span></div>
                         <div class="social-actions">
                             <button class="social-btn share-btn" onclick="shareProduct(${product.id}, event)">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
@@ -1279,6 +1320,7 @@ function renderDeepDiveTemplate(product) {
                     </button>
                 </div>
             </div>
+            ${generateTestimonialsHTML(product.testimonials, 'Customer Reviews')}
         </div>
     `;
     
@@ -1417,7 +1459,7 @@ function renderEventLandingTemplate(product) {
                     
                     <!-- NEW LAYOUT: Price row with share/like -->
                     <div class="price-row">
-                        <div class="price">KES <span id="displayPrice">${parseInt(product.price).toLocaleString()}</span></div>
+                        <div class="price"><span class="currency">KES</span> <span id="displayPrice">${parseInt(product.price).toLocaleString()}</span></div>
                         <div class="social-actions">
                             <button class="social-btn share-btn" onclick="shareProduct(${product.id}, event)">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
@@ -1475,6 +1517,7 @@ function renderEventLandingTemplate(product) {
                     </button>
                 </div>
             </div>
+            ${generateTestimonialsHTML(product.testimonials, 'Attendee Reviews')}
         </div>
     `;
 }
@@ -1504,6 +1547,12 @@ function backToCollections() {
     const url = new URL(window.location);
     url.searchParams.delete('product');
     window.history.pushState({}, '', url);
+    
+    // Remove compact header class when going back to collections
+    const heroSection = document.getElementById('heroSection');
+    if (heroSection) {
+        heroSection.classList.remove('header-compact');
+    }
     
     renderStore();
     applyHeaderBackground(); // Re-apply header background after rendering

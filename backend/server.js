@@ -809,13 +809,16 @@ async function migratePhase2Collection() {
       `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS featured_testimonial_text TEXT`,
       `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS featured_testimonial_author VARCHAR(100)`,
       `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS featured_testimonial_detail VARCHAR(100)`,
+      `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS show_testimonials BOOLEAN DEFAULT true`,
+      `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS collection_testimonials JSONB DEFAULT '[]'`,
       `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS footer_powered_by BOOLEAN DEFAULT true`,
       `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS footer_privacy_url VARCHAR(255)`,
       `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS footer_terms_url VARCHAR(255)`,
       `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS footer_refund_url VARCHAR(255)`,
       `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS privacy_policy TEXT DEFAULT ''`,
       `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS terms_of_service TEXT DEFAULT ''`,
-      `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS refund_policy TEXT DEFAULT ''`
+      `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS refund_policy TEXT DEFAULT ''`,
+      `ALTER TABLE products ADD COLUMN IF NOT EXISTS testimonials JSONB DEFAULT '[]'`
     ];
     
     for (const sql of heroColumns) {

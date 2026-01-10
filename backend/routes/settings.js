@@ -74,7 +74,7 @@ router.put('/', authMiddleware, async (req, res) => {
       hero_cta_secondary_text: 'hero_cta_secondary_text',
       heroCtaSecondaryLink: 'hero_cta_secondary_link',
       hero_cta_secondary_link: 'hero_cta_secondary_link',
-      // Testimonial
+      // Testimonials
       showFeaturedTestimonial: 'show_featured_testimonial',
       show_featured_testimonial: 'show_featured_testimonial',
       featuredTestimonialText: 'featured_testimonial_text',
@@ -83,6 +83,10 @@ router.put('/', authMiddleware, async (req, res) => {
       featured_testimonial_author: 'featured_testimonial_author',
       featuredTestimonialDetail: 'featured_testimonial_detail',
       featured_testimonial_detail: 'featured_testimonial_detail',
+      showTestimonials: 'show_testimonials',
+      show_testimonials: 'show_testimonials',
+      collectionTestimonials: 'collection_testimonials',
+      collection_testimonials: 'collection_testimonials',
       // Policies
       privacyPolicy: 'privacy_policy',
       privacy_policy: 'privacy_policy',
@@ -109,7 +113,12 @@ router.put('/', authMiddleware, async (req, res) => {
       const dbField = fieldMap[key];
       if (dbField && !processedFields.has(dbField)) {
         updates.push(`${dbField} = $${paramCount}`);
-        values.push(value === undefined ? null : value);
+        // Handle JSONB fields
+        if (dbField === 'collection_testimonials') {
+          values.push(value ? (typeof value === 'string' ? value : JSON.stringify(value)) : '[]');
+        } else {
+          values.push(value === undefined ? null : value);
+        }
         paramCount++;
         processedFields.add(dbField);
       }

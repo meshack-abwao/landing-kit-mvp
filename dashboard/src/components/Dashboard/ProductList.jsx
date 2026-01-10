@@ -27,31 +27,31 @@ const TEMPLATE_CONFIG = {
     name: 'Quick Decision (Single Product)',
     price: 250,
     description: 'Perfect for single products or quick impulse buys',
-    fields: ['name', 'description', 'price', 'imageUrl', 'additionalImages', 'stockQuantity', 'storyMedia', 'storyTitle']
+    fields: ['name', 'description', 'price', 'imageUrl', 'additionalImages', 'stockQuantity', 'storyMedia', 'storyTitle', 'testimonials']
   },
   'portfolio-booking': {
     name: 'Portfolio + Booking',
     price: 500,
     description: 'For service providers with packages and booking',
-    fields: ['name', 'richDescription', 'price', 'imageUrl', 'galleryImages', 'storyMedia', 'storyTitle', 'servicePackages', 'availability']
+    fields: ['name', 'richDescription', 'price', 'imageUrl', 'galleryImages', 'storyMedia', 'storyTitle', 'servicePackages', 'availability', 'testimonials']
   },
   'visual-menu': {
     name: 'Visual Menu',
     price: 600,
     description: 'For restaurants and food businesses',
-    fields: ['name', 'description', 'price', 'imageUrl', 'galleryImages', 'storyMedia', 'storyTitle', 'dietaryTags', 'ingredients', 'prepTime', 'calories']
+    fields: ['name', 'description', 'price', 'imageUrl', 'galleryImages', 'storyMedia', 'storyTitle', 'dietaryTags', 'ingredients', 'prepTime', 'calories', 'testimonials']
   },
   'deep-dive': {
     name: 'Deep Dive Evaluator',
     price: 800,
     description: 'For high-ticket items needing detailed specs',
-    fields: ['name', 'richDescription', 'price', 'imageUrl', 'galleryImages', 'storyMedia', 'storyTitle', 'specifications', 'trustBadges', 'warranty', 'returnPolicy']
+    fields: ['name', 'richDescription', 'price', 'imageUrl', 'galleryImages', 'storyMedia', 'storyTitle', 'specifications', 'trustBadges', 'warranty', 'returnPolicy', 'testimonials']
   },
   'event-landing': {
     name: 'Event Landing',
     price: 700,
     description: 'For events, workshops, and courses',
-    fields: ['name', 'richDescription', 'price', 'imageUrl', 'galleryImages', 'storyMedia', 'storyTitle', 'eventDate', 'eventLocation', 'speakers']
+    fields: ['name', 'richDescription', 'price', 'imageUrl', 'galleryImages', 'storyMedia', 'storyTitle', 'eventDate', 'eventLocation', 'speakers', 'testimonials']
   }
 };
 
@@ -125,6 +125,21 @@ const parseServicePackages = (packagesJson) => {
   return [{ name: '', price: '', description: '', features: [] }];
 };
 
+const parseTestimonials = (testimonialsJson) => {
+  try {
+    if (Array.isArray(testimonialsJson)) {
+      return testimonialsJson.length > 0 ? testimonialsJson : [{ name: '', role: '', quote: '', avatar: '' }];
+    }
+    const parsed = JSON.parse(testimonialsJson || '[]');
+    if (Array.isArray(parsed)) {
+      return parsed.length > 0 ? parsed : [{ name: '', role: '', quote: '', avatar: '' }];
+    }
+  } catch (e) {
+    console.log('parseTestimonials error:', e, testimonialsJson);
+  }
+  return [{ name: '', role: '', quote: '', avatar: '' }];
+};
+
 export default function ProductList() {
   const [products, setProducts] = useState([]);
   const [templates, setTemplates] = useState([]);
@@ -172,6 +187,8 @@ export default function ProductList() {
     privacyPolicy: '',
     termsOfService: '',
     refundPolicy: '',
+    // Testimonials for landing pages
+    testimonials: [{ name: '', role: '', quote: '', avatar: '' }],
   });
 
   useEffect(() => {
@@ -248,6 +265,7 @@ export default function ProductList() {
         galleryImages: formData.galleryImages.filter(url => url && url.trim()),
         storyMedia: formData.storyMedia.filter(s => s.url && s.url.trim()),
         servicePackages: formData.servicePackages.filter(p => p.name && p.name.trim()),
+        testimonials: formData.testimonials.filter(t => t.name && t.quote && t.name.trim() && t.quote.trim()),
       };
       
       // DEBUG: Log what we're sending
@@ -324,6 +342,7 @@ export default function ProductList() {
       privacyPolicy: product.privacy_policy || '',
       termsOfService: product.terms_of_service || '',
       refundPolicy: product.refund_policy || '',
+      testimonials: parseTestimonials(product.testimonials),
     };
     
     // DEBUG: Log parsed form data
@@ -439,6 +458,7 @@ export default function ProductList() {
       privacyPolicy: '',
       termsOfService: '',
       refundPolicy: '',
+      testimonials: [{ name: '', role: '', quote: '', avatar: '' }],
     });
     setEditingProduct(null);
     setSelectedTemplate('quick-decision');
@@ -917,6 +937,94 @@ export default function ProductList() {
                 </div>
               )}
 
+              {/* Testimonials - All Templates */}
+              {hasField('testimonials') && (
+                <div style={styles.testimonialsSection}>
+                  <label style={styles.label}>CUSTOMER TESTIMONIALS</label>
+                  <p style={styles.hint}>Add testimonials to build trust (displayed before footer)</p>
+                  
+                  {formData.testimonials.map((testimonial, idx) => (
+                    <div key={idx} style={styles.testimonialCard}>
+                      <div style={styles.testimonialHeader}>
+                        <span style={styles.testimonialNum}>Testimonial {idx + 1}</span>
+                        {formData.testimonials.length > 1 && (
+                          <button 
+                            type="button" 
+                            onClick={() => {
+                              const newTestimonials = formData.testimonials.filter((_, i) => i !== idx);
+                              setFormData({ ...formData, testimonials: newTestimonials });
+                            }}
+                            style={styles.removeBtn}
+                          >
+                            Remove
+                          </button>
+                        )}
+                      </div>
+                      <div style={styles.formRow}>
+                        <input
+                          type="text"
+                          value={testimonial.name}
+                          onChange={(e) => {
+                            const newTestimonials = [...formData.testimonials];
+                            newTestimonials[idx] = { ...newTestimonials[idx], name: e.target.value };
+                            setFormData({ ...formData, testimonials: newTestimonials });
+                          }}
+                          placeholder="Customer Name"
+                          className="dashboard-input"
+                        />
+                        <input
+                          type="text"
+                          value={testimonial.role}
+                          onChange={(e) => {
+                            const newTestimonials = [...formData.testimonials];
+                            newTestimonials[idx] = { ...newTestimonials[idx], role: e.target.value };
+                            setFormData({ ...formData, testimonials: newTestimonials });
+                          }}
+                          placeholder="Role/Title (optional)"
+                          className="dashboard-input"
+                        />
+                      </div>
+                      <textarea
+                        value={testimonial.quote}
+                        onChange={(e) => {
+                          const newTestimonials = [...formData.testimonials];
+                          newTestimonials[idx] = { ...newTestimonials[idx], quote: e.target.value };
+                          setFormData({ ...formData, testimonials: newTestimonials });
+                        }}
+                        placeholder="What did they say about your product/service?"
+                        rows="2"
+                        className="dashboard-input"
+                        style={{ marginTop: '8px' }}
+                      />
+                      <input
+                        type="url"
+                        value={testimonial.avatar}
+                        onChange={(e) => {
+                          const newTestimonials = [...formData.testimonials];
+                          newTestimonials[idx] = { ...newTestimonials[idx], avatar: e.target.value };
+                          setFormData({ ...formData, testimonials: newTestimonials });
+                        }}
+                        placeholder="Avatar image URL (optional)"
+                        className="dashboard-input"
+                        style={{ marginTop: '8px' }}
+                      />
+                    </div>
+                  ))}
+                  <button 
+                    type="button" 
+                    onClick={() => {
+                      setFormData({
+                        ...formData,
+                        testimonials: [...formData.testimonials, { name: '', role: '', quote: '', avatar: '' }]
+                      });
+                    }}
+                    style={styles.addBtn}
+                  >
+                    + Add Another Testimonial
+                  </button>
+                </div>
+              )}
+
               {/* Preview Button */}
               {storeUrl && (
                 <div style={styles.previewSection}>
@@ -1086,6 +1194,11 @@ const styles = {
   tagsContainer: { display: 'flex', flexWrap: 'wrap', gap: '8px' },
   tagBtn: { padding: '8px 16px', borderRadius: '20px', border: '1px solid', fontSize: '13px', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s' },
   addBtn: { padding: '10px 20px', background: 'rgba(255,255,255,0.05)', border: '1px dashed rgba(255,255,255,0.2)', borderRadius: '8px', color: 'rgba(255,255,255,0.6)', fontSize: '13px', cursor: 'pointer', transition: 'all 0.2s' },
+  testimonialsSection: { display: 'flex', flexDirection: 'column', gap: '12px', padding: '20px', background: 'rgba(255, 159, 10, 0.05)', borderRadius: '12px', border: '1px solid rgba(255, 159, 10, 0.15)' },
+  testimonialCard: { padding: '16px', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', marginBottom: '12px' },
+  testimonialHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' },
+  testimonialNum: { fontSize: '13px', fontWeight: '600', color: '#ff9f0a' },
+  removeBtn: { padding: '4px 12px', background: 'rgba(255,55,95,0.1)', border: '1px solid rgba(255,55,95,0.2)', borderRadius: '6px', color: '#ff375f', fontSize: '12px', cursor: 'pointer' },
   previewSection: { padding: '16px', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', textAlign: 'center' },
   previewBtn: { display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '12px 24px', background: 'rgba(10, 132, 255, 0.1)', border: '1px solid rgba(10, 132, 255, 0.3)', borderRadius: '10px', color: '#0a84ff', fontSize: '14px', fontWeight: '600', cursor: 'pointer' },
   formActions: { display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '8px' },

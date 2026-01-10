@@ -50,6 +50,8 @@ router.get('/store/:subdomain', async (req, res) => {
         fontFamily: store.font_family,
         logoUrl: store.logo_url || '',
         headerBgUrl: store.header_bg_url || '',
+        showTestimonials: store.show_testimonials !== false,
+        collectionTestimonials: store.collection_testimonials || [],
       },
       products: productsResult.rows,
       // Add timestamp for debugging

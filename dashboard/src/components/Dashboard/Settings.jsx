@@ -1,6 +1,22 @@
 import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { settingsAPI } from '../../services/api.jsx';
-import { Save, Check, Crown, ExternalLink, ChevronDown, ChevronUp } from 'lucide-react';
+import { Save, Check, Crown, ExternalLink, ChevronDown, ChevronUp, Plus, Trash2 } from 'lucide-react';
+
+// Parse testimonials from database
+const parseTestimonials = (data) => {
+  const defaultTestimonials = [{ quote: '', name: '', role: '', avatar: '' }];
+  try {
+    if (Array.isArray(data)) return data.length > 0 ? data : defaultTestimonials;
+    if (typeof data === 'string') {
+      const parsed = JSON.parse(data);
+      return Array.isArray(parsed) && parsed.length > 0 ? parsed : defaultTestimonials;
+    }
+  } catch (e) {
+    console.log('parseTestimonials error:', e);
+  }
+  return defaultTestimonials;
+};
 
 export default function Settings() {
   const [loading, setLoading] = useState(true);
@@ -8,7 +24,7 @@ export default function Settings() {
   const [expandedSections, setExpandedSections] = useState({
     basic: true,
     hero: false,
-    testimonial: false,
+    testimonials: false,
     policies: false,
     theme: true,
   });
@@ -33,11 +49,9 @@ export default function Settings() {
     heroCtaPrimaryLink: '',
     heroCtaSecondaryText: '',
     heroCtaSecondaryLink: '',
-    // Testimonial
-    showFeaturedTestimonial: true,
-    featuredTestimonialText: '',
-    featuredTestimonialAuthor: '',
-    featuredTestimonialDetail: '',
+    // Testimonials (array for multiple)
+    showTestimonials: true,
+    collectionTestimonials: [{ quote: '', name: '', role: '', avatar: '' }],
     // Policies
     privacyPolicy: '',
     termsOfService: '',
@@ -86,11 +100,9 @@ export default function Settings() {
         heroCtaPrimaryLink: s.hero_cta_primary_link || '',
         heroCtaSecondaryText: s.hero_cta_secondary_text || '',
         heroCtaSecondaryLink: s.hero_cta_secondary_link || '',
-        // Testimonial
-        showFeaturedTestimonial: s.show_featured_testimonial !== false,
-        featuredTestimonialText: s.featured_testimonial_text || '',
-        featuredTestimonialAuthor: s.featured_testimonial_author || '',
-        featuredTestimonialDetail: s.featured_testimonial_detail || '',
+        // Testimonials (array)
+        showTestimonials: s.show_testimonials !== false,
+        collectionTestimonials: parseTestimonials(s.collection_testimonials),
         // Policies
         privacyPolicy: s.privacy_policy || '',
         termsOfService: s.terms_of_service || '',
@@ -143,11 +155,9 @@ export default function Settings() {
         hero_cta_primary_link: storeSettings.heroCtaPrimaryLink,
         hero_cta_secondary_text: storeSettings.heroCtaSecondaryText,
         hero_cta_secondary_link: storeSettings.heroCtaSecondaryLink,
-        // Testimonial
-        show_featured_testimonial: storeSettings.showFeaturedTestimonial,
-        featured_testimonial_text: storeSettings.featuredTestimonialText,
-        featured_testimonial_author: storeSettings.featuredTestimonialAuthor,
-        featured_testimonial_detail: storeSettings.featuredTestimonialDetail,
+        // Testimonials (array)
+        show_testimonials: storeSettings.showTestimonials,
+        collection_testimonials: storeSettings.collectionTestimonials.filter(t => t.quote && t.quote.trim()),
         // Policies
         privacy_policy: storeSettings.privacyPolicy,
         terms_of_service: storeSettings.termsOfService,
@@ -352,63 +362,110 @@ export default function Settings() {
           )}
         </div>
 
-        {/* TESTIMONIAL */}
+        {/* TESTIMONIALS - Multiple */}
         <div style={styles.card} className="glass-card">
-          <div style={styles.sectionHeader} onClick={() => toggleSection('testimonial')}>
-            <h3 style={styles.cardTitle}>⭐ Featured Testimonial</h3>
-            {expandedSections.testimonial ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+          <div style={styles.sectionHeader} onClick={() => toggleSection('testimonials')}>
+            <h3 style={styles.cardTitle}>⭐ Collection Testimonials</h3>
+            {expandedSections.testimonials ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
           </div>
           
-          {expandedSections.testimonial && (
+          {expandedSections.testimonials && (
             <div style={styles.sectionContent}>
+              <p style={styles.hint}>These testimonials appear on your collection page (before footer)</p>
+              
               <div style={styles.formGroup}>
                 <label style={styles.toggleLabel}>
                   <input
                     type="checkbox"
-                    checked={storeSettings.showFeaturedTestimonial}
-                    onChange={(e) => setStoreSettings({ ...storeSettings, showFeaturedTestimonial: e.target.checked })}
+                    checked={storeSettings.showTestimonials}
+                    onChange={(e) => setStoreSettings({ ...storeSettings, showTestimonials: e.target.checked })}
                     style={styles.checkbox}
                   />
-                  <span>Show testimonial section</span>
+                  <span>Show testimonials section</span>
                 </label>
               </div>
 
-              {storeSettings.showFeaturedTestimonial && (
+              {storeSettings.showTestimonials && (
                 <>
-                  <div style={styles.formGroup}>
-                    <label style={styles.label}>TESTIMONIAL TEXT</label>
-                    <textarea
-                      value={storeSettings.featuredTestimonialText}
-                      onChange={(e) => setStoreSettings({ ...storeSettings, featuredTestimonialText: e.target.value })}
-                      placeholder="Amazing products! Fast delivery and great quality..."
-                      rows={3}
-                      className="dashboard-input"
-                      style={styles.textarea}
-                    />
-                  </div>
+                  {storeSettings.collectionTestimonials.map((testimonial, idx) => (
+                    <div key={idx} style={styles.testimonialCard}>
+                      <div style={styles.testimonialHeader}>
+                        <span style={styles.testimonialNum}>Testimonial {idx + 1}</span>
+                        {storeSettings.collectionTestimonials.length > 1 && (
+                          <button 
+                            type="button" 
+                            onClick={() => {
+                              const newTestimonials = storeSettings.collectionTestimonials.filter((_, i) => i !== idx);
+                              setStoreSettings({ ...storeSettings, collectionTestimonials: newTestimonials });
+                            }}
+                            style={styles.removeBtn}
+                          >
+                            <Trash2 size={16} /> Remove
+                          </button>
+                        )}
+                      </div>
+                      
+                      <div style={styles.formGroup}>
+                        <label style={styles.label}>TESTIMONIAL TEXT</label>
+                        <textarea
+                          value={testimonial.quote}
+                          onChange={(e) => {
+                            const newTestimonials = [...storeSettings.collectionTestimonials];
+                            newTestimonials[idx] = { ...newTestimonials[idx], quote: e.target.value };
+                            setStoreSettings({ ...storeSettings, collectionTestimonials: newTestimonials });
+                          }}
+                          placeholder="Amazing products! Fast delivery and great quality..."
+                          rows={2}
+                          className="dashboard-input"
+                          style={styles.textarea}
+                        />
+                      </div>
 
-                  <div style={styles.formRow}>
-                    <div style={styles.formGroup}>
-                      <label style={styles.label}>AUTHOR NAME</label>
-                      <input
-                        type="text"
-                        value={storeSettings.featuredTestimonialAuthor}
-                        onChange={(e) => setStoreSettings({ ...storeSettings, featuredTestimonialAuthor: e.target.value })}
-                        placeholder="Sarah M."
-                        className="dashboard-input"
-                      />
+                      <div style={styles.formRow}>
+                        <div style={styles.formGroup}>
+                          <label style={styles.label}>CUSTOMER NAME</label>
+                          <input
+                            type="text"
+                            value={testimonial.name}
+                            onChange={(e) => {
+                              const newTestimonials = [...storeSettings.collectionTestimonials];
+                              newTestimonials[idx] = { ...newTestimonials[idx], name: e.target.value };
+                              setStoreSettings({ ...storeSettings, collectionTestimonials: newTestimonials });
+                            }}
+                            placeholder="Sarah M."
+                            className="dashboard-input"
+                          />
+                        </div>
+                        <div style={styles.formGroup}>
+                          <label style={styles.label}>ROLE/DETAIL</label>
+                          <input
+                            type="text"
+                            value={testimonial.role}
+                            onChange={(e) => {
+                              const newTestimonials = [...storeSettings.collectionTestimonials];
+                              newTestimonials[idx] = { ...newTestimonials[idx], role: e.target.value };
+                              setStoreSettings({ ...storeSettings, collectionTestimonials: newTestimonials });
+                            }}
+                            placeholder="Verified Buyer"
+                            className="dashboard-input"
+                          />
+                        </div>
+                      </div>
                     </div>
-                    <div style={styles.formGroup}>
-                      <label style={styles.label}>AUTHOR DETAIL</label>
-                      <input
-                        type="text"
-                        value={storeSettings.featuredTestimonialDetail}
-                        onChange={(e) => setStoreSettings({ ...storeSettings, featuredTestimonialDetail: e.target.value })}
-                        placeholder="Verified Buyer"
-                        className="dashboard-input"
-                      />
-                    </div>
-                  </div>
+                  ))}
+                  
+                  <button 
+                    type="button" 
+                    onClick={() => {
+                      setStoreSettings({
+                        ...storeSettings,
+                        collectionTestimonials: [...storeSettings.collectionTestimonials, { quote: '', name: '', role: '', avatar: '' }]
+                      });
+                    }}
+                    style={styles.addBtn}
+                  >
+                    <Plus size={16} /> Add Another Testimonial
+                  </button>
                 </>
               )}
             </div>
@@ -562,4 +619,10 @@ const styles = {
   fontName: { fontSize: '13px', fontWeight: '600', marginBottom: '2px' },
   fontDesc: { fontSize: '11px', color: 'rgba(255, 255, 255, 0.5)' },
   saveBtn: { display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px' },
+  // Testimonial styles
+  testimonialCard: { padding: '16px', background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '12px', marginBottom: '16px' },
+  testimonialHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' },
+  testimonialNum: { fontSize: '14px', fontWeight: '600', color: 'rgba(255, 255, 255, 0.7)' },
+  removeBtn: { display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px', background: 'rgba(255, 55, 95, 0.1)', border: '1px solid rgba(255, 55, 95, 0.2)', borderRadius: '8px', color: '#ff375f', fontSize: '13px', cursor: 'pointer' },
+  addBtn: { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', width: '100%', padding: '12px', background: 'rgba(139, 92, 246, 0.1)', border: '1px solid rgba(139, 92, 246, 0.2)', borderRadius: '10px', color: '#8b5cf6', fontSize: '14px', fontWeight: '600', cursor: 'pointer' },
 };

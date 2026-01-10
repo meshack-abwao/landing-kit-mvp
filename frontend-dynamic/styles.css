@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+﻿@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 * {
     margin: 0;
@@ -3302,4 +3302,287 @@ textarea:focus-visible {
 
 .detail-icon {
     font-size: 14px;
+}
+
+
+/* ===========================================
+   PRICE ROW - KES Golden Ratio Sizing
+   =========================================== */
+.price-row .price {
+    font-size: 28px !important;
+}
+
+.price-row .price .currency {
+    font-size: 0.618em !important;
+    font-weight: 600;
+}
+
+/* ===========================================
+   TESTIMONIALS SECTION - Before Footer
+   =========================================== */
+.testimonials-section {
+    padding: 32px 20px;
+    background: var(--bg-gray, #f5f5f7);
+    margin-top: 40px;
+}
+
+.testimonials-title {
+    font-size: 20px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 24px;
+    color: var(--text-primary);
+}
+
+.testimonials-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.testimonial-card {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.testimonial-quote {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+    font-style: italic;
+}
+
+.testimonial-quote::before {
+    content: '"';
+    font-size: 24px;
+    color: var(--color-primary);
+    font-weight: 700;
+}
+
+.testimonial-author {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.testimonial-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--gradient-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 18px;
+}
+
+.testimonial-avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.testimonial-info h4 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 2px;
+}
+
+.testimonial-info p {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.testimonial-rating {
+    color: #ffc107;
+    font-size: 14px;
+    margin-top: 4px;
+}
+
+/* ===========================================
+   LANDING PAGE HERO - Compact Version
+   =========================================== */
+.header-compact {
+    padding: 32px 20px 24px !important;
+    min-height: auto !important;
+}
+
+.header-compact .tagline,
+.header-compact .hero-tagline {
+    display: none;
+}
+
+.header-compact .business-name,
+.header-compact .professional-name {
+    font-size: 24px;
+    margin-bottom: 4px;
+}
+
+.header-compact .logo,
+.header-compact .professional-photo {
+    width: 56px;
+    height: 56px;
+    font-size: 24px;
+    margin-bottom: 12px;
+}
+
+/* Hero CTA button in compact header */
+.header-cta {
+    display: inline-block;
+    margin-top: 16px;
+    padding: 12px 28px;
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 25px;
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.header-cta:hover {
+    background: rgba(255,255,255,0.3);
+    transform: translateY(-2px);
+}
+
+
+/* ===========================================
+   TESTIMONIALS SECTION
+   =========================================== */
+.testimonials-section {
+    padding: 40px 20px;
+    background: var(--bg-gray);
+    margin-top: 30px;
+    border-radius: 20px;
+}
+
+.testimonials-title {
+    text-align: center;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 24px;
+    letter-spacing: -0.02em;
+}
+
+.testimonials-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 480px;
+    margin: 0 auto;
+}
+
+.testimonial-card {
+    background: white;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 12px;
+}
+
+.testimonial-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--color-primary);
+}
+
+.testimonial-avatar-placeholder {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--gradient-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.testimonial-quote {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    font-style: italic;
+    margin: 0;
+}
+
+.testimonial-author {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.testimonial-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.testimonial-role {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.testimonial-rating {
+    color: #ffc107;
+    font-size: 14px;
+    letter-spacing: 2px;
+}
+
+/* Multiple testimonials - horizontal scroll on mobile */
+@media (max-width: 600px) {
+    .testimonials-section {
+        padding: 32px 16px;
+        margin-left: -16px;
+        margin-right: -16px;
+        border-radius: 0;
+    }
+    
+    .testimonials-grid {
+        flex-direction: row;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 12px;
+        gap: 12px;
+        max-width: none;
+    }
+    
+    .testimonial-card {
+        flex: 0 0 280px;
+        scroll-snap-align: center;
+    }
+}
+
+/* Desktop: side-by-side layout */
+@media (min-width: 601px) {
+    .testimonials-grid {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        max-width: 100%;
+    }
+    
+    .testimonial-card {
+        flex: 1 1 300px;
+        max-width: 360px;
+    }
 }

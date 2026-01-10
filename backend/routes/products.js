@@ -48,7 +48,7 @@ router.post('/', authMiddleware, async (req, res) => {
       additionalImages, storyMedia, storyTitle, privacyPolicy, termsOfService, refundPolicy,
       templateType, richDescription, specifications, videoUrl, galleryImages,
       servicePackages, availabilityNotes, dietaryTags, prepTime, calories, ingredients,
-      trustBadges, warrantyInfo, returnPolicyDays, category
+      trustBadges, warrantyInfo, returnPolicyDays, category, testimonials
     } = req.body;
     
     const formatJson = (data) => data ? (typeof data === 'string' ? data : JSON.stringify(data)) : null;
@@ -63,8 +63,8 @@ router.post('/', authMiddleware, async (req, res) => {
           additional_images, story_media, story_title, privacy_policy, terms_of_service, refund_policy,
           template_type, rich_description, specifications, video_url, gallery_images,
           service_packages, availability_notes, dietary_tags, prep_time, calories, ingredients,
-          trust_badges, warranty_info, return_policy_days, category
-        ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28) 
+          trust_badges, warranty_info, return_policy_days, category, testimonials
+        ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29) 
         RETURNING *`,
         [
           req.user.userId, name, description, price, imageUrl, stockQuantity || 1000, isActive !== false,
@@ -72,7 +72,7 @@ router.post('/', authMiddleware, async (req, res) => {
           privacyPolicy || '', termsOfService || '', refundPolicy || '',
           templateType || 'quick-decision', richDescription, formatJson(specifications), videoUrl, formatArray(galleryImages),
           formatJson(servicePackages), availabilityNotes, formatArray(dietaryTags), prepTime, calories, ingredients,
-          formatJson(trustBadges), warrantyInfo, returnPolicyDays || 30, category
+          formatJson(trustBadges), warrantyInfo, returnPolicyDays || 30, category, formatJson(testimonials)
         ]
       );
     } else {
@@ -103,7 +103,7 @@ router.put('/:id', authMiddleware, async (req, res) => {
       additionalImages, storyMedia, storyTitle, privacyPolicy, termsOfService, refundPolicy,
       templateType, richDescription, specifications, videoUrl, galleryImages,
       servicePackages, availabilityNotes, dietaryTags, prepTime, calories, ingredients,
-      trustBadges, warrantyInfo, returnPolicyDays, category
+      trustBadges, warrantyInfo, returnPolicyDays, category, testimonials
     } = req.body;
     
     const formatJson = (data) => data ? (typeof data === 'string' ? data : JSON.stringify(data)) : null;
@@ -118,15 +118,15 @@ router.put('/:id', authMiddleware, async (req, res) => {
           additional_images=$7, story_media=$8, story_title=$9, privacy_policy=$10, terms_of_service=$11, refund_policy=$12,
           template_type=$13, rich_description=$14, specifications=$15, video_url=$16, gallery_images=$17,
           service_packages=$18, availability_notes=$19, dietary_tags=$20, prep_time=$21, calories=$22, ingredients=$23,
-          trust_badges=$24, warranty_info=$25, return_policy_days=$26, category=$27, updated_at=NOW()
-        WHERE id=$28 AND user_id=$29 RETURNING *`,
+          trust_badges=$24, warranty_info=$25, return_policy_days=$26, category=$27, testimonials=$28, updated_at=NOW()
+        WHERE id=$29 AND user_id=$30 RETURNING *`,
         [
           name, description, price, imageUrl, stockQuantity, isActive,
           formatJson(additionalImages), formatJson(storyMedia), storyTitle || 'See it in Action',
           privacyPolicy || '', termsOfService || '', refundPolicy || '',
           templateType || 'quick-decision', richDescription, formatJson(specifications), videoUrl, formatArray(galleryImages),
           formatJson(servicePackages), availabilityNotes, formatArray(dietaryTags), prepTime, calories, ingredients,
-          formatJson(trustBadges), warrantyInfo, returnPolicyDays || 30, category,
+          formatJson(trustBadges), warrantyInfo, returnPolicyDays || 30, category, formatJson(testimonials),
           id, req.user.userId
         ]
       );
@@ -196,7 +196,8 @@ router.post('/migrate', authMiddleware, async (req, res) => {
       ADD COLUMN IF NOT EXISTS trust_badges JSONB,
       ADD COLUMN IF NOT EXISTS warranty_info TEXT,
       ADD COLUMN IF NOT EXISTS return_policy_days INTEGER DEFAULT 30,
-      ADD COLUMN IF NOT EXISTS category VARCHAR(100)
+      ADD COLUMN IF NOT EXISTS category VARCHAR(100),
+      ADD COLUMN IF NOT EXISTS testimonials JSONB
     `);
     hasExtendedColumns = true;
     res.json({ success: true, message: 'Products table migrated successfully' });
