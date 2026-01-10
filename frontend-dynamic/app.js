@@ -254,13 +254,9 @@ function renderHeroSection() {
         heroCta.style.display = ctaHtml ? 'flex' : 'none';
     }
     
-    // Featured Testimonial
+    // Featured Testimonial - DISABLED (using collection testimonials instead)
     const testimonialSection = document.getElementById('featuredTestimonial');
-    if (testimonialSection && testimonial && testimonial.text) {
-        document.getElementById('testimonialText').textContent = `"${testimonial.text}"`;
-        document.getElementById('testimonialAuthor').textContent = testimonial.author + (testimonial.detail ? ` - ${testimonial.detail}` : '');
-        testimonialSection.style.display = 'block';
-    } else if (testimonialSection) {
+    if (testimonialSection) {
         testimonialSection.style.display = 'none';
     }
 }
