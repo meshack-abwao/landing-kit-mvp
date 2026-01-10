@@ -281,6 +281,28 @@ export default function Settings() {
                 <p style={styles.hint}>Circular photo displayed in hero section</p>
               </div>
 
+              <div style={styles.formGroup}>
+                <label style={styles.label}>HERO BACKGROUND IMAGE URL</label>
+                <input
+                  type="url"
+                  value={storeSettings.headerBgUrl}
+                  onChange={(e) => setStoreSettings({ ...storeSettings, headerBgUrl: e.target.value })}
+                  placeholder="https://example.com/background.jpg"
+                  className="dashboard-input"
+                />
+                <p style={styles.hint}>Full-width background image for header (with blur overlay)</p>
+                {storeSettings.headerBgUrl && (
+                  <div style={{ marginTop: '12px', borderRadius: '8px', overflow: 'hidden', height: '100px' }}>
+                    <img 
+                      src={storeSettings.headerBgUrl} 
+                      alt="Preview" 
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'brightness(0.7) blur(1px)' }}
+                      onError={(e) => e.target.style.display = 'none'}
+                    />
+                  </div>
+                )}
+              </div>
+
               <div style={styles.formRow}>
                 <div style={styles.formGroup}>
                   <label style={styles.label}>PRIMARY CTA TEXT</label>
