@@ -228,20 +228,39 @@ export default function ProductList() {
         servicePackages: formData.servicePackages.filter(p => p.name && p.name.trim()),
       };
       
+      // DEBUG: Log what we're sending
+      console.log('🚀 SUBMITTING DATA:', JSON.stringify(submitData, null, 2));
+      console.log('📸 storyMedia:', submitData.storyMedia);
+      console.log('🖼️ galleryImages:', submitData.galleryImages);
+      console.log('📦 servicePackages:', submitData.servicePackages);
+      
+      let response;
       if (editingProduct) {
-        await productsAPI.update(editingProduct.id, submitData);
+        response = await productsAPI.update(editingProduct.id, submitData);
       } else {
-        await productsAPI.create(submitData);
+        response = await productsAPI.create(submitData);
       }
+      
+      // DEBUG: Log response
+      console.log('✅ RESPONSE:', response);
+      
       resetForm();
       loadProducts();
     } catch (error) {
       console.error('Failed to save product:', error);
+      console.error('Error details:', error.response?.data);
       alert('Failed to save product. Please try again.');
     }
   };
 
   const handleEdit = (product) => {
+    // DEBUG: Log raw product data from database
+    console.log('📥 RAW PRODUCT FROM DB:', product);
+    console.log('📸 raw story_media:', product.story_media);
+    console.log('🖼️ raw gallery_images:', product.gallery_images);
+    console.log('📦 raw service_packages:', product.service_packages);
+    console.log('🎬 raw video_url:', product.video_url);
+    
     setEditingProduct(product);
     setSelectedTemplate(product.template_type || 'quick-decision');
     
@@ -253,7 +272,7 @@ export default function ProductList() {
       }
     } catch (e) {}
     
-    setFormData({
+    const parsedFormData = {
       name: product.name || '',
       description: product.description || '',
       richDescription: product.rich_description || '',
@@ -268,22 +287,27 @@ export default function ProductList() {
       storyTitle: product.story_title || 'See it in Action',
       videoUrl: product.video_url || '',
       servicePackages: parseServicePackages(product.service_packages),
-      availability: product.availability || '',
+      availability: product.availability_notes || product.availability || '',
       dietaryTags: product.dietary_tags || [],
       ingredients: product.ingredients || '',
       prepTime: product.prep_time || '',
       calories: product.calories || '',
       specifications: parseSpecifications(product.specifications),
       trustBadges: parseTrustBadges(product.trust_badges),
-      warranty: product.warranty || '',
-      returnPolicy: product.return_policy || '',
+      warranty: product.warranty_info || product.warranty || '',
+      returnPolicy: product.return_policy_days || product.return_policy || '',
       eventDate: product.event_date || '',
       eventLocation: product.event_location || '',
       speakers: product.speakers || '',
       privacyPolicy: product.privacy_policy || '',
       termsOfService: product.terms_of_service || '',
       refundPolicy: product.refund_policy || '',
-    });
+    };
+    
+    // DEBUG: Log parsed form data
+    console.log('📤 PARSED FORM DATA:', parsedFormData);
+    
+    setFormData(parsedFormData);
     setShowModal(true);
   };
 
