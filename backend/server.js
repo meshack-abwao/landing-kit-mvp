@@ -223,7 +223,7 @@ app.post('/api/products', auth, async (req, res) => {
   try {
     const {
       name, description, price, imageUrl, stockQuantity, isActive, templateType,
-      storyMedia, storyTitle, additionalImages, servicePackages,
+      storyMedia, storyTitle, additionalImages, galleryImages, servicePackages,
       dietaryTags, prepTime, calories, ingredients, specifications,
       trustBadges, warranty, returnPolicy, richDescription,
       privacyPolicy, termsOfService, refundPolicy, videoUrl,
@@ -232,22 +232,23 @@ app.post('/api/products', auth, async (req, res) => {
     
     console.log('📦 Creating product:', name, '| Template:', templateType);
     console.log('📸 Story media received:', JSON.stringify(storyMedia));
+    console.log('🖼️ Gallery images received:', JSON.stringify(galleryImages));
     
     const result = await pool.query(
       `INSERT INTO products (
         user_id, name, description, price, image_url, stock_quantity, is_active,
-        template_type, story_media, story_title, additional_images, service_packages,
+        template_type, story_media, story_title, additional_images, gallery_images, service_packages,
         dietary_tags, prep_time, calories, ingredients, specifications,
         trust_badges, warranty_info, return_policy_days, rich_description,
         privacy_policy, terms_of_service, refund_policy, video_url,
         event_date, event_location, availability_notes
       ) VALUES (
         $1, $2, $3, $4, $5, $6, $7,
-        $8, $9, $10, $11, $12,
-        $13, $14, $15, $16, $17,
-        $18, $19, $20, $21,
-        $22, $23, $24, $25,
-        $26, $27, $28
+        $8, $9, $10, $11, $12, $13,
+        $14, $15, $16, $17, $18,
+        $19, $20, $21, $22,
+        $23, $24, $25, $26,
+        $27, $28, $29
       ) RETURNING *`,
       [
         req.user.userId,
@@ -261,6 +262,7 @@ app.post('/api/products', auth, async (req, res) => {
         JSON.stringify(storyMedia || []),
         storyTitle || 'See it in Action',
         JSON.stringify(additionalImages || []),
+        JSON.stringify(galleryImages || []),
         JSON.stringify(servicePackages || []),
         JSON.stringify(dietaryTags || []),
         prepTime || null,
@@ -324,6 +326,7 @@ app.put('/api/products/:id', auth, async (req, res) => {
     const storyMedia = body.storyMedia || body.story_media;
     const storyTitle = body.storyTitle || body.story_title;
     const additionalImages = body.additionalImages || body.additional_images;
+    const galleryImages = body.galleryImages || body.gallery_images; // GALLERY 1-6
     const servicePackages = body.servicePackages || body.service_packages;
     const dietaryTags = body.dietaryTags || body.dietary_tags;
     const prepTime = body.prepTime || body.prep_time || null;
@@ -344,6 +347,8 @@ app.put('/api/products/:id', auth, async (req, res) => {
     
     console.log('📸 storyMedia:', storyMedia);
     console.log('🖼️ additionalImages:', additionalImages);
+    console.log('🖼️ galleryImages:', galleryImages);
+    console.log('📦 servicePackages:', servicePackages);
     console.log('📝 templateType:', templateType);
     
     const result = await pool.query(
@@ -375,8 +380,9 @@ app.put('/api/products/:id', auth, async (req, res) => {
         event_date = COALESCE($25, event_date),
         event_location = COALESCE($26, event_location),
         availability_notes = COALESCE($27, availability_notes),
+        gallery_images = COALESCE($28, gallery_images),
         updated_at = NOW()
-      WHERE id = $28 AND user_id = $29
+      WHERE id = $29 AND user_id = $30
       RETURNING *`,
       [
         name || null,
@@ -406,6 +412,7 @@ app.put('/api/products/:id', auth, async (req, res) => {
         eventDate,
         eventLocation,
         availability,
+        safeJson(galleryImages),
         req.params.id,
         req.user.userId
       ]
@@ -744,7 +751,9 @@ async function migrateBlockSystem() {
       `ALTER TABLE products ADD COLUMN IF NOT EXISTS checkout_type VARCHAR(20) DEFAULT 'buy_now'`,
       `ALTER TABLE products ADD COLUMN IF NOT EXISTS price_note VARCHAR(100)`,
       `ALTER TABLE products ADD COLUMN IF NOT EXISTS customization_options JSONB DEFAULT '[]'`,
-      `ALTER TABLE products ADD COLUMN IF NOT EXISTS booking_config JSONB DEFAULT '{}'`
+      `ALTER TABLE products ADD COLUMN IF NOT EXISTS booking_config JSONB DEFAULT '{}'`,
+      // Gallery images for portfolio-booking and other templates
+      `ALTER TABLE products ADD COLUMN IF NOT EXISTS gallery_images JSONB DEFAULT '[]'`
     ];
     
     for (const sql of productColumns) {
