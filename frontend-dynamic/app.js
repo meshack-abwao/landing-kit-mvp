@@ -124,9 +124,9 @@ function applyTheme(theme) {
 }
 
 function applyHeaderBackground() {
-    const header = document.querySelector('.header');
+    const header = document.querySelector('.hero-section');
     if (!header || !storeData?.store) {
-        console.log('⚠️ applyHeaderBackground: No header or store data');
+        console.log('⚠️ applyHeaderBackground: No hero-section or store data');
         return;
     }
     
