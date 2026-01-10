@@ -515,6 +515,7 @@ app.put('/api/settings', auth, async (req, res) => {
     if (b.tagline !== undefined) { updates.push(`tagline = $${idx++}`); values.push(b.tagline); }
     if (b.theme_color !== undefined) { updates.push(`theme_color = $${idx++}`); values.push(b.theme_color); }
     if (b.font_family !== undefined) { updates.push(`font_family = $${idx++}`); values.push(b.font_family); }
+    if (b.header_bg_url !== undefined) { updates.push(`header_bg_url = $${idx++}`); values.push(b.header_bg_url); }
     
     // Hero settings
     if (b.hero_bg_type !== undefined) { updates.push(`hero_bg_type = $${idx++}`); values.push(b.hero_bg_type); }
@@ -686,6 +687,7 @@ app.get('/api/public/store/:subdomain', async (req, res) => {
         logoText: store.logo_text, 
         tagline: store.tagline,
         fontFamily: store.font_family,
+        headerBgUrl: store.header_bg_url || '',
         theme: theme,
         mode: store.store_mode || 'dark',
         // Store-level policies
@@ -777,6 +779,7 @@ async function migratePhase2Collection() {
     
     // Hero customization columns for store_settings
     const heroColumns = [
+      `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS header_bg_url VARCHAR(500)`,
       `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS hero_bg_type VARCHAR(20) DEFAULT 'gradient'`,
       `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS hero_bg_image VARCHAR(500)`,
       `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS hero_bg_gradient VARCHAR(255) DEFAULT 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)'`,
