@@ -367,30 +367,113 @@ function showToast(message) {
 }
 
 // ===========================================
-// STORY MODAL FUNCTIONS
+// STORY MODAL FUNCTIONS - Instagram/WhatsApp style autoplay
 // ===========================================
+let storyTimer = null;
+let storyProgress = null;
+let currentStoryIndex = 0;
+const STORY_DURATION = 5000; // 5 seconds per image story
+
 function openStory(index) {
     const stories = getStoryMedia(currentProduct);
     if (!stories.length) return;
     
+    currentStoryIndex = index;
+    showStoryAtIndex(currentStoryIndex);
+}
+
+function showStoryAtIndex(index) {
+    const stories = getStoryMedia(currentProduct);
+    if (index < 0 || index >= stories.length) {
+        closeStory();
+        return;
+    }
+    
+    currentStoryIndex = index;
     const story = stories[index];
     const modal = document.getElementById('storyModal');
     const content = document.getElementById('storyContent');
     
+    // Clear any existing timers
+    clearTimeout(storyTimer);
+    clearInterval(storyProgress);
+    
+    // Build progress bars
+    const progressHTML = `
+        <div class="story-progress-container">
+            ${stories.map((_, i) => `
+                <div class="story-progress-bar ${i < index ? 'completed' : ''} ${i === index ? 'active' : ''}">
+                    <div class="story-progress-fill"></div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+    
+    // Navigation areas (tap left/right to navigate)
+    const navHTML = `
+        <div class="story-nav-left" onclick="prevStory(event)"></div>
+        <div class="story-nav-right" onclick="nextStory(event)"></div>
+        <button class="story-close-btn" onclick="closeStory()">✕</button>
+    `;
+    
     if (story.type === 'video') {
-        content.innerHTML = `<video src="${story.url}" controls autoplay playsinline class="story-media"></video>`;
+        content.innerHTML = `
+            ${progressHTML}
+            ${navHTML}
+            <video src="${story.url}" autoplay playsinline class="story-media" onended="nextStory()"></video>
+        `;
+        // For video, wait for it to end naturally
+        const video = content.querySelector('video');
+        video.onloadedmetadata = () => {
+            startProgressAnimation(video.duration * 1000);
+        };
     } else {
-        content.innerHTML = `<img src="${story.url}" alt="Story" class="story-media">`;
+        content.innerHTML = `
+            ${progressHTML}
+            ${navHTML}
+            <img src="${story.url}" alt="Story" class="story-media">
+        `;
+        // Auto-advance after 5 seconds for images
+        startProgressAnimation(STORY_DURATION);
+        storyTimer = setTimeout(() => nextStory(), STORY_DURATION);
     }
     
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
 }
 
+function startProgressAnimation(duration) {
+    const activeBar = document.querySelector('.story-progress-bar.active .story-progress-fill');
+    if (activeBar) {
+        activeBar.style.transition = `width ${duration}ms linear`;
+        activeBar.style.width = '100%';
+    }
+}
+
+function nextStory(event) {
+    if (event) event.stopPropagation();
+    const stories = getStoryMedia(currentProduct);
+    if (currentStoryIndex < stories.length - 1) {
+        showStoryAtIndex(currentStoryIndex + 1);
+    } else {
+        closeStory();
+    }
+}
+
+function prevStory(event) {
+    if (event) event.stopPropagation();
+    if (currentStoryIndex > 0) {
+        showStoryAtIndex(currentStoryIndex - 1);
+    }
+}
+
 function closeStory() {
     const modal = document.getElementById('storyModal');
     modal.classList.remove('active');
     document.body.style.overflow = '';
+    
+    clearTimeout(storyTimer);
+    clearInterval(storyProgress);
     
     const video = modal.querySelector('video');
     if (video) video.pause();
@@ -611,25 +694,27 @@ function renderQuickDecisionTemplate(product) {
                 ${galleryHTML}
                 
                 <div class="product-info">
-                    <div class="product-header">
-                        <h2 class="product-name">${product.name}</h2>
+                    <!-- NEW LAYOUT: Title -->
+                    <h2 class="product-name">${product.name}</h2>
+                    
+                    <!-- NEW LAYOUT: Price row with share/like -->
+                    <div class="price-row">
+                        <div class="price">KES <span id="displayPrice">${parseInt(product.price).toLocaleString()}</span></div>
                         <div class="social-actions">
                             <button class="social-btn share-btn" onclick="shareProduct(${product.id}, event)">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
                             </button>
                             <button id="like-btn-${product.id}" class="social-btn like-btn" onclick="toggleLike(${product.id}, event)">
                                 <span class="heart-icon ${isLiked ? 'liked' : ''}">${isLiked ? '❤️' : '🤍'}</span>
                             </button>
                         </div>
                     </div>
-                    <p class="product-description">${product.description || ''}</p>
                     
+                    <!-- NEW LAYOUT: Story section -->
                     ${storyHTML}
                     
-                    <div class="price-display">
-                        <span class="price-label">Price</span>
-                        <div class="price">KES <span id="displayPrice">${parseInt(product.price).toLocaleString()}</span></div>
-                    </div>
+                    <!-- NEW LAYOUT: Description -->
+                    <p class="product-description">${product.description || ''}</p>
                     
                     <div class="quantity-section">
                         <label class="quantity-label">Quantity</label>
@@ -800,8 +885,12 @@ function renderPortfolioBookingTemplate(product) {
                 ${thumbnailsHTML}
                 
                 <div class="product-info portfolio-info">
-                    <div class="product-header">
-                        <h2 class="product-name">${product.name}</h2>
+                    <!-- NEW LAYOUT: Title -->
+                    <h2 class="product-name">${product.name}</h2>
+                    
+                    <!-- NEW LAYOUT: Price row with share/like -->
+                    <div class="price-row">
+                        <div class="price">${servicePackages.length > 0 ? '<span class="price-prefix">From </span>' : ''}KES <span id="displayPrice">${parseInt(product.price).toLocaleString()}</span></div>
                         <div class="social-actions">
                             <button class="social-btn share-btn" onclick="shareProduct(${product.id}, event)">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
@@ -812,15 +901,14 @@ function renderPortfolioBookingTemplate(product) {
                         </div>
                     </div>
                     
-                    <p class="product-description">${product.description || product.rich_description || ''}</p>
-                    
-                    ${storyHTML}
+                    <!-- Availability tag -->
                     ${availabilityHTML}
                     
-                    <div class="price-display portfolio-price">
-                        <span class="price-label">${servicePackages.length > 0 ? 'Starting from' : 'Price'}</span>
-                        <div class="price">KES <span id="displayPrice">${parseInt(product.price).toLocaleString()}</span></div>
-                    </div>
+                    <!-- NEW LAYOUT: Stories -->
+                    ${storyHTML}
+                    
+                    <!-- NEW LAYOUT: Description -->
+                    <p class="product-description">${product.description || product.rich_description || ''}</p>
                     
                     <button onclick="handlePortfolioCheckout()" class="buy-btn book-btn">
                         <span class="btn-text">${servicePackages.length > 0 ? 'View Packages & Book' : 'Book Now'}</span>
@@ -839,6 +927,7 @@ function renderPortfolioBookingTemplate(product) {
 // TEMPLATE 3: VISUAL MENU (Food/Restaurant)
 // ===========================================
 function renderVisualMenuTemplate(product) {
+    const stories = getStoryMedia(product);
     const isLiked = isProductLiked(product.id);
     
     // Parse dietary tags (handle both array and string)
@@ -895,13 +984,29 @@ function renderVisualMenuTemplate(product) {
         </div>
     ` : '';
     
+    // Story circles section
+    const storyHTML = stories.length > 0 ? `
+        <div class="story-section">
+            ${product.story_title ? `<p class="story-title">${product.story_title}</p>` : '<p class="story-title">The Dish</p>'}
+            <div class="story-circles">
+                ${stories.map((story, idx) => `
+                    <div class="story-circle" onclick="openStory(${idx})">
+                        <div class="story-ring">
+                            <img src="${story.thumbnail || story.url}" alt="Story ${idx + 1}">
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    ` : '';
+    
     // Prep time and calories
-    const metaHTML = `
+    const metaHTML = (product.prep_time || product.calories) ? `
         <div class="food-meta">
             ${product.prep_time ? `<span class="meta-item">⏱️ ${product.prep_time}</span>` : ''}
             ${product.calories ? `<span class="meta-item">🔥 ${product.calories} cal</span>` : ''}
         </div>
-    `;
+    ` : '';
     
     // Ingredients
     const ingredientsHTML = product.ingredients ? `
@@ -920,15 +1025,18 @@ function renderVisualMenuTemplate(product) {
                         `<img src="${productImages[0]}" alt="${product.name}">` :
                         '<div class="image-placeholder">🍽️</div>'
                     }
-                    ${dietaryHTML}
                 </div>
                 
                 <div class="product-info">
-                    <div class="product-header">
-                        <h2 class="product-name">${product.name}</h2>
+                    <!-- NEW LAYOUT: Title -->
+                    <h2 class="product-name">${product.name}</h2>
+                    
+                    <!-- NEW LAYOUT: Price row with share/like -->
+                    <div class="price-row">
+                        <div class="price">KES <span id="displayPrice">${parseInt(product.price).toLocaleString()}</span></div>
                         <div class="social-actions">
                             <button class="social-btn share-btn" onclick="shareProduct(${product.id}, event)">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
                             </button>
                             <button id="like-btn-${product.id}" class="social-btn like-btn" onclick="toggleLike(${product.id}, event)">
                                 <span class="heart-icon ${isLiked ? 'liked' : ''}">${isLiked ? '❤️' : '🤍'}</span>
@@ -936,15 +1044,16 @@ function renderVisualMenuTemplate(product) {
                         </div>
                     </div>
                     
-                    <p class="product-description">${product.description || ''}</p>
+                    <!-- NEW LAYOUT: Tags -->
+                    ${dietaryHTML}
                     
+                    <!-- NEW LAYOUT: Stories -->
+                    ${storyHTML}
+                    
+                    <!-- NEW LAYOUT: Description & Meta -->
+                    <p class="product-description">${product.description || ''}</p>
                     ${metaHTML}
                     ${ingredientsHTML}
-                    
-                    <div class="price-display">
-                        <span class="price-label">Price</span>
-                        <div class="price">KES <span id="displayPrice">${parseInt(product.price).toLocaleString()}</span></div>
-                    </div>
                     
                     <div class="quantity-section">
                         <label class="quantity-label">Quantity</label>
@@ -1119,16 +1228,19 @@ function renderDeepDiveTemplate(product) {
     main.innerHTML = `
         ${backButton}
         <div class="product-container template-deep-dive">
-            ${trustHTML}
             <div class="product-card">
                 ${galleryHTML}
                 
                 <div class="product-info">
-                    <div class="product-header">
-                        <h2 class="product-name">${product.name}</h2>
+                    <!-- NEW LAYOUT: Title -->
+                    <h2 class="product-name">${product.name}</h2>
+                    
+                    <!-- NEW LAYOUT: Price row with share/like -->
+                    <div class="price-row">
+                        <div class="price">KES <span id="displayPrice">${parseInt(product.price).toLocaleString()}</span></div>
                         <div class="social-actions">
                             <button class="social-btn share-btn" onclick="shareProduct(${product.id}, event)">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
                             </button>
                             <button id="like-btn-${product.id}" class="social-btn like-btn" onclick="toggleLike(${product.id}, event)">
                                 <span class="heart-icon ${isLiked ? 'liked' : ''}">${isLiked ? '❤️' : '🤍'}</span>
@@ -1136,16 +1248,16 @@ function renderDeepDiveTemplate(product) {
                         </div>
                     </div>
                     
-                    <p class="product-description">${product.rich_description || product.description || ''}</p>
+                    <!-- NEW LAYOUT: Trust badges -->
+                    ${trustHTML}
                     
-                    ${specsHTML}
-                    ${warrantyHTML}
+                    <!-- NEW LAYOUT: Stories -->
                     ${storyHTML}
                     
-                    <div class="price-display premium-price">
-                        <span class="price-label">Investment</span>
-                        <div class="price">KES <span id="displayPrice">${parseInt(product.price).toLocaleString()}</span></div>
-                    </div>
+                    <!-- NEW LAYOUT: Description and specs -->
+                    <p class="product-description">${product.rich_description || product.description || ''}</p>
+                    ${specsHTML}
+                    ${warrantyHTML}
                     
                     <div class="quantity-section">
                         <label class="quantity-label">Quantity</label>
@@ -1269,6 +1381,22 @@ function renderEventLandingTemplate(product) {
         </div>
     ` : '';
     
+    // Story section for event highlights
+    const storyHTML = stories.length > 0 ? `
+        <div class="story-section">
+            ${product.story_title ? `<p class="story-title">${product.story_title}</p>` : '<p class="story-title">Event Highlights</p>'}
+            <div class="story-circles">
+                ${stories.map((story, idx) => `
+                    <div class="story-circle" onclick="openStory(${idx})">
+                        <div class="story-ring">
+                            <img src="${story.thumbnail || story.url}" alt="Highlight ${idx + 1}">
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    ` : '';
+    
     main.innerHTML = `
         ${backButton}
         <div class="product-container template-event">
@@ -1284,11 +1412,15 @@ function renderEventLandingTemplate(product) {
             
             <div class="product-card event-card">
                 <div class="product-info">
-                    <div class="product-header">
-                        <h2 class="product-name event-title">${product.name}</h2>
+                    <!-- NEW LAYOUT: Title -->
+                    <h2 class="product-name event-title">${product.name}</h2>
+                    
+                    <!-- NEW LAYOUT: Price row with share/like -->
+                    <div class="price-row">
+                        <div class="price">KES <span id="displayPrice">${parseInt(product.price).toLocaleString()}</span></div>
                         <div class="social-actions">
                             <button class="social-btn share-btn" onclick="shareProduct(${product.id}, event)">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
                             </button>
                             <button id="like-btn-${product.id}" class="social-btn like-btn" onclick="toggleLike(${product.id}, event)">
                                 <span class="heart-icon ${isLiked ? 'liked' : ''}">${isLiked ? '❤️' : '🤍'}</span>
@@ -1296,8 +1428,7 @@ function renderEventLandingTemplate(product) {
                         </div>
                     </div>
                     
-                    ${countdown}
-                    
+                    <!-- Event date/location tags -->
                     <div class="event-details">
                         ${eventDateDisplay ? `
                             <div class="event-detail-item">
@@ -1313,14 +1444,16 @@ function renderEventLandingTemplate(product) {
                         ` : ''}
                     </div>
                     
+                    <!-- NEW LAYOUT: Stories -->
+                    ${storyHTML}
+                    
+                    <!-- Countdown -->
+                    ${countdown}
+                    
+                    <!-- NEW LAYOUT: Description -->
                     <p class="product-description event-description">${product.rich_description || product.description || ''}</p>
                     
                     ${speakersHTML}
-                    
-                    <div class="price-display event-price">
-                        <span class="price-label">Ticket Price</span>
-                        <div class="price">KES <span id="displayPrice">${parseInt(product.price).toLocaleString()}</span></div>
-                    </div>
                     
                     <div class="quantity-section">
                         <label class="quantity-label">Number of Tickets</label>
@@ -1771,6 +1904,8 @@ window.toggleLike = toggleLike;
 window.shareProduct = shareProduct;
 window.openStory = openStory;
 window.closeStory = closeStory;
+window.nextStory = nextStory;
+window.prevStory = prevStory;
 window.showPolicy = showPolicy;
 window.closePolicy = closePolicy;
 
