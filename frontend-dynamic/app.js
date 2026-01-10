@@ -1276,6 +1276,7 @@ function backToCollections() {
     window.history.pushState({}, '', url);
     
     renderStore();
+    applyHeaderBackground(); // Re-apply header background after rendering
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 

@@ -71,6 +71,7 @@ body {
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   transition: background var(--transition-speed) var(--transition-ease), color var(--transition-speed) var(--transition-ease);
+  overflow-x: hidden; /* Prevent horizontal scroll */
 }
 
 /* ===== GLASS CARD ===== */
@@ -221,6 +222,8 @@ body {
   min-height: 100vh;
   display: flex;
   position: relative;
+  overflow-x: hidden; /* Prevent horizontal scroll */
+  max-width: 100vw;
 }
 
 /* STICKY SIDEBAR */
@@ -247,6 +250,8 @@ body {
   min-height: 100vh;
   position: relative;
   z-index: 1;
+  overflow-x: hidden; /* Prevent horizontal scroll */
+  max-width: calc(100vw - 280px); /* Don't exceed viewport minus sidebar */
 }
 
 /* ===== MOBILE STYLES ===== */
