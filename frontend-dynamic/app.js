@@ -896,7 +896,6 @@ function renderDeepDiveTemplate(product) {
         ${backButton}
         <div class="product-container template-deep-dive">
             <div class="product-card">
-                ${galleryHTML}
                 <div class="product-info">
                     <h2 class="product-name">${product.name}</h2>
                     <div class="price-row">
@@ -910,18 +909,22 @@ function renderDeepDiveTemplate(product) {
                     ${storyHTML}
                     <p class="product-description">${product.rich_description || product.description || ''}</p>
                     ${specsHTML}
-                    ${warrantyHTML}
-                    <div class="quantity-section">
-                        <label class="quantity-label">Quantity</label>
-                        <div class="quantity-controls">
-                            <button onclick="decreaseQuantity()" id="decreaseBtn" class="quantity-btn" ${quantity <= 1 ? 'disabled' : ''}>−</button>
-                            <span class="quantity-value" id="quantityDisplay">1</span>
-                            <button onclick="increaseQuantity()" id="increaseBtn" class="quantity-btn">+</button>
-                        </div>
-                    </div>
-                    <div class="total-section"><span class="total-label">Total</span><div class="total-price">KES <span id="totalPrice">${parseInt(product.price).toLocaleString()}</span></div></div>
-                    <button onclick="openCheckout()" class="buy-btn invest-btn"><span class="btn-text">Secure Your Order</span><span class="btn-arrow">→</span></button>
                 </div>
+                ${galleryHTML}
+            </div>
+            <!-- Bottom section: centered below columns -->
+            <div class="deep-dive-bottom-section">
+                ${warrantyHTML}
+                <div class="quantity-section">
+                    <label class="quantity-label">Quantity</label>
+                    <div class="quantity-controls">
+                        <button onclick="decreaseQuantity()" id="decreaseBtn" class="quantity-btn" ${quantity <= 1 ? 'disabled' : ''}>−</button>
+                        <span class="quantity-value" id="quantityDisplay">1</span>
+                        <button onclick="increaseQuantity()" id="increaseBtn" class="quantity-btn">+</button>
+                    </div>
+                </div>
+                <div class="total-section"><span class="total-label">Total</span><div class="total-price">KES <span id="totalPrice">${parseInt(product.price).toLocaleString()}</span></div></div>
+                <button onclick="openCheckout()" class="buy-btn invest-btn"><span class="btn-text">Secure Your Order</span><span class="btn-arrow">→</span></button>
             </div>
             ${generateTestimonialsHTML(product.testimonials, 'Customer Reviews')}
         </div>
