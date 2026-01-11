@@ -1,6 +1,6 @@
 # Landing Kit MVP - Complete Session Knowledge Base
-**Last Updated:** January 11, 2026
-**Status:** STABLE WORKING VERSION (Debloated)
+**Last Updated:** January 12, 2026
+**Status:** STABLE - Railway Dark Theme + Premium Transitions
 
 ---
 
@@ -8,11 +8,12 @@
 1. [System Architecture](#architecture)
 2. [Database Schema](#database)
 3. [Current Working State](#working-state)
-4. [🔧 DEBUGGING FORMULA - NEW FIELD NOT WORKING](#debugging-formula)
-5. [Key Decisions & Why](#decisions)
-6. [Common Issues & Solutions](#troubleshooting)
-7. [Deployment Guide](#deployment)
-8. [Future Features](#future)
+4. [Recent Changes (Jan 11-12)](#recent-changes)
+5. [Known Issues](#known-issues)
+6. [Key Decisions & Why](#decisions)
+7. [Common Issues & Solutions](#troubleshooting)
+8. [Deployment Guide](#deployment)
+9. [Next Up: Checkout Flow](#next-up)
 
 ---
 
@@ -24,7 +25,8 @@
 │  Backend API (Port 3000)                │
 │  - Node.js + Express                    │
 │  - PostgreSQL (Railway)                 │
-│  - Single file: server.js               │
+│  - Routes: auth, products, orders,      │
+│    settings, public                     │
 └─────────────────────────────────────────┘
             ↓
 ┌─────────────────────────────────────────┐
@@ -32,263 +34,188 @@
 │  - React + Vite                         │
 │  - Admin panel for store management     │
 │  - Components: Overview, Products,      │
-│    Orders, Settings, Marketplace        │
+│    Orders, Settings, Marketplace,       │
+│    Templates                            │
 └─────────────────────────────────────────┘
             ↓
 ┌─────────────────────────────────────────┐
-│  Store Frontend (Port 5177)             │
+│  Store Frontend (Port 5174)             │
 │  - Vanilla JS + Vite                    │
-│  - Customer-facing product catalog      │
-│  - Subdomain-based routing              │
+│  - 5 JTBD Templates                     │
+│  - Customer-facing product pages        │
 └─────────────────────────────────────────┘
 ```
 
-### Clean File Structure (Post-Debloat)
+### Key File Locations
 ```
-landing-kit-mvp/
-├── backend/           # API server (server.js is the main file)
-├── dashboard/         # Admin React app  
-├── frontend-dynamic/  # Customer store
-├── docs/              # Documentation
-├── PROJECT_KNOWLEDGE.md
-└── README.md
-```
-
----
-
-## 🔧 DEBUGGING FORMULA - NEW FIELD NOT WORKING
-
-### The 4-Layer Architecture
-Every field in Jari.Ecom flows through exactly 4 layers. If a field isn't working, one of these layers is broken:
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│ LAYER 1: DATABASE                                           │
-│ File: backend/server.js (lines 82-180)                      │
-│ Check: ALTER TABLE ... ADD COLUMN IF NOT EXISTS             │
-└─────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────┐
-│ LAYER 2: BACKEND ROUTES (INSERT/UPDATE) ⚠️ MOST COMMON BUG │
-│ File: backend/server.js                                     │
-│ Check: POST /api/products or PUT /api/products/:id          │
-│        POST /api/settings or PUT /api/settings              │
-│ Bug: Field in migration but NOT in INSERT/UPDATE query      │
-└─────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────┐
-│ LAYER 3: BACKEND ROUTES (GET/PUBLIC)                        │
-│ File: backend/server.js                                     │
-│ Check: GET /api/public/store/:subdomain response object     │
-│ Bug: Field saved but not returned to frontend               │
-└─────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────┐
-│ LAYER 4: FRONTEND                                           │
-│ Files: dashboard/src/components/*, frontend-dynamic/app.js  │
-│ Check: Form sends field, store renders field                │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### Quick Diagnosis Steps
-
-**Step 1: Identify which table the field belongs to**
-- Product fields → `products` table → `/api/products` routes
-- Store/Collection fields → `store_settings` table → `/api/settings` routes
-
-**Step 2: Check each layer in order**
-
-```
-LAYER 1 - DATABASE (server.js ~lines 82-180):
-Search in server.js for: ALTER TABLE [table_name] ADD COLUMN IF NOT EXISTS [field_name]
-If missing → Add migration
-
-LAYER 2 - BACKEND INSERT/UPDATE (⚠️ CHECK THIS FIRST - MOST COMMON):
-For products:
-  - INSERT INTO products → line ~234
-  - UPDATE products SET → line ~343
-  - Verify field is in BOTH the column list AND values array
-
-For store_settings:
-  - app.put('/api/settings' → line ~500
-  - Verify: if (b.field_name !== undefined) { updates.push(...) }
-
-LAYER 3 - BACKEND GET/PUBLIC (server.js ~line 619):
-Search: app.get('/api/public/store
-Verify field is included in response object
-
-LAYER 4 - FRONTEND:
-Dashboard: Check form has input for field, check submitData includes field
-Store: Check render function uses the field
-```
-
-### Real Bug Examples We Fixed
-
-#### Bug #1: Collection Testimonials Not Saving
-**Symptom:** Dashboard showed testimonials form, but data disappeared on refresh
-**Root Cause:** Layer 2 - PUT /api/settings missing handlers
-
-```javascript
-// BEFORE (broken) - these lines were MISSING:
-// if (b.show_testimonials !== undefined) { ... }
-// if (b.collection_testimonials !== undefined) { ... }
-
-// AFTER (fixed):
-if (b.show_testimonials !== undefined) { 
-  updates.push(`show_testimonials = $${idx++}`); 
-  values.push(b.show_testimonials); 
-}
-if (b.collection_testimonials !== undefined) { 
-  updates.push(`collection_testimonials = $${idx++}`); 
-  const testimonials = Array.isArray(b.collection_testimonials) 
-    ? b.collection_testimonials 
-    : JSON.parse(b.collection_testimonials);
-  values.push(JSON.stringify(testimonials)); 
-}
-```
-
-#### Bug #2: Product Testimonials Not Saving
-**Symptom:** Same as above but for product-level testimonials
-**Root Cause:** Layer 2 - POST and PUT /api/products missing `testimonials` field
-
-```javascript
-// BEFORE (broken):
-// INSERT INTO products (...29 columns...) VALUES ($1...$29)
-// UPDATE products SET ...28 fields... WHERE id = $29
-
-// AFTER (fixed):
-// INSERT INTO products (...30 columns including testimonials...) VALUES ($1...$30)
-// UPDATE products SET ...29 fields including testimonials = COALESCE($29, testimonials)... WHERE id = $30
-```
-
-### NEW FIELD CHECKLIST
-When adding ANY new field, complete ALL 4 layers:
-
-```
-□ LAYER 1: Add migration in server.js (lines 82-180)
-  ALTER TABLE [table] ADD COLUMN IF NOT EXISTS [field] [TYPE] DEFAULT [value]
-
-□ LAYER 2: Add to INSERT query (for new records)
-  - Add column name to INSERT INTO ... ([columns])
-  - Add $N placeholder to VALUES (...)
-  - Add value to the values array
-
-□ LAYER 2: Add to UPDATE query (for existing records)
-  - Add: field_name = COALESCE($N, field_name) to SET clause
-  - Add value to the values array
-  - Update WHERE clause parameter numbers!
-
-□ LAYER 3: Add to GET response (for public API)
-  - Include field in the response object
-
-□ LAYER 4: Frontend
-  - Dashboard: Add form input + include in submit data
-  - Store: Render the field where needed
-```
-
-### JSONB Fields - Special Handling
-PostgreSQL's `pg` driver handles JSONB automatically:
-- **DON'T** use `JSON.stringify()` when reading - it's already parsed
-- **DO** use `JSON.stringify()` when writing to database
-- **DO** handle both array and string input (dashboard may send either)
-
-```javascript
-// Writing JSONB:
-const testimonials = Array.isArray(input) ? input : JSON.parse(input);
-values.push(JSON.stringify(testimonials));
-
-// Reading JSONB - already parsed by pg driver:
-const data = result.rows[0].testimonials; // Already an array, not a string!
+C:\Users\ADMIN\Desktop\landing-kit-mvp\
+├── backend/
+│   ├── server.js              # Main Express server
+│   ├── routes/                # API routes
+│   └── config/database.js     # PostgreSQL connection
+├── dashboard/
+│   └── src/
+│       ├── index.css          # ALL THEME STYLES HERE
+│       ├── components/Dashboard/
+│       │   ├── DashboardLayout.jsx  # Sidebar + navigation
+│       │   ├── ProductList.jsx      # Product CRUD
+│       │   └── Templates.jsx        # Template selector
+│       └── services/api.jsx   # API client
+└── frontend-dynamic/
+    ├── app.js                 # ALL TEMPLATE RENDERING
+    ├── styles.css             # Store frontend styles
+    └── index.html             # Entry point
 ```
 
 ---
 
-## DATABASE
+## DATABASE SCHEMA
 
-### Core Tables
+### Core Tables (PostgreSQL on Railway)
 
-**users**
-- id, email, password_hash, business_name, instagram_handle
-- subscription_tier (tier1/tier2/tier3)
-- created_at
+**products** - Main product/page data
+- id, user_id, name, description, price
+- image_url, images (JSONB array for gallery)
+- template_id (1-5 for JTBD templates)
+- stock_quantity, is_active
+- **JSONB fields:** stories, testimonials, service_packages, faqs, trust_badges, gallery_images
 
-**products** (30+ columns)
-- Core: id, user_id, name, description, price, image_url, stock_quantity, is_active
-- Template: template_type, story_media, story_title, gallery_images
-- Rich content: rich_description, testimonials (JSONB), specifications (JSONB)
-- Policies: privacy_policy, terms_of_service, refund_policy
+**store_settings** - Per-user store config
+- subdomain, logo_text, tagline
+- theme_color, font_family
+- mpesa_number
 
-**orders**
-- id, user_id, product_id, order_number
-- customer_name, customer_phone, customer_location
-- quantity, unit_price, total_amount, payment_method, status
-
-**store_settings** (40+ columns)
-- Core: id, user_id, subdomain, logo_text, tagline, theme_color
-- Hero: hero_bg_type, hero_bg_image, hero_title, hero_subtitle
-- Testimonials: show_testimonials, collection_testimonials (JSONB)
-- Footer: footer_text, footer_powered_by
-- Policies: privacy_policy, terms_of_service, refund_policy
-
-**themes**
-- id, name, display_name, gradient, primary_color
-- heading_font, body_font, is_premium
+**themes** - Pre-defined color themes
+- name, display_name, gradient, primary_color
 
 ---
 
-## WORKING STATE
+## CURRENT WORKING STATE
 
 ### What's Working ✅
-1. **Backend API** - All CRUD operations, JWT auth
-2. **Dashboard** - Products, Orders, Settings with all fields
-3. **Store Frontend** - Dynamic theming, product display, checkout
-4. **Testimonials** - Both collection-level and product-level (after Layer 2 fix)
 
-### File Counts (Post-Debloat)
-- Backend: **854 lines** in server.js (single file architecture)
-  - Migrations: lines 82-180
-  - Product routes: lines 200-430
-  - Settings routes: lines 450-600
-  - Public store API: lines 619-750
-  - Server startup: lines 800-854
-- Dashboard: Standard React/Vite structure
-- Frontend-dynamic: app.js + styles.css + index.html
+**Dashboard (React)**
+- Railway-style dark mode (pure dark + purple/pink/orange center glow)
+- Light mode (soft pastels)
+- Products CRUD with template selection
+- Image gallery with multiple images
+- Settings page with theme selection
+- All 5 template editors working
+
+**Store Frontend (Vanilla JS)**
+- All 5 JTBD templates rendering correctly
+- Premium image transitions (slide animations)
+- Hover-reveal gallery navigation arrows
+- Touch swipe support for galleries
+- Story autoplay with progress bars
+- Testimonials display
+- Collection cards for multi-product stores
+
+### 5 JTBD Templates
+1. **Quick Decision Single** (template_id: 1) - Instagram sellers, impulse buys
+2. **Portfolio + Booking** (template_id: 2) - Service providers
+3. **Visual Menu** (template_id: 3) - Restaurants/cafes
+4. **Deep Dive Evaluator** (template_id: 4) - High-ticket items
+5. **Catalog Navigator** (template_id: 5) - Multi-product stores
+
+---
+
+## RECENT CHANGES (Jan 11-12, 2026)
+
+### Dark Mode Theme
+Changed from "Fresh Mint + Ocean Blue" to **Railway-style**:
+- Pure dark background: `#0a0a0f`
+- Center gradient glow: purple → pink → orange
+- Located in: `dashboard/src/index.css` lines 68-110
+
+```css
+[data-theme="dark"] {
+  --bg-primary: #0a0a0f;
+  --accent-color: #a855f7;
+  --logo-gradient: linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #f97316 100%);
+}
+```
+
+### Premium Image Transitions
+Added smooth slide animations to product galleries:
+- Direction-aware (left/right based on navigation)
+- 350ms cubic-bezier easing
+- Glassmorphic nav buttons with hover reveal
+- Located in: `frontend-dynamic/styles.css` and `frontend-dynamic/app.js`
+
+```css
+@keyframes slideInFromRight {
+  from { opacity: 0; transform: translateX(8%); }
+  to { opacity: 1; transform: translateX(0); }
+}
+```
+
+### Mobile Sidebar (PARTIALLY WORKING)
+- Has smooth slide transition
+- Auto-close on route change via useEffect
+- **KNOWN ISSUE:** Tapping nav items doesn't reliably close sidebar on mobile
+
+---
+
+## KNOWN ISSUES
+
+### 🔴 Mobile Sidebar Not Auto-Closing
+**Problem:** When tapping nav items on mobile, sidebar doesn't auto-close reliably
+**Location:** `dashboard/src/components/Dashboard/DashboardLayout.jsx`
+**Attempted fixes:**
+- Added onClick={closeMobileMenu} to all NavLinks
+- Tried onTouchStart (caused double-fire)
+- useEffect watches location.pathname but may not trigger fast enough
+
+**To investigate:**
+- Check if NavLink onClick fires before navigation
+- Consider using useNavigate programmatically
+- May need to wrap in setTimeout or use event.preventDefault + manual navigate
+
+### 🟡 Revenue Shows $0
+Not a bug - all orders are "pending" status. Mark orders as "completed" to see revenue.
 
 ---
 
 ## KEY DECISIONS
 
-### Single File Backend (server.js)
-**Decision:** Keep all backend logic in one file
-**Reason:** Easier to search, fewer import issues, faster debugging
-**Trade-off:** Large file (~854 lines) but ctrl+F works perfectly
+### Template System
+- Templates stored as `template_id` (1-5) on products table
+- Each template has different JSONB fields it uses
+- Rendering logic all in `frontend-dynamic/app.js`
 
-### Database Column Approach
-**Current:** Individual columns for each field
-**Future consideration:** JSONB config pattern for flexibility
-**Note:** Migration plan exists but deferred for stability
+### JSONB for Flexible Data
+- PostgreSQL JSONB for arrays (images, testimonials, etc.)
+- **CRITICAL:** pg driver accepts JS objects directly - don't JSON.stringify!
+
+### Theme Variables
+All theme colors use CSS variables defined in `dashboard/src/index.css`:
+- Light mode: `:root, [data-theme="light"]`
+- Dark mode: `[data-theme="dark"]`
 
 ---
 
 ## TROUBLESHOOTING
 
-### Quick Fixes
+### Backend Not Responding
+```bash
+cd C:\Users\ADMIN\Desktop\landing-kit-mvp\backend
+npm start
+```
 
-| Symptom | Likely Cause | Fix |
-|---------|--------------|-----|
-| Field not saving | Layer 2 missing | Add to INSERT/UPDATE query |
-| Field saves but not showing | Layer 3 missing | Add to GET response |
-| Form not sending field | Layer 4 frontend | Check submitData object |
-| "Column does not exist" | Layer 1 missing | Add migration |
+### Dashboard Blank/Broken
+```bash
+cd C:\Users\ADMIN\Desktop\landing-kit-mvp\dashboard
+rm -rf node_modules/.vite
+npm run dev
+# Hard refresh: Ctrl+Shift+R
+```
 
-### Server Restart Required After
-- Any change to server.js
-- Database migration changes
-- Environment variable changes
+### Store Not Loading
+Check subdomain param: `http://localhost:5174?subdomain=testfashion`
 
-### Clear Caches When
-- Vite hot reload not working: `rm -rf node_modules/.vite`
-- Browser showing old version: Hard refresh (Ctrl+Shift+R)
+### JSONB Not Saving
+DON'T use JSON.stringify - pass JS objects directly to pg queries.
 
 ---
 
@@ -296,10 +223,10 @@ const data = result.rows[0].testimonials; // Already an array, not a string!
 
 ### Current Setup
 - **Backend:** Railway (auto-deploy from GitHub)
-- **Dashboard:** Netlify 
-- **Store:** Netlify
+- **Frontend:** Netlify (auto-deploy from GitHub)
+- **Database:** PostgreSQL on Railway
 
-### Environment Variables Required
+### Environment Variables (Backend)
 ```
 DATABASE_URL=postgresql://...
 JWT_SECRET=your-secret
@@ -308,15 +235,48 @@ NODE_ENV=production
 
 ---
 
-## FUTURE FEATURES
+## NEXT UP: CHECKOUT FLOW
 
-### Planned
-1. JSONB migration for store_settings (reduce column sprawl)
-2. Image upload (Cloudinary integration)
-3. M-Pesa STK Push integration
-4. WhatsApp notifications
+### Priority Task
+Build/improve the checkout flow for customer purchases.
+
+### Current State
+- Basic checkout modal exists in `frontend-dynamic/app.js`
+- Order creation endpoint exists at `/api/orders`
+- M-Pesa STK push placeholder (not implemented)
+
+### To Implement
+1. Review current checkout modal UX
+2. Improve form validation
+3. M-Pesa integration (Daraja API)
+4. Order confirmation flow
+5. WhatsApp notification on order
+
+### Files to Edit
+- `frontend-dynamic/app.js` - checkout modal rendering
+- `frontend-dynamic/styles.css` - checkout styling
+- `backend/routes/orders.js` - order processing
+- `backend/services/mpesa.js` - M-Pesa integration (currently placeholder)
 
 ---
 
-**END OF KNOWLEDGE BASE**
-Last Updated: January 11, 2026 - Post-debloat, with debugging formula
+## GIT WORKFLOW
+
+```bash
+cd C:\Users\ADMIN\Desktop\landing-kit-mvp
+git add -A
+git commit -m "emoji Description"
+git push origin master
+```
+
+### Commit Emoji Guide
+- 🎨 UI/styling changes
+- 🐛 Bug fixes
+- ✨ New features
+- 🔧 Config/setup changes
+- 📝 Documentation
+
+---
+
+**END OF SESSION KNOWLEDGE BASE**
+Generated: January 12, 2026
