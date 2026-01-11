@@ -510,6 +510,15 @@ function renderQuickDecisionTemplate(product) {
     const isLiked = isProductLiked(product.id);
     const main = document.getElementById('main');
     
+    // Parse gallery_images and fallback to productImages (from additional_images)
+    let galleryImages = [];
+    try {
+        const parsed = Array.isArray(product.gallery_images) ? product.gallery_images : JSON.parse(product.gallery_images || '[]');
+        galleryImages = parsed.filter(url => url?.trim());
+    } catch (e) {}
+    if (galleryImages.length === 0) galleryImages = productImages;
+    productImages = galleryImages;
+    
     const backButton = storeData.products.length > 1 ? `<button onclick="backToCollections()" class="back-btn">← Back to All Products</button>` : '';
     const hasMultipleImages = productImages.length > 1;
     
@@ -673,6 +682,16 @@ function renderPortfolioBookingTemplate(product) {
 function renderVisualMenuTemplate(product) {
     const stories = getStoryMedia(product);
     const isLiked = isProductLiked(product.id);
+    
+    // Parse gallery_images and fallback to productImages (from additional_images)
+    let galleryImages = [];
+    try {
+        const parsed = Array.isArray(product.gallery_images) ? product.gallery_images : JSON.parse(product.gallery_images || '[]');
+        galleryImages = parsed.filter(url => url?.trim());
+    } catch (e) {}
+    if (galleryImages.length === 0) galleryImages = productImages;
+    productImages = galleryImages;
+    
     const hasMultipleImages = productImages.length > 1;
     
     let dietaryTags = [];
