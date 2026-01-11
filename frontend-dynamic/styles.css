@@ -10,7 +10,7 @@
     /* ===========================================
        GOLDEN RATIO TYPOGRAPHY SYSTEM
        Apple/SF Pro Inspired - Clean & Balanced
-       Scale (1.618 ratio): 10 Ã¢â€ â€™ 11 Ã¢â€ â€™ 12 Ã¢â€ â€™ 13 Ã¢â€ â€™ 15 Ã¢â€ â€™ 17 Ã¢â€ â€™ 20 Ã¢â€ â€™ 22 Ã¢â€ â€™ 24 Ã¢â€ â€™ 28
+       Scale (1.618 ratio): 10 ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ 11 ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ 12 ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ 13 ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ 15 ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ 17 ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ 20 ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ 22 ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ 24 ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ 28
        =========================================== */
     --fs-micro: 10px;
     --fs-tiny: 11px;
@@ -3935,37 +3935,37 @@ textarea:focus-visible {
         max-width: 1000px;
     }
     
-    /* Template 3: Visual Menu - Two Column with Sticky Image */
+    /* Template 3: Visual Menu - Unified Card with Sticky Image Inside */
     .template-menu .product-card.food-card {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 40px;
+        gap: 0;
         align-items: start;
-        background: transparent;
-        box-shadow: none;
-        border-radius: 0;
-        overflow: visible;
+        border-radius: 24px;
+        overflow: visible; /* Allow sticky to work */
+        background: white;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.08);
     }
     
-    /* Left column: Sticky Image Gallery */
+    /* Left column: Sticky Image Gallery (sticks inside the card) */
     .template-menu .menu-gallery {
         position: sticky;
         top: 20px;
-        background: white;
-        border-radius: 20px;
+        align-self: start;
+        border-radius: 24px 0 0 24px;
         overflow: hidden;
-        box-shadow: 0 4px 24px rgba(0,0,0,0.08);
     }
     
     .template-menu .menu-gallery .main-image-container {
         height: 420px;
-        border-radius: 20px 20px 0 0;
+        border-radius: 0;
     }
     
     .template-menu .menu-gallery .thumbnail-strip {
         padding: 16px 20px;
         justify-content: flex-start;
         background: white;
+        border-right: 1px solid var(--border);
     }
     
     .template-menu .menu-gallery .thumbnail {
@@ -3973,12 +3973,11 @@ textarea:focus-visible {
         height: 64px;
     }
     
-    /* Right column: Scrollable Product Info */
+    /* Right column: Product Info (scrolls naturally) */
     .template-menu .food-card .product-info {
-        background: white;
-        border-radius: 20px;
         padding: 32px;
-        box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+        border-left: 1px solid var(--border);
+        min-height: 100%;
     }
     
     .template-menu .food-card .product-name {
@@ -3999,13 +3998,9 @@ textarea:focus-visible {
         margin: 20px 0;
     }
     
-    /* Testimonials: Full width below both columns */
+    /* Testimonials: Full width below card */
     .template-menu .testimonials-section {
-        margin-top: 48px;
-        background: white;
-        border-radius: 20px;
-        padding: 32px;
-        box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+        margin-top: 40px;
     }
     
     .template-menu .testimonials-section .testimonials-grid {
@@ -4017,8 +4012,6 @@ textarea:focus-visible {
     
     .template-menu .testimonials-section .testimonial-card {
         margin: 0;
-        box-shadow: none;
-        border: 1px solid var(--border);
     }
 
     /* Back button positioning */
