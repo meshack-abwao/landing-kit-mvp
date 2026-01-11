@@ -227,7 +227,7 @@ app.post('/api/products', auth, async (req, res) => {
       dietaryTags, prepTime, calories, ingredients, specifications,
       trustBadges, warranty, returnPolicy, richDescription,
       privacyPolicy, termsOfService, refundPolicy, videoUrl,
-      eventDate, eventLocation, availability
+      eventDate, eventLocation, availability, testimonials
     } = req.body;
     
     console.log('📦 Creating product:', name, '| Template:', templateType);
@@ -241,14 +241,14 @@ app.post('/api/products', auth, async (req, res) => {
         dietary_tags, prep_time, calories, ingredients, specifications,
         trust_badges, warranty_info, return_policy_days, rich_description,
         privacy_policy, terms_of_service, refund_policy, video_url,
-        event_date, event_location, availability_notes
+        event_date, event_location, availability_notes, testimonials
       ) VALUES (
         $1, $2, $3, $4, $5, $6, $7,
         $8, $9, $10, $11, $12, $13,
         $14, $15, $16, $17, $18,
         $19, $20, $21, $22,
         $23, $24, $25, $26,
-        $27, $28, $29
+        $27, $28, $29, $30
       ) RETURNING *`,
       [
         req.user.userId,
@@ -279,7 +279,8 @@ app.post('/api/products', auth, async (req, res) => {
         videoUrl || null,
         eventDate || null,
         eventLocation || null,
-        availability || null
+        availability || null,
+        JSON.stringify(testimonials || [])
       ]
     );
     
@@ -344,8 +345,10 @@ app.put('/api/products/:id', auth, async (req, res) => {
     const eventDate = body.eventDate || body.event_date || null;
     const eventLocation = body.eventLocation || body.event_location || null;
     const availability = body.availability || body.availability_notes || null;
+    const testimonials = body.testimonials || body.testimonials || null;
     
     console.log('📸 storyMedia:', storyMedia);
+    console.log('⭐ testimonials:', testimonials);
     console.log('🖼️ additionalImages:', additionalImages);
     console.log('🖼️ galleryImages:', galleryImages);
     console.log('📦 servicePackages:', servicePackages);
@@ -381,8 +384,9 @@ app.put('/api/products/:id', auth, async (req, res) => {
         event_location = COALESCE($26, event_location),
         availability_notes = COALESCE($27, availability_notes),
         gallery_images = COALESCE($28, gallery_images),
+        testimonials = COALESCE($29, testimonials),
         updated_at = NOW()
-      WHERE id = $29 AND user_id = $30
+      WHERE id = $30 AND user_id = $31
       RETURNING *`,
       [
         name || null,
@@ -413,6 +417,7 @@ app.put('/api/products/:id', auth, async (req, res) => {
         eventLocation,
         availability,
         safeJson(galleryImages),
+        safeJson(testimonials),
         req.params.id,
         req.user.userId
       ]
