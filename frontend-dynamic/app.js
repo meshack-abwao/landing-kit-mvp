@@ -456,6 +456,8 @@ function filterByCategory(categoryName) {
     activeCategoryFilter = activeCategoryFilter === categoryName ? null : categoryName;
     renderCollectionsGrid(storeData.products);
 }
+// Expose to window for onclick handlers
+window.filterByCategory = filterByCategory;
 
 function renderCollectionsGrid(products) {
     const main = document.getElementById('main');
