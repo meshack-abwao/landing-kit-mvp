@@ -71,15 +71,15 @@ export default function Overview() {
   const viewProduct = (productId) => storeUrl && window.open(`${storeUrl}&product=${productId}`, '_blank');
   const viewCollections = () => storeUrl && window.open(storeUrl, '_blank');
 
-  if (loading) return <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>Loading...</div>;
+  if (loading) return <div style={{ textAlign: 'center', padding: '80px', color: 'var(--text-muted)' }}>Loading...</div>;
 
   return (
     <div style={{ maxWidth: '1400px' }} className="fade-in">
       {/* Header */}
-      <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+      <div style={{ marginBottom: '48px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '24px', paddingBottom: '24px', borderBottom: '1px solid var(--border-color)' }}>
         <div>
-          <h1 style={{ fontSize: '32px', fontWeight: '800', marginBottom: '4px', color: 'var(--text-primary)' }}>Overview</h1>
-          <p style={{ fontSize: '15px', color: 'var(--text-muted)' }}>Your store performance at a glance</p>
+          <h1 style={{ fontSize: '40px', fontWeight: '700', marginBottom: '12px', color: 'var(--text-primary)', letterSpacing: '-0.025em', lineHeight: '1.1' }}>Overview</h1>
+          <p style={{ fontSize: '17px', color: 'var(--text-muted)', fontWeight: '400', letterSpacing: '-0.01em' }}>Your store performance at a glance</p>
         </div>
         {storeUrl && (
           <button onClick={viewCollections} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -137,9 +137,9 @@ export default function Overview() {
       </div>
 
       {/* Quick Actions */}
-      <div style={{ marginBottom: '32px' }}>
-        <h2 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '16px', color: 'var(--text-primary)' }}>Quick Actions</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px' }}>
+      <div style={{ marginBottom: '48px' }}>
+        <h2 style={{ fontSize: '24px', fontWeight: '600', marginBottom: '20px', color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>Quick Actions</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px' }}>
           <div onClick={() => navigate('/dashboard/products')} className="action-card glass-card">
             <div className="action-icon">📦</div>
             <h3 className="action-title">Add Product</h3>
@@ -161,15 +161,15 @@ export default function Overview() {
       {/* Recent Products */}
       {products.length > 0 && (
         <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <h2 style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text-primary)' }}>Recent Products</h2>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: '600', color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>Recent Products</h2>
             {storeUrl && (
-              <button onClick={viewCollections} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', background: 'var(--glass-bg)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--accent-color)', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
+              <button onClick={viewCollections} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 18px', background: 'var(--bg-secondary)', border: 'none', borderRadius: '980px', color: 'var(--accent-color)', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
                 <Eye size={16} /> View All
               </button>
             )}
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '12px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
             {products.slice(0, 3).map((product) => (
               <div key={product.id} className="product-card glass-card">
                 <div className="product-image">
