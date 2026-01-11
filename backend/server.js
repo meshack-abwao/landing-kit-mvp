@@ -561,6 +561,17 @@ app.put('/api/settings', auth, async (req, res) => {
     if (b.terms_of_service !== undefined) { updates.push(`terms_of_service = $${idx++}`); values.push(b.terms_of_service); }
     if (b.refund_policy !== undefined) { updates.push(`refund_policy = $${idx++}`); values.push(b.refund_policy); }
     
+    // Collection testimonials (JSONB)
+    if (b.show_testimonials !== undefined) { updates.push(`show_testimonials = $${idx++}`); values.push(b.show_testimonials); }
+    if (b.collection_testimonials !== undefined) { 
+      updates.push(`collection_testimonials = $${idx++}`); 
+      // Handle both array and string input
+      const testimonials = Array.isArray(b.collection_testimonials) 
+        ? b.collection_testimonials 
+        : (typeof b.collection_testimonials === 'string' ? JSON.parse(b.collection_testimonials) : []);
+      values.push(JSON.stringify(testimonials)); 
+    }
+    
     if (updates.length === 0) {
       return res.json({ success: true, settings: {} });
     }
