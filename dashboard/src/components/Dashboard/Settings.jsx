@@ -12,7 +12,7 @@ const parseTestimonials = (data) => {
       return Array.isArray(parsed) && parsed.length > 0 ? parsed : defaultTestimonials;
     }
   } catch (e) {
-    console.log('parseTestimonials error:', e);
+    // Silent parse error
   }
   return defaultTestimonials;
 };
@@ -77,8 +77,6 @@ export default function Settings() {
     try {
       const response = await settingsAPI.getAll();
       const s = response.data.settings;
-      
-      console.log('Loaded settings:', s);
       
       setStoreSettings({
         logoText: s.logo_text || '',
@@ -163,10 +161,7 @@ export default function Settings() {
         refund_policy: storeSettings.refundPolicy,
       };
 
-      console.log('📤 Saving updateData:', JSON.stringify(updateData, null, 2));
-      console.log('📤 collection_testimonials specifically:', updateData.collection_testimonials);
       const response = await settingsAPI.update(updateData);
-      console.log('📥 Save response:', response.data);
       
       alert('✅ Settings saved! Refresh your store to see changes.');
       window.location.reload();

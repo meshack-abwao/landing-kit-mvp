@@ -8,12 +8,11 @@ router.get('/store/:subdomain', async (req, res) => {
   try {
     const { subdomain } = req.params;
     
-    // Add cache control headers to prevent stale theme data
+    // Cache control headers
     res.set({
-      'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+      'Cache-Control': 'no-store, no-cache, must-revalidate',
       'Pragma': 'no-cache',
-      'Expires': '0',
-      'Surrogate-Control': 'no-store'
+      'Expires': '0'
     });
     
     // Get store settings
@@ -27,14 +26,6 @@ router.get('/store/:subdomain', async (req, res) => {
     }
     
     const store = storeResult.rows[0];
-    
-    // Debug: log what's actually in store_settings
-    console.log('📦 Store settings from DB:', {
-      subdomain: store.subdomain,
-      show_testimonials: store.show_testimonials,
-      collection_testimonials: store.collection_testimonials,
-      collection_testimonials_type: typeof store.collection_testimonials
-    });
     
     // Get products for this store
     const productsResult = await pool.query(
@@ -61,9 +52,7 @@ router.get('/store/:subdomain', async (req, res) => {
         showTestimonials: store.show_testimonials !== false,
         collectionTestimonials: store.collection_testimonials || [],
       },
-      products: productsResult.rows,
-      // Add timestamp for debugging
-      _timestamp: new Date().toISOString()
+      products: productsResult.rows
     });
   } catch (error) {
     console.error('Get store error:', error);

@@ -70,7 +70,7 @@ const parseStoryMedia = (storyJson) => {
       }));
     }
   } catch (e) {
-    console.log('parseStoryMedia error:', e, storyJson);
+    // Silent parse error
   }
   return defaultStories;
 };
@@ -87,7 +87,7 @@ const parseGalleryImages = (galleryJson) => {
       return [...parsed, '', '', '', '', '', ''].slice(0, 6);
     }
   } catch (e) {
-    console.log('parseGalleryImages error:', e, galleryJson);
+    // Silent parse error
   }
   return ['', '', '', '', '', ''];
 };
@@ -120,7 +120,7 @@ const parseServicePackages = (packagesJson) => {
       return parsed.length > 0 ? parsed : [{ name: '', price: '', description: '', features: [] }];
     }
   } catch (e) {
-    console.log('parseServicePackages error:', e, packagesJson);
+    // Silent parse error
   }
   return [{ name: '', price: '', description: '', features: [] }];
 };
@@ -135,7 +135,7 @@ const parseTestimonials = (testimonialsJson) => {
       return parsed.length > 0 ? parsed : [{ name: '', role: '', quote: '', avatar: '' }];
     }
   } catch (e) {
-    console.log('parseTestimonials error:', e, testimonialsJson);
+    // Silent parse error
   }
   return [{ name: '', role: '', quote: '', avatar: '' }];
 };
@@ -268,12 +268,6 @@ export default function ProductList() {
         testimonials: formData.testimonials.filter(t => t.name && t.quote && t.name.trim() && t.quote.trim()),
       };
       
-      // DEBUG: Log what we're sending
-      console.log('🚀 SUBMITTING DATA:', JSON.stringify(submitData, null, 2));
-      console.log('📸 storyMedia:', submitData.storyMedia);
-      console.log('🖼️ galleryImages:', submitData.galleryImages);
-      console.log('📦 servicePackages:', submitData.servicePackages);
-      
       let response;
       if (editingProduct) {
         response = await productsAPI.update(editingProduct.id, submitData);
@@ -281,26 +275,15 @@ export default function ProductList() {
         response = await productsAPI.create(submitData);
       }
       
-      // DEBUG: Log response
-      console.log('✅ RESPONSE:', response);
-      
       resetForm();
       loadProducts();
     } catch (error) {
       console.error('Failed to save product:', error);
-      console.error('Error details:', error.response?.data);
       alert('Failed to save product. Please try again.');
     }
   };
 
   const handleEdit = (product) => {
-    // DEBUG: Log raw product data from database
-    console.log('📥 RAW PRODUCT FROM DB:', product);
-    console.log('📸 raw story_media:', product.story_media);
-    console.log('🖼️ raw gallery_images:', product.gallery_images);
-    console.log('📦 raw service_packages:', product.service_packages);
-    console.log('🎬 raw video_url:', product.video_url);
-    
     setEditingProduct(product);
     setSelectedTemplate(product.template_type || 'quick-decision');
     
