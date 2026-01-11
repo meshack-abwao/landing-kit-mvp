@@ -673,12 +673,24 @@ function renderPortfolioBookingTemplate(product) {
 function renderVisualMenuTemplate(product) {
     const stories = getStoryMedia(product);
     const isLiked = isProductLiked(product.id);
+    const hasMultipleImages = productImages.length > 1;
     
     let dietaryTags = [];
     try { dietaryTags = Array.isArray(product.dietary_tags) ? product.dietary_tags : JSON.parse(product.dietary_tags || '[]'); } catch (e) {}
     
     const main = document.getElementById('main');
     const backButton = storeData.products.length > 1 ? `<button onclick="backToCollections()" class="back-btn">← Back to Menu</button>` : '';
+    
+    const galleryHTML = `
+        <div class="food-image">
+            <div class="main-image-container">
+                ${hasMultipleImages ? `<button class="gallery-nav prev" onclick="prevImage()">‹</button>` : ''}
+                ${productImages[0] ? `<img id="mainProductImage" src="${productImages[0]}" alt="${product.name}" class="main-gallery-image">` : '<div class="image-placeholder">🍽️</div>'}
+                ${hasMultipleImages ? `<button class="gallery-nav next" onclick="nextImage()">›</button>` : ''}
+            </div>
+            ${hasMultipleImages ? `<div class="gallery-dots">${productImages.map((_, idx) => `<span class="gallery-dot ${idx === 0 ? 'active' : ''}" onclick="setMainImage(${idx})"></span>`).join('')}</div>` : ''}
+        </div>
+    `;
     
     const dietaryHTML = dietaryTags.length > 0 ? `
         <div class="dietary-tags">
@@ -709,7 +721,7 @@ function renderVisualMenuTemplate(product) {
         ${backButton}
         <div class="product-container template-menu">
             <div class="product-card food-card">
-                <div class="food-image">${productImages[0] ? `<img src="${productImages[0]}" alt="${product.name}">` : '<div class="image-placeholder">🍽️</div>'}</div>
+                ${galleryHTML}
                 <div class="product-info">
                     <h2 class="product-name">${product.name}</h2>
                     <div class="price-row">
