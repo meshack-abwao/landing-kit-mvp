@@ -59,7 +59,7 @@ function generateTestimonialsHTML(testimonials, sectionTitle = 'What Our Custome
                             <span class="testimonial-name">${t.name || 'Happy Customer'}</span>
                             ${t.role ? `<span class="testimonial-role">${t.role}</span>` : ''}
                         </div>
-                        <div class="testimonial-rating">★★★★★</div>
+                        <div class="testimonial-rating">â˜…â˜…â˜…â˜…â˜…</div>
                     </div>
                 `).join('')}
             </div>
@@ -251,7 +251,7 @@ function handleImageDoubleTap(productId, event) {
 function showHeartAnimation(event) {
     const heart = document.createElement('div');
     heart.className = 'double-tap-heart';
-    heart.innerHTML = '❤️';
+    heart.innerHTML = 'â¤ï¸';
     
     const rect = event.target.getBoundingClientRect();
     heart.style.left = (event.clientX - rect.left) + 'px';
@@ -272,7 +272,7 @@ function toggleLike(productId, event) {
     const heartIcon = document.querySelector(`#like-btn-${productId} .heart-icon`);
     if (heartIcon) {
         heartIcon.classList.toggle('liked', likedProducts[key]);
-        heartIcon.innerHTML = likedProducts[key] ? '❤️' : '🤍';
+        heartIcon.innerHTML = likedProducts[key] ? 'â¤ï¸' : 'ðŸ¤';
     }
 }
 
@@ -354,7 +354,7 @@ function showStoryAtIndex(index) {
     const navHTML = `
         <div class="story-nav-left" onclick="prevStory(event)"></div>
         <div class="story-nav-right" onclick="nextStory(event)"></div>
-        <button class="story-close-btn" onclick="closeStory()">✕</button>
+        <button class="story-close-btn" onclick="closeStory()">âœ•</button>
     `;
     
     if (story.type === 'video') {
@@ -442,7 +442,7 @@ function renderStore() {
     const main = document.getElementById('main');
     
     if (!products || products.length === 0) {
-        main.innerHTML = `<div class="empty-state"><div class="empty-icon">📦</div><h2>No Products Available</h2><p>Check back soon!</p></div>`;
+        main.innerHTML = `<div class="empty-state"><div class="empty-icon">ðŸ“¦</div><h2>No Products Available</h2><p>Check back soon!</p></div>`;
         return;
     }
     
@@ -500,8 +500,8 @@ function renderCollectionsGrid(products) {
                     const dietaryHTML = dietaryTags.length > 0 ? `
                         <div class="collection-dietary-tags">
                             ${dietaryTags.slice(0, 3).map(tag => {
-                                const icons = { 'vegetarian': '🥬', 'vegan': '🌱', 'spicy': '🌶️', 'hot': '🔥', 'gluten-free': '🌾', 'halal': '☪️', 'contains-nuts': '🥜', 'dairy-free': '🥛', 'nut-free': '🥜', 'organic': '🌿' };
-                                return `<span class="collection-dietary-tag">${icons[tag.toLowerCase()] || '•'} ${tag}</span>`;
+                                const icons = { 'vegetarian': 'ðŸ¥¬', 'vegan': 'ðŸŒ±', 'spicy': 'ðŸŒ¶ï¸', 'hot': 'ðŸ”¥', 'gluten-free': 'ðŸŒ¾', 'halal': 'â˜ªï¸', 'contains-nuts': 'ðŸ¥œ', 'dairy-free': 'ðŸ¥›', 'nut-free': 'ðŸ¥œ', 'organic': 'ðŸŒ¿' };
+                                return `<span class="collection-dietary-tag">${icons[tag.toLowerCase()] || 'â€¢'} ${tag}</span>`;
                             }).join('')}
                         </div>
                     ` : '';
@@ -509,10 +509,10 @@ function renderCollectionsGrid(products) {
                     <div class="collection-card" onclick="viewProduct(${product.id})">
                         <div class="collection-image">
                             ${product.image_url ? 
-                                `<img src="${product.image_url}" alt="${product.name}" onerror="this.parentElement.innerHTML='<div class=\\'image-placeholder\\'>📸</div>'">` :
-                                '<div class="image-placeholder">📸</div>'
+                                `<img src="${product.image_url}" alt="${product.name}" onerror="this.parentElement.innerHTML='<div class=\\'image-placeholder\\'>ðŸ“¸</div>'">` :
+                                '<div class="image-placeholder">ðŸ“¸</div>'
                             }
-                            ${imgCount > 1 ? `<span class="image-count-badge">📷 ${imgCount}</span>` : ''}
+                            ${imgCount > 1 ? `<span class="image-count-badge">ðŸ“· ${imgCount}</span>` : ''}
                             <div class="collection-overlay">
                                 <h3 class="collection-overlay-name">${product.name}</h3>
                                 <span class="collection-overlay-price">KES ${parseInt(product.price).toLocaleString()}</span>
@@ -580,15 +580,15 @@ function renderQuickDecisionTemplate(product) {
     if (galleryImages.length === 0) galleryImages = productImages;
     productImages = galleryImages;
     
-    const backButton = storeData.products.length > 1 ? `<button onclick="backToCollections()" class="back-btn">← Back to All Products</button>` : '';
+    const backButton = storeData.products.length > 1 ? `<button onclick="backToCollections()" class="back-btn">â† Back to All Products</button>` : '';
     const hasMultipleImages = productImages.length > 1;
     
     const galleryHTML = `
         <div class="product-gallery">
             <div class="main-image-container" onclick="handleImageDoubleTap(${product.id}, event)">
-                ${hasMultipleImages ? `<button class="gallery-nav prev" onclick="prevImage()">‹</button>` : ''}
-                ${productImages[0] ? `<img id="mainProductImage" src="${productImages[0]}" alt="${product.name}" class="main-gallery-image">` : '<div class="image-placeholder">📸</div>'}
-                ${hasMultipleImages ? `<button class="gallery-nav next" onclick="nextImage()">›</button>` : ''}
+                ${hasMultipleImages ? `<button class="gallery-nav prev" onclick="prevImage()">â€¹</button>` : ''}
+                ${productImages[0] ? `<img id="mainProductImage" src="${productImages[0]}" alt="${product.name}" class="main-gallery-image">` : '<div class="image-placeholder">ðŸ“¸</div>'}
+                ${hasMultipleImages ? `<button class="gallery-nav next" onclick="nextImage()">â€º</button>` : ''}
             </div>
             ${hasMultipleImages ? `<div class="gallery-dots">${productImages.map((_, idx) => `<span class="gallery-dot ${idx === 0 ? 'active' : ''}" onclick="setMainImage(${idx})"></span>`).join('')}</div>` : ''}
         </div>
@@ -621,7 +621,7 @@ function renderQuickDecisionTemplate(product) {
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
                             </button>
                             <button id="like-btn-${product.id}" class="social-btn like-btn" onclick="toggleLike(${product.id}, event)">
-                                <span class="heart-icon ${isLiked ? 'liked' : ''}">${isLiked ? '❤️' : '🤍'}</span>
+                                <span class="heart-icon ${isLiked ? 'liked' : ''}">${isLiked ? 'â¤ï¸' : 'ðŸ¤'}</span>
                             </button>
                         </div>
                     </div>
@@ -630,7 +630,7 @@ function renderQuickDecisionTemplate(product) {
                     <div class="quantity-section">
                         <label class="quantity-label">Quantity</label>
                         <div class="quantity-controls">
-                            <button onclick="decreaseQuantity()" id="decreaseBtn" class="quantity-btn" ${quantity <= 1 ? 'disabled' : ''}>−</button>
+                            <button onclick="decreaseQuantity()" id="decreaseBtn" class="quantity-btn" ${quantity <= 1 ? 'disabled' : ''}>âˆ’</button>
                             <span class="quantity-value" id="quantityDisplay">1</span>
                             <button onclick="increaseQuantity()" id="increaseBtn" class="quantity-btn">+</button>
                         </div>
@@ -639,7 +639,7 @@ function renderQuickDecisionTemplate(product) {
                         <span class="total-label">Total</span>
                         <div class="total-price">KES <span id="totalPrice">${parseInt(product.price).toLocaleString()}</span></div>
                     </div>
-                    <button onclick="openCheckout()" class="buy-btn"><span class="btn-text">Buy Now</span><span class="btn-arrow">→</span></button>
+                    <button onclick="openCheckout()" class="buy-btn"><span class="btn-text">Buy Now</span><span class="btn-arrow">â†’</span></button>
                 </div>
             </div>
             ${generateTestimonialsHTML(product.testimonials, 'Customer Reviews')}
@@ -684,13 +684,13 @@ function renderPortfolioBookingTemplate(product) {
     
     productImages = galleryImages;
     const main = document.getElementById('main');
-    const backButton = storeData.products.length > 1 ? `<button onclick="backToCollections()" class="back-btn">← Back to All Services</button>` : '';
+    const backButton = storeData.products.length > 1 ? `<button onclick="backToCollections()" class="back-btn">â† Back to All Services</button>` : '';
     
     const heroImageHTML = `
         <div class="portfolio-hero-image" onclick="handleImageDoubleTap(${product.id}, event)">
             <img id="mainProductImage" src="${galleryImages[0] || product.image_url}" alt="${product.name}">
             ${galleryImages.length > 1 ? `
-                <div class="image-nav"><button class="nav-btn prev-btn" onclick="prevImage()">‹</button><button class="nav-btn next-btn" onclick="nextImage()">›</button></div>
+                <div class="image-nav"><button class="nav-btn prev-btn" onclick="prevImage()">â€¹</button><button class="nav-btn next-btn" onclick="nextImage()">â€º</button></div>
                 <div class="gallery-dots">${galleryImages.map((_, idx) => `<span class="gallery-dot ${idx === 0 ? 'active' : ''}" onclick="setMainImage(${idx})"></span>`).join('')}</div>
             ` : ''}
         </div>
@@ -709,7 +709,7 @@ function renderPortfolioBookingTemplate(product) {
         </div>
     ` : '';
     
-    const availabilityHTML = product.availability_notes ? `<div class="availability-section"><span class="availability-icon">📅</span><span class="availability-text">${product.availability_notes}</span></div>` : '';
+    const availabilityHTML = product.availability_notes ? `<div class="availability-section"><span class="availability-icon">ðŸ“…</span><span class="availability-text">${product.availability_notes}</span></div>` : '';
     
     main.innerHTML = `
         ${backButton}
@@ -723,13 +723,13 @@ function renderPortfolioBookingTemplate(product) {
                         <div class="price">${servicePackages.length > 0 ? '<span class="price-prefix">From </span>' : ''}<span class="currency">KES</span> <span id="displayPrice">${parseInt(product.price).toLocaleString()}</span></div>
                         <div class="social-actions">
                             <button class="social-btn share-btn" onclick="shareProduct(${product.id}, event)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button>
-                            <button id="like-btn-${product.id}" class="social-btn like-btn" onclick="toggleLike(${product.id}, event)"><span class="heart-icon ${isLiked ? 'liked' : ''}">${isLiked ? '❤️' : '🤍'}</span></button>
+                            <button id="like-btn-${product.id}" class="social-btn like-btn" onclick="toggleLike(${product.id}, event)"><span class="heart-icon ${isLiked ? 'liked' : ''}">${isLiked ? 'â¤ï¸' : 'ðŸ¤'}</span></button>
                         </div>
                     </div>
                     ${availabilityHTML}
                     ${storyHTML}
                     <p class="product-description">${product.description || product.rich_description || ''}</p>
-                    <button onclick="handlePortfolioCheckout()" class="buy-btn book-btn"><span class="btn-text">${servicePackages.length > 0 ? 'View Packages & Book' : 'Book Now'}</span><span class="btn-arrow">→</span></button>
+                    <button onclick="handlePortfolioCheckout()" class="buy-btn book-btn"><span class="btn-text">${servicePackages.length > 0 ? 'View Packages & Book' : 'Book Now'}</span><span class="btn-arrow">â†’</span></button>
                 </div>
             </div>
             ${generateTestimonialsHTML(product.testimonials, 'Client Reviews')}
@@ -759,14 +759,14 @@ function renderVisualMenuTemplate(product) {
     try { dietaryTags = Array.isArray(product.dietary_tags) ? product.dietary_tags : JSON.parse(product.dietary_tags || '[]'); } catch (e) {}
     
     const main = document.getElementById('main');
-    const backButton = storeData.products.length > 1 ? `<button onclick="backToCollections()" class="back-btn">← Back to Menu</button>` : '';
+    const backButton = storeData.products.length > 1 ? `<button onclick="backToCollections()" class="back-btn">â† Back to Menu</button>` : '';
     
     const galleryHTML = `
         <div class="product-gallery menu-gallery">
             <div class="main-image-container" onclick="handleImageDoubleTap(${product.id}, event)">
-                ${hasMultipleImages ? `<button class="gallery-nav prev" onclick="prevImage()">‹</button>` : ''}
-                ${productImages[0] ? `<img id="mainProductImage" src="${productImages[0]}" alt="${product.name}" class="main-gallery-image">` : '<div class="image-placeholder">🍽️</div>'}
-                ${hasMultipleImages ? `<button class="gallery-nav next" onclick="nextImage()">›</button>` : ''}
+                ${hasMultipleImages ? `<button class="gallery-nav prev" onclick="prevImage()">â€¹</button>` : ''}
+                ${productImages[0] ? `<img id="mainProductImage" src="${productImages[0]}" alt="${product.name}" class="main-gallery-image">` : '<div class="image-placeholder">ðŸ½ï¸</div>'}
+                ${hasMultipleImages ? `<button class="gallery-nav next" onclick="nextImage()">â€º</button>` : ''}
             </div>
             ${hasMultipleImages ? `<div class="thumbnail-strip">${productImages.map((img, idx) => `<div class="thumbnail ${idx === 0 ? 'active' : ''}" onclick="setMainImage(${idx})"><img src="${img}" alt="View ${idx + 1}"></div>`).join('')}</div>` : ''}
         </div>
@@ -775,8 +775,8 @@ function renderVisualMenuTemplate(product) {
     const dietaryHTML = dietaryTags.length > 0 ? `
         <div class="dietary-tags">
             ${dietaryTags.map(tag => {
-                const icons = { 'vegetarian': '🥬', 'vegan': '🌱', 'spicy': '🌶️', 'hot': '🔥', 'gluten-free': '🌾', 'halal': '☪️', 'contains-nuts': '🥜', 'dairy-free': '🥛', 'nut-free': '🥜', 'organic': '🌿' };
-                return `<span class="dietary-tag">${icons[tag.toLowerCase()] || '•'} ${tag}</span>`;
+                const icons = { 'vegetarian': 'ðŸ¥¬', 'vegan': 'ðŸŒ±', 'spicy': 'ðŸŒ¶ï¸', 'hot': 'ðŸ”¥', 'gluten-free': 'ðŸŒ¾', 'halal': 'â˜ªï¸', 'contains-nuts': 'ðŸ¥œ', 'dairy-free': 'ðŸ¥›', 'nut-free': 'ðŸ¥œ', 'organic': 'ðŸŒ¿' };
+                return `<span class="dietary-tag">${icons[tag.toLowerCase()] || 'â€¢'} ${tag}</span>`;
             }).join('')}
         </div>
     ` : '';
@@ -790,8 +790,8 @@ function renderVisualMenuTemplate(product) {
     
     const metaHTML = (product.prep_time || product.calories) ? `
         <div class="food-meta">
-            ${product.prep_time ? `<span class="meta-item">⏱️ ${product.prep_time} min</span>` : ''}
-            ${product.calories ? `<span class="meta-item">🔥 ${product.calories} cal</span>` : ''}
+            ${product.prep_time ? `<span class="meta-item">â±ï¸ ${product.prep_time} min</span>` : ''}
+            ${product.calories ? `<span class="meta-item">ðŸ”¥ ${product.calories} cal</span>` : ''}
         </div>
     ` : '';
     
@@ -808,7 +808,7 @@ function renderVisualMenuTemplate(product) {
                         <div class="price"><span class="currency">KES</span> <span id="displayPrice">${parseInt(product.price).toLocaleString()}</span></div>
                         <div class="social-actions">
                             <button class="social-btn share-btn" onclick="shareProduct(${product.id}, event)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button>
-                            <button id="like-btn-${product.id}" class="social-btn like-btn" onclick="toggleLike(${product.id}, event)"><span class="heart-icon ${isLiked ? 'liked' : ''}">${isLiked ? '❤️' : '🤍'}</span></button>
+                            <button id="like-btn-${product.id}" class="social-btn like-btn" onclick="toggleLike(${product.id}, event)"><span class="heart-icon ${isLiked ? 'liked' : ''}">${isLiked ? 'â¤ï¸' : 'ðŸ¤'}</span></button>
                         </div>
                     </div>
                     ${dietaryHTML}
@@ -819,13 +819,13 @@ function renderVisualMenuTemplate(product) {
                     <div class="quantity-section">
                         <label class="quantity-label">Quantity</label>
                         <div class="quantity-controls">
-                            <button onclick="decreaseQuantity()" id="decreaseBtn" class="quantity-btn" ${quantity <= 1 ? 'disabled' : ''}>−</button>
+                            <button onclick="decreaseQuantity()" id="decreaseBtn" class="quantity-btn" ${quantity <= 1 ? 'disabled' : ''}>âˆ’</button>
                             <span class="quantity-value" id="quantityDisplay">1</span>
                             <button onclick="increaseQuantity()" id="increaseBtn" class="quantity-btn">+</button>
                         </div>
                     </div>
                     <div class="total-section"><span class="total-label">Total</span><div class="total-price">KES <span id="totalPrice">${parseInt(product.price).toLocaleString()}</span></div></div>
-                    <button onclick="openCheckout()" class="buy-btn order-btn"><span class="btn-text">Add to Order</span><span class="btn-arrow">→</span></button>
+                    <button onclick="openCheckout()" class="buy-btn order-btn"><span class="btn-text">Add to Order</span><span class="btn-arrow">â†’</span></button>
                 </div>
             </div>
             ${generateTestimonialsHTML(product.testimonials, 'Customer Reviews')}
@@ -855,17 +855,17 @@ function renderDeepDiveTemplate(product) {
     productImages = galleryImages;
     
     const main = document.getElementById('main');
-    const backButton = storeData.products.length > 1 ? `<button onclick="backToCollections()" class="back-btn">← Back to All Products</button>` : '';
+    const backButton = storeData.products.length > 1 ? `<button onclick="backToCollections()" class="back-btn">â† Back to All Products</button>` : '';
     const hasMultipleImages = productImages.length > 1;
     
-    const trustHTML = trustBadges.length > 0 ? `<div class="trust-badges-bar">${trustBadges.map(badge => `<span class="trust-badge">${badge.icon || '✓'} ${badge.text}</span>`).join('')}</div>` : '';
+    const trustHTML = trustBadges.length > 0 ? `<div class="trust-badges-bar">${trustBadges.map(badge => `<span class="trust-badge">${badge.icon || 'âœ“'} ${badge.text}</span>`).join('')}</div>` : '';
     
     const galleryHTML = `
         <div class="product-gallery deep-dive-gallery">
             <div class="main-image-container" onclick="handleImageDoubleTap(${product.id}, event)">
-                ${hasMultipleImages ? `<button class="gallery-nav prev" onclick="prevImage()">‹</button>` : ''}
-                ${productImages[0] ? `<img id="mainProductImage" src="${productImages[0]}" alt="${product.name}" class="main-gallery-image">` : '<div class="image-placeholder">📸</div>'}
-                ${hasMultipleImages ? `<button class="gallery-nav next" onclick="nextImage()">›</button>` : ''}
+                ${hasMultipleImages ? `<button class="gallery-nav prev" onclick="prevImage()">â€¹</button>` : ''}
+                ${productImages[0] ? `<img id="mainProductImage" src="${productImages[0]}" alt="${product.name}" class="main-gallery-image">` : '<div class="image-placeholder">ðŸ“¸</div>'}
+                ${hasMultipleImages ? `<button class="gallery-nav next" onclick="nextImage()">â€º</button>` : ''}
             </div>
             ${hasMultipleImages ? `<div class="thumbnail-strip">${productImages.map((img, idx) => `<div class="thumbnail ${idx === 0 ? 'active' : ''}" onclick="setMainImage(${idx})"><img src="${img}" alt="View ${idx + 1}"></div>`).join('')}</div>` : ''}
         </div>
@@ -880,8 +880,8 @@ function renderDeepDiveTemplate(product) {
     
     const warrantyHTML = `
         <div class="guarantees-section">
-            ${product.warranty_info ? `<div class="guarantee-item"><span class="guarantee-icon">🛡️</span><div class="guarantee-content"><h4>Warranty</h4><p>${product.warranty_info}</p></div></div>` : ''}
-            ${product.return_policy_days ? `<div class="guarantee-item"><span class="guarantee-icon">↩️</span><div class="guarantee-content"><h4>${product.return_policy_days}-Day Returns</h4><p>Not satisfied? Return within ${product.return_policy_days} days.</p></div></div>` : ''}
+            ${product.warranty_info ? `<div class="guarantee-item"><span class="guarantee-icon">ðŸ›¡ï¸</span><div class="guarantee-content"><h4>Warranty</h4><p>${product.warranty_info}</p></div></div>` : ''}
+            ${product.return_policy_days ? `<div class="guarantee-item"><span class="guarantee-icon">â†©ï¸</span><div class="guarantee-content"><h4>${product.return_policy_days}-Day Returns</h4><p>Not satisfied? Return within ${product.return_policy_days} days.</p></div></div>` : ''}
         </div>
     `;
     
@@ -903,7 +903,7 @@ function renderDeepDiveTemplate(product) {
                         <div class="price"><span class="currency">KES</span> <span id="displayPrice">${parseInt(product.price).toLocaleString()}</span></div>
                         <div class="social-actions">
                             <button class="social-btn share-btn" onclick="shareProduct(${product.id}, event)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button>
-                            <button id="like-btn-${product.id}" class="social-btn like-btn" onclick="toggleLike(${product.id}, event)"><span class="heart-icon ${isLiked ? 'liked' : ''}">${isLiked ? '❤️' : '🤍'}</span></button>
+                            <button id="like-btn-${product.id}" class="social-btn like-btn" onclick="toggleLike(${product.id}, event)"><span class="heart-icon ${isLiked ? 'liked' : ''}">${isLiked ? 'â¤ï¸' : 'ðŸ¤'}</span></button>
                         </div>
                     </div>
                     ${trustHTML}
@@ -914,13 +914,13 @@ function renderDeepDiveTemplate(product) {
                     <div class="quantity-section">
                         <label class="quantity-label">Quantity</label>
                         <div class="quantity-controls">
-                            <button onclick="decreaseQuantity()" id="decreaseBtn" class="quantity-btn" ${quantity <= 1 ? 'disabled' : ''}>−</button>
+                            <button onclick="decreaseQuantity()" id="decreaseBtn" class="quantity-btn" ${quantity <= 1 ? 'disabled' : ''}>âˆ’</button>
                             <span class="quantity-value" id="quantityDisplay">1</span>
                             <button onclick="increaseQuantity()" id="increaseBtn" class="quantity-btn">+</button>
                         </div>
                     </div>
                     <div class="total-section"><span class="total-label">Total</span><div class="total-price">KES <span id="totalPrice">${parseInt(product.price).toLocaleString()}</span></div></div>
-                    <button onclick="openCheckout()" class="buy-btn invest-btn"><span class="btn-text">Secure Your Order</span><span class="btn-arrow">→</span></button>
+                    <button onclick="openCheckout()" class="buy-btn invest-btn"><span class="btn-text">Secure Your Order</span><span class="btn-arrow">â†’</span></button>
                 </div>
             </div>
             ${generateTestimonialsHTML(product.testimonials, 'Customer Reviews')}
@@ -946,7 +946,7 @@ function renderEventLandingTemplate(product) {
     productImages = galleryImages;
     
     const main = document.getElementById('main');
-    const backButton = storeData.products.length > 1 ? `<button onclick="backToCollections()" class="back-btn">← Back to All Events</button>` : '';
+    const backButton = storeData.products.length > 1 ? `<button onclick="backToCollections()" class="back-btn">â† Back to All Events</button>` : '';
     
     let eventDateDisplay = '';
     let countdown = '';
@@ -967,7 +967,7 @@ function renderEventLandingTemplate(product) {
     const speakersHTML = speakers.length > 0 ? `
         <div class="speakers-section">
             <h3 class="speakers-title">Featured Speakers</h3>
-            <div class="speakers-grid">${speakers.map(s => `<div class="speaker-card">${s.photo ? `<img src="${s.photo}" class="speaker-photo">` : '<div class="speaker-placeholder">👤</div>'}<h4 class="speaker-name">${s.name}</h4>${s.title ? `<p class="speaker-title">${s.title}</p>` : ''}</div>`).join('')}</div>
+            <div class="speakers-grid">${speakers.map(s => `<div class="speaker-card">${s.photo ? `<img src="${s.photo}" class="speaker-photo">` : '<div class="speaker-placeholder">ðŸ‘¤</div>'}<h4 class="speaker-name">${s.name}</h4>${s.title ? `<p class="speaker-title">${s.title}</p>` : ''}</div>`).join('')}</div>
         </div>
     ` : '';
     
@@ -981,7 +981,7 @@ function renderEventLandingTemplate(product) {
     main.innerHTML = `
         ${backButton}
         <div class="product-container template-event">
-            <div class="event-hero">${productImages[0] ? `<img src="${productImages[0]}" alt="${product.name}" class="event-banner">` : '<div class="event-placeholder">🎪</div>'}<div class="event-overlay"><span class="event-badge">📅 Event</span></div></div>
+            <div class="event-hero">${productImages[0] ? `<img src="${productImages[0]}" alt="${product.name}" class="event-banner">` : '<div class="event-placeholder">ðŸŽª</div>'}<div class="event-overlay"><span class="event-badge">ðŸ“… Event</span></div></div>
             <div class="product-card event-card">
                 <div class="product-info">
                     <h2 class="product-name event-title">${product.name}</h2>
@@ -989,12 +989,12 @@ function renderEventLandingTemplate(product) {
                         <div class="price"><span class="currency">KES</span> <span id="displayPrice">${parseInt(product.price).toLocaleString()}</span></div>
                         <div class="social-actions">
                             <button class="social-btn share-btn" onclick="shareProduct(${product.id}, event)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button>
-                            <button id="like-btn-${product.id}" class="social-btn like-btn" onclick="toggleLike(${product.id}, event)"><span class="heart-icon ${isLiked ? 'liked' : ''}">${isLiked ? '❤️' : '🤍'}</span></button>
+                            <button id="like-btn-${product.id}" class="social-btn like-btn" onclick="toggleLike(${product.id}, event)"><span class="heart-icon ${isLiked ? 'liked' : ''}">${isLiked ? 'â¤ï¸' : 'ðŸ¤'}</span></button>
                         </div>
                     </div>
                     <div class="event-details">
-                        ${eventDateDisplay ? `<div class="event-detail-item"><span class="detail-icon">📅</span><span class="detail-text">${eventDateDisplay}</span></div>` : ''}
-                        ${product.event_location ? `<div class="event-detail-item"><span class="detail-icon">📍</span><span class="detail-text">${product.event_location}</span></div>` : ''}
+                        ${eventDateDisplay ? `<div class="event-detail-item"><span class="detail-icon">ðŸ“…</span><span class="detail-text">${eventDateDisplay}</span></div>` : ''}
+                        ${product.event_location ? `<div class="event-detail-item"><span class="detail-icon">ðŸ“</span><span class="detail-text">${product.event_location}</span></div>` : ''}
                     </div>
                     ${storyHTML}
                     ${countdown}
@@ -1003,13 +1003,13 @@ function renderEventLandingTemplate(product) {
                     <div class="quantity-section">
                         <label class="quantity-label">Number of Tickets</label>
                         <div class="quantity-controls">
-                            <button onclick="decreaseQuantity()" id="decreaseBtn" class="quantity-btn" ${quantity <= 1 ? 'disabled' : ''}>−</button>
+                            <button onclick="decreaseQuantity()" id="decreaseBtn" class="quantity-btn" ${quantity <= 1 ? 'disabled' : ''}>âˆ’</button>
                             <span class="quantity-value" id="quantityDisplay">1</span>
                             <button onclick="increaseQuantity()" id="increaseBtn" class="quantity-btn">+</button>
                         </div>
                     </div>
                     <div class="total-section"><span class="total-label">Total</span><div class="total-price">KES <span id="totalPrice">${parseInt(product.price).toLocaleString()}</span></div></div>
-                    <button onclick="openCheckout()" class="buy-btn register-btn"><span class="btn-text">Register Now</span><span class="btn-arrow">→</span></button>
+                    <button onclick="openCheckout()" class="buy-btn register-btn"><span class="btn-text">Register Now</span><span class="btn-arrow">â†’</span></button>
                 </div>
             </div>
             ${generateTestimonialsHTML(product.testimonials, 'Attendee Reviews')}
@@ -1071,7 +1071,7 @@ function showPackageSelection(packages) {
     
     overlay.innerHTML = `
         <div class="package-modal">
-            <button class="package-modal-close" onclick="closePackageSelection()">✕</button>
+            <button class="package-modal-close" onclick="closePackageSelection()">âœ•</button>
             <h2 class="package-modal-title">Choose Your Package</h2>
             <p class="package-modal-subtitle">Select the package that best fits your needs</p>
             <div class="package-options">
@@ -1081,12 +1081,12 @@ function showPackageSelection(packages) {
                         <h3 class="package-option-name">${pkg.name || 'Package ' + (idx + 1)}</h3>
                         <div class="package-option-price">KES ${parseInt(pkg.price || currentProduct.price).toLocaleString()}</div>
                         ${pkg.description ? `<p class="package-option-desc">${pkg.description}</p>` : ''}
-                        ${pkg.features?.length > 0 ? `<ul class="package-option-features">${pkg.features.map(f => `<li>✓ ${f}</li>`).join('')}</ul>` : ''}
+                        ${pkg.features?.length > 0 ? `<ul class="package-option-features">${pkg.features.map(f => `<li>âœ“ ${f}</li>`).join('')}</ul>` : ''}
                         <button class="package-option-btn">Select This Package</button>
                     </div>
                 `).join('')}
             </div>
-            <button class="package-skip-btn" onclick="skipPackageSelection()">Or continue without selecting a package →</button>
+            <button class="package-skip-btn" onclick="skipPackageSelection()">Or continue without selecting a package â†’</button>
         </div>
     `;
     
@@ -1191,11 +1191,11 @@ function selectPaymentMethod(method) {
     
     if (method === 'mpesa') {
         document.getElementById('mpesaOption').classList.add('selected');
-        ctaButton.textContent = '✓ Complete Order with M-Pesa';
+        ctaButton.textContent = 'âœ“ Complete Order with M-Pesa';
         helperText.textContent = 'Check your phone for M-Pesa prompt';
     } else {
         document.getElementById('codOption').classList.add('selected');
-        ctaButton.textContent = '✓ Complete Order - Pay on Delivery';
+        ctaButton.textContent = 'âœ“ Complete Order - Pay on Delivery';
         helperText.textContent = 'Prepare exact cash for delivery';
     }
     
@@ -1240,8 +1240,8 @@ async function completeOrder() {
             document.getElementById('orderNumber').textContent = result.orderNumber;
             const total = (orderData.price * orderData.quantity).toLocaleString();
             const message = selectedPaymentMethod === 'mpesa' 
-                ? `🎉 Order confirmed!\n\n📱 Check ${orderData.customer.phone} for M-Pesa prompt to pay KES ${total}.\n\n💬 WhatsApp confirmation coming soon.`
-                : `🎉 Order confirmed!\n\n💵 Prepare KES ${total} for payment on delivery.\n\n💬 WhatsApp confirmation coming soon.`;
+                ? `ðŸŽ‰ Order confirmed!\n\nðŸ“± Check ${orderData.customer.phone} for M-Pesa prompt to pay KES ${total}.\n\nðŸ’¬ WhatsApp confirmation coming soon.`
+                : `ðŸŽ‰ Order confirmed!\n\nðŸ’µ Prepare KES ${total} for payment on delivery.\n\nðŸ’¬ WhatsApp confirmation coming soon.`;
             document.getElementById('successMessage').textContent = message;
             showSuccess();
         } else {
@@ -1305,92 +1305,3 @@ window.skipPackageSelection = skipPackageSelection;
 window.closePackageSelection = closePackageSelection;
 
 
-// ===========================================
-// DESKTOP SCROLL LOCK - Centered Image Effect
-// ===========================================
-function initDesktopScrollLock() {
-    // Only on desktop (900px+)
-    if (window.innerWidth < 900) return;
-    
-    const card = document.querySelector('.template-menu .product-card.food-card');
-    const gallery = document.querySelector('.template-menu .menu-gallery');
-    const productInfo = document.querySelector('.template-menu .food-card .product-info');
-    
-    if (!card || !gallery || !productInfo) return;
-    
-    let isLocked = false;
-    let lockScrollY = 0;
-    let infoScrollAmount = 0;
-    const maxInfoScroll = productInfo.scrollHeight - productInfo.clientHeight;
-    
-    function handleScroll() {
-        const cardRect = card.getBoundingClientRect();
-        const viewportCenter = window.innerHeight / 2;
-        const galleryHeight = gallery.offsetHeight;
-        const galleryCenter = cardRect.top + galleryHeight / 2;
-        
-        // Check if gallery is centered (within 50px tolerance)
-        const isCentered = Math.abs(galleryCenter - viewportCenter) < 50;
-        
-        if (!isLocked && isCentered && maxInfoScroll > 0) {
-            // Lock the scroll
-            isLocked = true;
-            lockScrollY = window.scrollY;
-            card.classList.add('scroll-locked');
-            document.body.style.overflow = 'hidden';
-        }
-    }
-    
-    function handleWheel(e) {
-        if (!isLocked) return;
-        
-        e.preventDefault();
-        
-        // Apply scroll to the info panel
-        infoScrollAmount += e.deltaY;
-        infoScrollAmount = Math.max(0, Math.min(infoScrollAmount, maxInfoScroll));
-        productInfo.scrollTop = infoScrollAmount;
-        
-        // Check if we've scrolled to the end (or beginning if scrolling up)
-        if ((e.deltaY > 0 && infoScrollAmount >= maxInfoScroll) || 
-            (e.deltaY < 0 && infoScrollAmount <= 0)) {
-            // Unlock and resume normal scroll
-            isLocked = false;
-            card.classList.remove('scroll-locked');
-            document.body.style.overflow = '';
-            
-            // Small delay before allowing re-lock
-            setTimeout(() => {
-                window.addEventListener('scroll', handleScroll, { passive: true });
-            }, 500);
-            
-            window.removeEventListener('scroll', handleScroll);
-        }
-    }
-    
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('wheel', handleWheel, { passive: false });
-    
-    // Cleanup on navigation
-    window.addEventListener('popstate', () => {
-        isLocked = false;
-        document.body.style.overflow = '';
-        window.removeEventListener('scroll', handleScroll);
-        window.removeEventListener('wheel', handleWheel);
-    });
-}
-
-// Initialize after product renders
-const originalRenderVisualMenu = window.renderVisualMenuTemplate;
-if (typeof renderVisualMenuTemplate === 'function') {
-    const _origRender = renderVisualMenuTemplate;
-    window.renderVisualMenuTemplate = function(product) {
-        _origRender(product);
-        setTimeout(initDesktopScrollLock, 100);
-    };
-}
-
-// Also try to init on DOMContentLoaded for safety
-document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(initDesktopScrollLock, 500);
-});
