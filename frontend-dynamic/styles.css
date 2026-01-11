@@ -3998,7 +3998,7 @@ textarea:focus-visible {
         margin: 20px 0;
     }
     
-    /* Testimonials: Full width below card */
+    /* Testimonials: Centered grid below card */
     .template-menu .testimonials-section {
         margin-top: 40px;
     }
@@ -4006,8 +4006,10 @@ textarea:focus-visible {
     .template-menu .testimonials-section .testimonials-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        gap: 20px;
-        max-width: 100%;
+        gap: 24px;
+        max-width: 700px;
+        margin: 0 auto;
+        justify-content: center;
     }
     
     .template-menu .testimonials-section .testimonial-card {
