@@ -3763,3 +3763,41 @@ textarea:focus-visible {
         max-width: 360px;
     }
 }
+
+
+/* ===== DOUBLE-TAP HEART ANIMATION (IG Style) ===== */
+.double-tap-heart {
+    position: absolute;
+    font-size: 80px;
+    pointer-events: none;
+    transform: translate(-50%, -50%) scale(0);
+    animation: heartPop 0.8s ease-out forwards;
+    z-index: 100;
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
+}
+
+@keyframes heartPop {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 1;
+    }
+    15% {
+        transform: translate(-50%, -50%) scale(1.3);
+    }
+    30% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+    80% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1.2);
+        opacity: 0;
+    }
+}
+
+.main-image-container,
+.portfolio-hero-image {
+    cursor: pointer;
+}

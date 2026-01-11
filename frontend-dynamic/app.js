@@ -231,6 +231,37 @@ function prevImage() {
 // ===========================================
 // LIKE & SHARE FUNCTIONS
 // ===========================================
+let lastTapTime = 0;
+
+function handleImageDoubleTap(productId, event) {
+    const currentTime = new Date().getTime();
+    const tapGap = currentTime - lastTapTime;
+    
+    if (tapGap < 300 && tapGap > 0) {
+        // Double tap detected - trigger like
+        const key = `${SUBDOMAIN}_${productId}`;
+        if (!likedProducts[key]) {
+            toggleLike(productId, event);
+            showHeartAnimation(event);
+        }
+    }
+    lastTapTime = currentTime;
+}
+
+function showHeartAnimation(event) {
+    const heart = document.createElement('div');
+    heart.className = 'double-tap-heart';
+    heart.innerHTML = '❤️';
+    
+    const rect = event.target.getBoundingClientRect();
+    heart.style.left = (event.clientX - rect.left) + 'px';
+    heart.style.top = (event.clientY - rect.top) + 'px';
+    
+    event.target.parentElement.appendChild(heart);
+    
+    setTimeout(() => heart.remove(), 800);
+}
+
 function toggleLike(productId, event) {
     if (event) event.stopPropagation();
     
@@ -521,7 +552,7 @@ function renderQuickDecisionTemplate(product) {
     
     const galleryHTML = `
         <div class="product-gallery">
-            <div class="main-image-container">
+            <div class="main-image-container" onclick="handleImageDoubleTap(${product.id}, event)">
                 ${hasMultipleImages ? `<button class="gallery-nav prev" onclick="prevImage()">‹</button>` : ''}
                 ${productImages[0] ? `<img id="mainProductImage" src="${productImages[0]}" alt="${product.name}" class="main-gallery-image">` : '<div class="image-placeholder">📸</div>'}
                 ${hasMultipleImages ? `<button class="gallery-nav next" onclick="nextImage()">›</button>` : ''}
@@ -623,7 +654,7 @@ function renderPortfolioBookingTemplate(product) {
     const backButton = storeData.products.length > 1 ? `<button onclick="backToCollections()" class="back-btn">← Back to All Services</button>` : '';
     
     const heroImageHTML = `
-        <div class="portfolio-hero-image">
+        <div class="portfolio-hero-image" onclick="handleImageDoubleTap(${product.id}, event)">
             <img id="mainProductImage" src="${galleryImages[0] || product.image_url}" alt="${product.name}">
             ${galleryImages.length > 1 ? `
                 <div class="image-nav"><button class="nav-btn prev-btn" onclick="prevImage()">‹</button><button class="nav-btn next-btn" onclick="nextImage()">›</button></div>
@@ -699,7 +730,7 @@ function renderVisualMenuTemplate(product) {
     
     const galleryHTML = `
         <div class="product-gallery menu-gallery">
-            <div class="main-image-container">
+            <div class="main-image-container" onclick="handleImageDoubleTap(${product.id}, event)">
                 ${hasMultipleImages ? `<button class="gallery-nav prev" onclick="prevImage()">‹</button>` : ''}
                 ${productImages[0] ? `<img id="mainProductImage" src="${productImages[0]}" alt="${product.name}" class="main-gallery-image">` : '<div class="image-placeholder">🍽️</div>'}
                 ${hasMultipleImages ? `<button class="gallery-nav next" onclick="nextImage()">›</button>` : ''}
@@ -798,7 +829,7 @@ function renderDeepDiveTemplate(product) {
     
     const galleryHTML = `
         <div class="product-gallery deep-dive-gallery">
-            <div class="main-image-container">
+            <div class="main-image-container" onclick="handleImageDoubleTap(${product.id}, event)">
                 ${hasMultipleImages ? `<button class="gallery-nav prev" onclick="prevImage()">‹</button>` : ''}
                 ${productImages[0] ? `<img id="mainProductImage" src="${productImages[0]}" alt="${product.name}" class="main-gallery-image">` : '<div class="image-placeholder">📸</div>'}
                 ${hasMultipleImages ? `<button class="gallery-nav next" onclick="nextImage()">›</button>` : ''}
