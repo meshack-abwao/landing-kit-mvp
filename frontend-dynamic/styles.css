@@ -10,7 +10,7 @@
     /* ===========================================
        GOLDEN RATIO TYPOGRAPHY SYSTEM
        Apple/SF Pro Inspired - Clean & Balanced
-       Scale (1.618 ratio): 10 ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ 11 ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ 12 ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ 13 ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ 15 ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ 17 ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ 20 ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ 22 ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ 24 ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ 28
+       Scale (1.618 ratio): 10 ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ 11 ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ 12 ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ 13 ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ 15 ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ 17 ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ 20 ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ 22 ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ 24 ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ 28
        =========================================== */
     --fs-micro: 10px;
     --fs-tiny: 11px;
@@ -3923,7 +3923,7 @@ textarea:focus-visible {
 
 /* ===========================================
    DESKTOP LAYOUTS - TABLET ENLARGED
-   Two-column product view with sticky image
+   Two-column: Centered sticky image + scrollable info
    Premium e-commerce pattern
    =========================================== */
 
@@ -3935,25 +3935,25 @@ textarea:focus-visible {
         max-width: 1000px;
     }
     
-    /* Template 3: Visual Menu - Unified Card with Sticky Image Inside */
+    /* Template 3: Visual Menu - Unified Card */
     .template-menu .product-card.food-card {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 0;
-        align-items: start;
+        align-items: stretch;
         border-radius: 24px;
-        overflow: visible; /* Allow sticky to work */
+        overflow: hidden;
         background: white;
         box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+        min-height: 600px;
     }
     
-    /* Left column: Sticky Image Gallery (sticks inside the card) */
+    /* Left column: Image stays centered via sticky */
     .template-menu .menu-gallery {
         position: sticky;
-        top: 20px;
+        top: calc(50vh - 280px); /* Center vertically */
         align-self: start;
-        border-radius: 24px 0 0 24px;
-        overflow: hidden;
+        height: fit-content;
     }
     
     .template-menu .menu-gallery .main-image-container {
@@ -3965,7 +3965,6 @@ textarea:focus-visible {
         padding: 16px 20px;
         justify-content: flex-start;
         background: white;
-        border-right: 1px solid var(--border);
     }
     
     .template-menu .menu-gallery .thumbnail {
@@ -3973,11 +3972,27 @@ textarea:focus-visible {
         height: 64px;
     }
     
-    /* Right column: Product Info (scrolls naturally) */
+    /* Right column: Scrollable content area */
     .template-menu .food-card .product-info {
         padding: 32px;
         border-left: 1px solid var(--border);
-        min-height: 100%;
+        max-height: 80vh;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: var(--border) transparent;
+    }
+    
+    .template-menu .food-card .product-info::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .template-menu .food-card .product-info::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    
+    .template-menu .food-card .product-info::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 3px;
     }
     
     .template-menu .food-card .product-name {
@@ -4038,6 +4053,10 @@ textarea:focus-visible {
     
     .template-menu .food-card .product-name {
         font-size: 32px;
+    }
+    
+    .template-menu .product-card.food-card {
+        min-height: 650px;
     }
 }
 
