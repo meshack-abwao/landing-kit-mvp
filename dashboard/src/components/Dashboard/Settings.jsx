@@ -163,8 +163,10 @@ export default function Settings() {
         refund_policy: storeSettings.refundPolicy,
       };
 
-      console.log('Saving:', updateData);
-      await settingsAPI.update(updateData);
+      console.log('📤 Saving updateData:', JSON.stringify(updateData, null, 2));
+      console.log('📤 collection_testimonials specifically:', updateData.collection_testimonials);
+      const response = await settingsAPI.update(updateData);
+      console.log('📥 Save response:', response.data);
       
       alert('✅ Settings saved! Refresh your store to see changes.');
       window.location.reload();
