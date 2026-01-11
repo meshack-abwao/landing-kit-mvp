@@ -454,6 +454,11 @@ function renderCollectionsGrid(products) {
                                 <span class="collection-overlay-price">KES ${parseInt(product.price).toLocaleString()}</span>
                             </div>
                         </div>
+                        <div class="collection-content">
+                            ${product.description ? `<p class="collection-description">${product.description.substring(0, 80)}${product.description.length > 80 ? '...' : ''}</p>` : ''}
+                            ${dietaryHTML}
+                            <button class="collection-btn">View Details</button>
+                        </div>
                     </div>
                 `}).join('')}
             </div>

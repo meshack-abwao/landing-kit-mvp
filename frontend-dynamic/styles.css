@@ -755,12 +755,12 @@ body {
 }
 
 .collection-card {
-    background: transparent;
+    background: white;
     border-radius: 16px;
     overflow: hidden;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
-    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
     width: 100%;
 }
 
@@ -826,7 +826,40 @@ body {
 
 /* Hide old content section - now using overlay */
 .collection-content {
-    display: none;
+    padding: clamp(12px, 3vw, 16px);
+    background: white;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.collection-description {
+    font-size: var(--fs-body-sm);
+    color: var(--text-secondary);
+    line-height: var(--lh-normal);
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.collection-btn {
+    width: 100%;
+    padding: 10px 16px;
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: var(--fs-body-sm);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.collection-btn:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
 }
 
 .collection-title-row {
