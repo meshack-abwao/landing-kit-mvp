@@ -1859,6 +1859,20 @@ body {
     max-width: 600px;
 }
 
+/* Deep Dive mobile: image first, content second */
+.template-deep-dive .product-card {
+    display: flex;
+    flex-direction: column;
+}
+
+.template-deep-dive .deep-dive-gallery {
+    order: 1;
+}
+
+.template-deep-dive .product-info {
+    order: 2;
+}
+
 .trust-badges-bar {
     display: flex;
     justify-content: center;
