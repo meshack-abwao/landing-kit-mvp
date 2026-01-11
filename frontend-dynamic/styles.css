@@ -294,8 +294,8 @@ body {
 /* Collections Grid */
 .collections-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
     max-width: 1200px;
     margin: 0 auto;
 }
@@ -748,15 +748,15 @@ body {
 
 .collections-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
     max-width: 1100px;
     margin: 0 auto;
 }
 
 .collection-card {
     background: white;
-    border-radius: 16px;
+    border-radius: 20px;
     overflow: hidden;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
@@ -775,8 +775,7 @@ body {
 
 .collection-image {
     width: 100%;
-    /* Taller image for premium look - more real estate */
-    height: clamp(260px, 65vw, 420px);
+    aspect-ratio: 4/3;
     background: var(--bg-gray, #f5f5f7);
     display: flex;
     align-items: center;
