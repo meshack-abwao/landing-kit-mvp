@@ -10,7 +10,7 @@
     /* ===========================================
        GOLDEN RATIO TYPOGRAPHY SYSTEM
        Apple/SF Pro Inspired - Clean & Balanced
-       Scale (1.618 ratio): 10 â†’ 11 â†’ 12 â†’ 13 â†’ 15 â†’ 17 â†’ 20 â†’ 22 â†’ 24 â†’ 28
+       Scale (1.618 ratio): 10 Ã¢â€ â€™ 11 Ã¢â€ â€™ 12 Ã¢â€ â€™ 13 Ã¢â€ â€™ 15 Ã¢â€ â€™ 17 Ã¢â€ â€™ 20 Ã¢â€ â€™ 22 Ã¢â€ â€™ 24 Ã¢â€ â€™ 28
        =========================================== */
     --fs-micro: 10px;
     --fs-tiny: 11px;
@@ -3923,10 +3923,11 @@ textarea:focus-visible {
 
 /* ===========================================
    DESKTOP LAYOUTS - TABLET ENLARGED
-   Two-column product view for larger screens
+   Two-column product view with sticky image
+   Premium e-commerce pattern
    =========================================== */
 
-/* Desktop breakpoint: 900px+ (comfortable tablet/desktop) */
+/* Desktop breakpoint: 900px+ */
 @media (min-width: 900px) {
     
     /* Expand the product container for desktop */
@@ -3934,46 +3935,55 @@ textarea:focus-visible {
         max-width: 1000px;
     }
     
-    /* Template 3: Visual Menu - Two Column Layout */
+    /* Template 3: Visual Menu - Two Column with Sticky Image */
     .template-menu .product-card.food-card {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 0;
-        border-radius: 24px;
-        overflow: hidden;
+        gap: 40px;
+        align-items: start;
+        background: transparent;
+        box-shadow: none;
+        border-radius: 0;
+        overflow: visible;
     }
     
-    /* Left column: Image section */
+    /* Left column: Sticky Image Gallery */
     .template-menu .menu-gallery {
-        height: 100%;
-        min-height: 600px;
+        position: sticky;
+        top: 20px;
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.08);
     }
     
     .template-menu .menu-gallery .main-image-container {
-        height: 480px;
-        border-radius: 0;
+        height: 420px;
+        border-radius: 20px 20px 0 0;
     }
     
     .template-menu .menu-gallery .thumbnail-strip {
         padding: 16px 20px;
         justify-content: flex-start;
+        background: white;
     }
     
     .template-menu .menu-gallery .thumbnail {
-        width: 70px;
-        height: 70px;
+        width: 64px;
+        height: 64px;
     }
     
-    /* Right column: Product info */
+    /* Right column: Scrollable Product Info */
     .template-menu .food-card .product-info {
+        background: white;
+        border-radius: 20px;
         padding: 32px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.08);
     }
     
     .template-menu .food-card .product-name {
         font-size: 28px;
+        margin-bottom: 12px;
     }
     
     .template-menu .food-card .price {
@@ -3989,9 +3999,13 @@ textarea:focus-visible {
         margin: 20px 0;
     }
     
-    /* Testimonials: Grid layout on desktop */
+    /* Testimonials: Full width below both columns */
     .template-menu .testimonials-section {
-        margin-top: 40px;
+        margin-top: 48px;
+        background: white;
+        border-radius: 20px;
+        padding: 32px;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.08);
     }
     
     .template-menu .testimonials-section .testimonials-grid {
@@ -4003,6 +4017,8 @@ textarea:focus-visible {
     
     .template-menu .testimonials-section .testimonial-card {
         margin: 0;
+        box-shadow: none;
+        border: 1px solid var(--border);
     }
 
     /* Back button positioning */
@@ -4020,7 +4036,7 @@ textarea:focus-visible {
     }
     
     .template-menu .menu-gallery .main-image-container {
-        height: 520px;
+        height: 480px;
     }
     
     .template-menu .food-card .product-info {
