@@ -123,13 +123,6 @@ export default function DashboardLayout() {
     document.body.style.overflow = '';
   };
 
-  // Navigation handler that closes mobile menu immediately
-  const handleNavClick = (e) => {
-    // Close menu immediately on tap
-    setMobileMenuOpen(false);
-    document.body.style.overflow = '';
-  };
-
   return (
     <div className="dashboard-container">
       {/* Account Modal */}
@@ -245,25 +238,25 @@ export default function DashboardLayout() {
         </button>
 
         <nav style={styles.nav}>
-          <NavLink to="/dashboard" end className={({ isActive }) => isActive ? 'nav-link active-nav' : 'nav-link'} onClick={handleNavClick} onTouchStart={handleNavClick}>
+          <NavLink to="/dashboard" end className={({ isActive }) => isActive ? 'nav-link active-nav' : 'nav-link'} onClick={closeMobileMenu}>
             <Home size={20} /><span>Overview</span>
           </NavLink>
-          <NavLink to="/dashboard/products" className={({ isActive }) => isActive ? 'nav-link active-nav' : 'nav-link'} onClick={handleNavClick} onTouchStart={handleNavClick}>
+          <NavLink to="/dashboard/products" className={({ isActive }) => isActive ? 'nav-link active-nav' : 'nav-link'} onClick={closeMobileMenu}>
             <Package size={20} /><span>My Products</span>
           </NavLink>
-          <NavLink to="/dashboard/templates" className={({ isActive }) => isActive ? 'nav-link active-nav' : 'nav-link'} onClick={handleNavClick} onTouchStart={handleNavClick}>
+          <NavLink to="/dashboard/templates" className={({ isActive }) => isActive ? 'nav-link active-nav' : 'nav-link'} onClick={closeMobileMenu}>
             <LayoutGrid size={20} /><span>Templates</span>
           </NavLink>
-          <NavLink to="/dashboard/orders" className={({ isActive }) => isActive ? 'nav-link active-nav' : 'nav-link'} onClick={handleNavClick} onTouchStart={handleNavClick}>
+          <NavLink to="/dashboard/orders" className={({ isActive }) => isActive ? 'nav-link active-nav' : 'nav-link'} onClick={closeMobileMenu}>
             <ShoppingCart size={20} /><span>Orders</span>
           </NavLink>
-          <NavLink to="/dashboard/marketplace" className={({ isActive }) => isActive ? 'nav-link active-nav' : 'nav-link'} onClick={handleNavClick} onTouchStart={handleNavClick}>
+          <NavLink to="/dashboard/marketplace" className={({ isActive }) => isActive ? 'nav-link active-nav' : 'nav-link'} onClick={closeMobileMenu}>
             <Zap size={20} /><span>Add-Ons</span>
           </NavLink>
-          <button onClick={handleShowAccount} onTouchStart={handleShowAccount} className="nav-link">
+          <button onClick={handleShowAccount} className="nav-link">
             <CreditCard size={20} /><span>Account & Billing</span>
           </button>
-          <NavLink to="/dashboard/settings" className={({ isActive }) => isActive ? 'nav-link active-nav' : 'nav-link'} onClick={handleNavClick} onTouchStart={handleNavClick}>
+          <NavLink to="/dashboard/settings" className={({ isActive }) => isActive ? 'nav-link active-nav' : 'nav-link'} onClick={closeMobileMenu}>
             <Settings size={20} /><span>Settings</span>
           </NavLink>
         </nav>
