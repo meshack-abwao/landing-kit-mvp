@@ -496,9 +496,16 @@ body {
     top: 0;
     transform: translateX(-100%);
     z-index: 1000;
+    transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
   }
   .dashboard-sidebar.mobile-open { transform: translateX(0); }
   .dashboard-main { padding: 72px 16px 20px; }
+  
+  /* Ensure nav links are tappable */
+  .nav-link {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
 }
 
 /* ===== SCROLLBAR ===== */
