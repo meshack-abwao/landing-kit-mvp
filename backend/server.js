@@ -705,7 +705,10 @@ app.get('/api/public/store/:subdomain', async (req, res) => {
         // Store-level policies
         privacy_policy: store.privacy_policy || '',
         terms_of_service: store.terms_of_service || '',
-        refund_policy: store.refund_policy || ''
+        refund_policy: store.refund_policy || '',
+        // Collection testimonials
+        showTestimonials: store.show_testimonials !== false,
+        collectionTestimonials: store.collection_testimonials || []
       },
       hero: hero,
       testimonial: testimonial,
