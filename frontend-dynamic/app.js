@@ -154,9 +154,16 @@ function renderHeroSection() {
     const { store } = storeData;
     
     const heroPhoto = document.getElementById('heroPhoto');
-    if (heroPhoto && store?.logoText) {
-        heroPhoto.textContent = store.logoText.charAt(0).toUpperCase();
-        heroPhoto.style.display = 'flex';
+    if (heroPhoto) {
+        if (store?.logoImageUrl) {
+            // Show logo image
+            heroPhoto.innerHTML = `<img src="${store.logoImageUrl}" alt="${store.logoText || 'Logo'}" style="width:100%;height:100%;object-fit:contain;border-radius:14px;">`;
+            heroPhoto.style.display = 'flex';
+        } else if (store?.logoText) {
+            // Fallback to first letter
+            heroPhoto.textContent = store.logoText.charAt(0).toUpperCase();
+            heroPhoto.style.display = 'flex';
+        }
     }
     
     const heroTitle = document.getElementById('heroTitle');
