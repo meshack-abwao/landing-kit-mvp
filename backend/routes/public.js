@@ -28,6 +28,14 @@ router.get('/store/:subdomain', async (req, res) => {
     
     const store = storeResult.rows[0];
     
+    // Debug: log what's actually in store_settings
+    console.log('📦 Store settings from DB:', {
+      subdomain: store.subdomain,
+      show_testimonials: store.show_testimonials,
+      collection_testimonials: store.collection_testimonials,
+      collection_testimonials_type: typeof store.collection_testimonials
+    });
+    
     // Get products for this store
     const productsResult = await pool.query(
       'SELECT * FROM products WHERE user_id = $1 AND is_active = true ORDER BY created_at DESC',
