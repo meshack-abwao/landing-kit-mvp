@@ -8,97 +8,103 @@
   --transition-ease: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* ===== LIGHT MODE - Jari Teal Brand Palette ===== */
+/* ===== LIGHT MODE - Clean Professional (Jari Reference) ===== */
 [data-theme="light"], :root {
-  /* Background: Clean warm white with subtle teal undertone */
-  --bg-primary: linear-gradient(145deg, #fafcfc 0%, #f5fafa 25%, #f0f7f7 50%, #f5f8fa 75%, #fafbfc 100%);
-  --bg-secondary: rgba(255, 255, 255, 0.95);
+  /* Background: Soft blue-gray like reference */
+  --bg-primary: linear-gradient(180deg, #e8f4f8 0%, #dfeef3 50%, #e5f0f5 100%);
+  --bg-secondary: #ffffff;
   
-  /* Text: Rich dark grays for excellent readability */
-  --text-primary: #0f1419;
-  --text-secondary: #3d4852;
-  --text-muted: #6b7280;
+  /* Text: Deep navy like reference */
+  --text-primary: #1a2b4a;
+  --text-secondary: #4a5568;
+  --text-muted: #718096;
   
-  /* Primary Accent: Jari Teal */
+  /* Primary Accent: Teal/Green like reference */
   --accent-color: #0d9488;
   --accent-hover: #0f766e;
   --accent-light: rgba(13, 148, 136, 0.1);
   
-  /* Secondary accent: Warm amber for contrast */
-  --secondary-accent: #d97706;
+  /* Secondary accent: Orange CTA like reference */
+  --secondary-accent: #f97316;
+  --cta-gradient: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
   
   /* Cards & Borders */
-  --border-color: rgba(13, 148, 136, 0.12);
-  --glass-bg: rgba(255, 255, 255, 0.9);
-  --glass-border: rgba(13, 148, 136, 0.1);
-  --card-shadow: 0 2px 12px rgba(15, 23, 42, 0.06), 0 8px 32px rgba(13, 148, 136, 0.04);
+  --border-color: rgba(26, 43, 74, 0.1);
+  --glass-bg: rgba(255, 255, 255, 0.95);
+  --glass-border: rgba(26, 43, 74, 0.08);
+  --card-shadow: 0 1px 3px rgba(26, 43, 74, 0.06), 0 4px 16px rgba(26, 43, 74, 0.04);
   
   /* UI Elements */
-  --logo-gradient: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%);
-  --avatar-gradient: linear-gradient(135deg, #0d9488 0%, #0891b2 100%);
-  --greeting-bg: rgba(13, 148, 136, 0.06);
+  --logo-gradient: linear-gradient(135deg, #1a2b4a 0%, #2d4a6f 100%);
+  --avatar-gradient: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%);
+  --greeting-bg: rgba(13, 148, 136, 0.08);
   --greeting-border: rgba(13, 148, 136, 0.15);
-  --glow-gradient: radial-gradient(ellipse at 20% 20%, rgba(13, 148, 136, 0.06) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(8, 145, 178, 0.04) 0%, transparent 50%);
-  --info-box-bg: rgba(13, 148, 136, 0.05);
-  --info-box-border: rgba(13, 148, 136, 0.15);
-  --subscription-bg: rgba(13, 148, 136, 0.04);
-  --subscription-border: rgba(13, 148, 136, 0.18);
-  --crown-bg: rgba(217, 119, 6, 0.12);
-  --crown-color: #b45309;
+  --glow-gradient: none;
+  --info-box-bg: rgba(13, 148, 136, 0.06);
+  --info-box-border: rgba(13, 148, 136, 0.12);
+  --subscription-bg: rgba(26, 43, 74, 0.04);
+  --subscription-border: rgba(26, 43, 74, 0.1);
+  --crown-bg: rgba(249, 115, 22, 0.12);
+  --crown-color: #ea580c;
   --checkmark-bg: rgba(13, 148, 136, 0.12);
   --checkmark-color: #0f766e;
-  --upgrade-btn-gradient: linear-gradient(135deg, #0d9488 0%, #0891b2 100%);
+  --upgrade-btn-gradient: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
   --nav-active-bg: rgba(13, 148, 136, 0.1);
   --nav-active-color: #0d9488;
   
-  /* Icon buttons in light mode */
-  --icon-btn-bg: rgba(15, 23, 42, 0.05);
-  --icon-btn-border: rgba(15, 23, 42, 0.1);
-  --icon-btn-color: #4b5563;
+  /* Icon buttons */
+  --icon-btn-bg: rgba(26, 43, 74, 0.06);
+  --icon-btn-border: rgba(26, 43, 74, 0.1);
+  --icon-btn-color: #4a5568;
   --delete-btn-bg: rgba(220, 38, 38, 0.08);
-  --delete-btn-border: rgba(220, 38, 38, 0.18);
+  --delete-btn-border: rgba(220, 38, 38, 0.15);
   --delete-btn-color: #dc2626;
+  
+  /* Stock warning */
+  --stock-low: #dc2626;
+  --stock-normal: #718096;
 }
 
-/* ===== DARK MODE - Jari Teal on Deep Navy ===== */
+/* ===== DARK MODE - Deep Navy Professional ===== */
 [data-theme="dark"] {
-  --bg-primary: linear-gradient(135deg, #0a1014 0%, #0f1a1f 50%, #0c1418 100%);
-  --bg-secondary: #142024;
-  --text-primary: #f0fdfc;
-  --text-secondary: #ccfbf1;
-  --text-muted: #99f6e4;
-  --border-color: rgba(20, 184, 166, 0.2);
-  --glass-bg: rgba(20, 32, 36, 0.9);
-  --glass-border: rgba(20, 184, 166, 0.15);
-  --accent-color: #14b8a6;
-  --accent-hover: #2dd4bf;
-  --accent-light: rgba(20, 184, 166, 0.2);
-  --secondary-accent: #fbbf24;
-  --logo-gradient: linear-gradient(135deg, #14b8a6 0%, #2dd4bf 100%);
-  --avatar-gradient: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%);
-  --greeting-bg: rgba(20, 184, 166, 0.12);
-  --greeting-border: rgba(20, 184, 166, 0.25);
-  --glow-gradient: radial-gradient(circle at 30% 30%, rgba(20, 184, 166, 0.12) 0%, transparent 50%), radial-gradient(circle at 70% 70%, rgba(8, 145, 178, 0.08) 0%, transparent 50%);
-  --info-box-bg: rgba(20, 184, 166, 0.1);
-  --info-box-border: rgba(20, 184, 166, 0.25);
-  --subscription-bg: rgba(20, 184, 166, 0.1);
-  --subscription-border: rgba(20, 184, 166, 0.3);
-  --crown-bg: rgba(251, 191, 36, 0.2);
-  --crown-color: #fbbf24;
-  --checkmark-bg: rgba(20, 184, 166, 0.25);
+  --bg-primary: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+  --bg-secondary: #1e293b;
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --border-color: rgba(148, 163, 184, 0.15);
+  --glass-bg: rgba(30, 41, 59, 0.95);
+  --glass-border: rgba(148, 163, 184, 0.1);
+  --accent-color: #2dd4bf;
+  --accent-hover: #14b8a6;
+  --accent-light: rgba(45, 212, 191, 0.15);
+  --secondary-accent: #fb923c;
+  --cta-gradient: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
+  --logo-gradient: linear-gradient(135deg, #2dd4bf 0%, #14b8a6 100%);
+  --avatar-gradient: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+  --greeting-bg: rgba(45, 212, 191, 0.1);
+  --greeting-border: rgba(45, 212, 191, 0.2);
+  --glow-gradient: none;
+  --info-box-bg: rgba(45, 212, 191, 0.08);
+  --info-box-border: rgba(45, 212, 191, 0.2);
+  --subscription-bg: rgba(148, 163, 184, 0.08);
+  --subscription-border: rgba(148, 163, 184, 0.15);
+  --crown-bg: rgba(251, 146, 60, 0.15);
+  --crown-color: #fb923c;
+  --checkmark-bg: rgba(45, 212, 191, 0.2);
   --checkmark-color: #2dd4bf;
-  --upgrade-btn-gradient: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%);
-  --nav-active-bg: rgba(20, 184, 166, 0.2);
+  --upgrade-btn-gradient: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
+  --nav-active-bg: rgba(45, 212, 191, 0.15);
   --nav-active-color: #2dd4bf;
-  --card-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
-  
-  /* Icon buttons in dark mode */
-  --icon-btn-bg: rgba(20, 184, 166, 0.1);
-  --icon-btn-border: rgba(20, 184, 166, 0.2);
-  --icon-btn-color: #99f6e4;
-  --delete-btn-bg: rgba(248, 113, 113, 0.15);
-  --delete-btn-border: rgba(248, 113, 113, 0.3);
+  --card-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+  --icon-btn-bg: rgba(148, 163, 184, 0.1);
+  --icon-btn-border: rgba(148, 163, 184, 0.15);
+  --icon-btn-color: #94a3b8;
+  --delete-btn-bg: rgba(248, 113, 113, 0.12);
+  --delete-btn-border: rgba(248, 113, 113, 0.25);
   --delete-btn-color: #f87171;
+  --stock-low: #f87171;
+  --stock-normal: #94a3b8;
 }
 
 body {

@@ -1239,7 +1239,13 @@ export default function ProductList() {
                 <div style={styles.productFooter}>
                   <div>
                     <p style={styles.price}>KES {parseInt(product.price).toLocaleString()}</p>
-                    <p style={styles.stock}>Stock: {product.stock_quantity}</p>
+                    <p style={{
+                      ...styles.stock,
+                      color: product.stock_quantity < 10 ? 'var(--stock-low)' : 'var(--stock-normal)',
+                      fontWeight: product.stock_quantity < 10 ? '600' : '400'
+                    }}>
+                      {product.stock_quantity < 10 ? '⚠️ ' : ''}Stock: {product.stock_quantity}
+                    </p>
                   </div>
 
                   <div style={styles.actions}>
@@ -1289,10 +1295,10 @@ export default function ProductList() {
 }
 
 const styles = {
-  container: { maxWidth: '1400px' },
-  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', flexWrap: 'wrap', gap: '16px' },
-  title: { fontSize: '36px', fontWeight: '800', marginBottom: '8px' },
-  subtitle: { fontSize: '16px', color: 'var(--text-muted)' },
+  container: { maxWidth: '1400px', paddingTop: '24px' },
+  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '40px', flexWrap: 'wrap', gap: '20px' },
+  title: { fontSize: '32px', fontWeight: '800', marginBottom: '8px', color: 'var(--text-primary)' },
+  subtitle: { fontSize: '15px', color: 'var(--text-muted)', fontWeight: '500' },
   headerActions: { display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' },
   categoryBtn: { display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 20px', background: 'var(--glass-bg)', border: '1px solid var(--border-color)', borderRadius: '12px', color: 'var(--secondary-accent)', fontSize: '14px', fontWeight: '600', cursor: 'pointer', transition: 'all 0.3s' },
   viewCollectionsBtn: { display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 20px', background: 'var(--accent-light)', border: '1px solid var(--border-color)', borderRadius: '12px', color: 'var(--accent-color)', fontSize: '14px', fontWeight: '600', cursor: 'pointer', transition: 'all 0.3s' },

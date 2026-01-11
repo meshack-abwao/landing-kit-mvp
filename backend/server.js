@@ -481,10 +481,43 @@ app.post('/api/orders', async (req, res) => {
 app.put('/api/orders/:id', auth, async (req, res) => {
   try {
     const { status } = req.body;
+    const orderId = req.params.id;
+    
+    // Get the current order to check previous status and get product/quantity
+    const currentOrder = await pool.query(
+      'SELECT * FROM orders WHERE id = $1 AND user_id = $2',
+      [orderId, req.user.userId]
+    );
+    
+    if (currentOrder.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Order not found' });
+    }
+    
+    const order = currentOrder.rows[0];
+    const previousStatus = order.status;
+    
+    // Update the order status
     const result = await pool.query(
       'UPDATE orders SET status = $1, updated_at = NOW() WHERE id = $2 AND user_id = $3 RETURNING *',
-      [status, req.params.id, req.user.userId]
+      [status, orderId, req.user.userId]
     );
+    
+    // If changing to 'delivered' and wasn't already delivered, decrement stock
+    if (status === 'delivered' && previousStatus !== 'delivered') {
+      await pool.query(
+        'UPDATE products SET stock_quantity = stock_quantity - $1 WHERE id = $2 AND user_id = $3',
+        [order.quantity, order.product_id, req.user.userId]
+      );
+    }
+    
+    // If changing FROM 'delivered' to something else, restore stock
+    if (previousStatus === 'delivered' && status !== 'delivered') {
+      await pool.query(
+        'UPDATE products SET stock_quantity = stock_quantity + $1 WHERE id = $2 AND user_id = $3',
+        [order.quantity, order.product_id, req.user.userId]
+      );
+    }
+    
     res.json({ success: true, order: result.rows[0] });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
