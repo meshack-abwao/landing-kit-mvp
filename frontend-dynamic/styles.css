@@ -845,7 +845,7 @@ body {
 }
 
 .collection-btn {
-    align-self: center;
+    align-self: flex-end;
     padding: 10px 24px;
     background: var(--color-primary);
     color: white;
