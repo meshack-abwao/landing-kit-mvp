@@ -449,17 +449,9 @@ function renderCollectionsGrid(products) {
                                 '<div class="image-placeholder">📸</div>'
                             }
                             ${imgCount > 1 ? `<span class="image-count-badge">📷 ${imgCount}</span>` : ''}
-                        </div>
-                        <div class="collection-content">
-                            <div class="collection-title-row">
-                                <h3 class="collection-name">${product.name}</h3>
-                                <span class="collection-price">${parseInt(product.price).toLocaleString()}</span>
-                            </div>
-                            <p class="collection-description">${product.description ? (product.description.substring(0, 80) + (product.description.length > 80 ? '...' : '')) : ''}</p>
-                            ${dietaryHTML}
-                            <div class="collection-footer">
-                                <span></span>
-                                <button class="collection-btn">Add to Order</button>
+                            <div class="collection-overlay">
+                                <h3 class="collection-overlay-name">${product.name}</h3>
+                                <span class="collection-overlay-price">KES ${parseInt(product.price).toLocaleString()}</span>
                             </div>
                         </div>
                     </div>

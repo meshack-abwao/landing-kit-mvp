@@ -300,34 +300,7 @@ body {
     margin: 0 auto;
 }
 
-.collection-card {
-    background: white;
-    border-radius: 16px;
-    overflow: hidden;
-    cursor: pointer;
-    transition: all 0.3s;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-}
-
-.collection-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-}
-
-.collection-image {
-    width: 100%;
-    height: 180px;
-    background: var(--gradient-primary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.collection-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
+/* OLD collection-card styles - replaced by premium overlay version below (line ~780+) */
 
 .collection-info {
     padding: 16px;
@@ -782,25 +755,28 @@ body {
 }
 
 .collection-card {
-    background: white;
+    background: transparent;
     border-radius: 16px;
     overflow: hidden;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
-    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
     width: 100%;
 }
 
 .collection-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.18);
+}
+
+.collection-card:hover .collection-image img {
+    transform: scale(1.05);
 }
 
 .collection-image {
     width: 100%;
-    /* Dynamic height: min 200px, preferred 50vw (half viewport), max 400px */
-    /* Creates ~4:5 portrait ratio that scales with screen */
-    height: clamp(200px, 50vw, 400px);
+    /* Taller image for premium look - more real estate */
+    height: clamp(260px, 65vw, 420px);
     background: var(--bg-gray, #f5f5f7);
     display: flex;
     align-items: center;
@@ -813,11 +789,44 @@ body {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
+/* Premium Overlay - Title & Price on Image */
+.collection-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: clamp(16px, 4vw, 24px);
+    padding-top: clamp(48px, 10vw, 80px);
+    background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.4) 50%, transparent 100%);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.collection-overlay-name {
+    font-size: var(--fs-body-lg);
+    font-weight: 600;
+    color: white;
+    margin: 0;
+    letter-spacing: var(--ls-normal);
+    line-height: var(--lh-snug);
+    text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+.collection-overlay-price {
+    font-size: var(--fs-heading-sm);
+    font-weight: 700;
+    color: white;
+    letter-spacing: var(--ls-tight);
+    text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+/* Hide old content section - now using overlay */
 .collection-content {
-    padding: clamp(12px, 3vw, 20px);
-    background: white;
+    display: none;
 }
 
 .collection-title-row {
