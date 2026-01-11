@@ -227,7 +227,7 @@ app.post('/api/products', auth, async (req, res) => {
       dietaryTags, prepTime, calories, ingredients, specifications,
       trustBadges, warranty, returnPolicy, richDescription,
       privacyPolicy, termsOfService, refundPolicy, videoUrl,
-      eventDate, eventLocation, availability, testimonials
+      eventDate, eventLocation, availability, testimonials, category
     } = req.body;
     
     const result = await pool.query(
@@ -237,14 +237,14 @@ app.post('/api/products', auth, async (req, res) => {
         dietary_tags, prep_time, calories, ingredients, specifications,
         trust_badges, warranty_info, return_policy_days, rich_description,
         privacy_policy, terms_of_service, refund_policy, video_url,
-        event_date, event_location, availability_notes, testimonials
+        event_date, event_location, availability_notes, testimonials, category
       ) VALUES (
         $1, $2, $3, $4, $5, $6, $7,
         $8, $9, $10, $11, $12, $13,
         $14, $15, $16, $17, $18,
         $19, $20, $21, $22,
         $23, $24, $25, $26,
-        $27, $28, $29, $30
+        $27, $28, $29, $30, $31
       ) RETURNING *`,
       [
         req.user.userId,
@@ -276,7 +276,8 @@ app.post('/api/products', auth, async (req, res) => {
         eventDate || null,
         eventLocation || null,
         availability || null,
-        JSON.stringify(testimonials || [])
+        JSON.stringify(testimonials || []),
+        category || null
       ]
     );
     
@@ -338,6 +339,7 @@ app.put('/api/products/:id', auth, async (req, res) => {
     const eventLocation = body.eventLocation || body.event_location || null;
     const availability = body.availability || body.availability_notes || null;
     const testimonials = body.testimonials || null;
+    const category = body.category || null;
     
     const result = await pool.query(
       `UPDATE products SET
@@ -370,8 +372,9 @@ app.put('/api/products/:id', auth, async (req, res) => {
         availability_notes = COALESCE($27, availability_notes),
         gallery_images = COALESCE($28, gallery_images),
         testimonials = COALESCE($29, testimonials),
+        category = COALESCE($30, category),
         updated_at = NOW()
-      WHERE id = $30 AND user_id = $31
+      WHERE id = $31 AND user_id = $32
       RETURNING *`,
       [
         name || null,
@@ -403,6 +406,7 @@ app.put('/api/products/:id', auth, async (req, res) => {
         availability,
         safeJson(galleryImages),
         safeJson(testimonials),
+        category,
         req.params.id,
         req.user.userId
       ]
@@ -557,6 +561,15 @@ app.put('/api/settings', auth, async (req, res) => {
       values.push(JSON.stringify(testimonials)); 
     }
     
+    // Categories feature
+    if (b.categories !== undefined) {
+      updates.push(`categories = $${idx++}`);
+      const cats = Array.isArray(b.categories) ? b.categories : [];
+      values.push(JSON.stringify(cats));
+    }
+    if (b.collection_title !== undefined) { updates.push(`collection_title = $${idx++}`); values.push(b.collection_title); }
+    if (b.collection_subtitle !== undefined) { updates.push(`collection_subtitle = $${idx++}`); values.push(b.collection_subtitle); }
+    
     if (updates.length === 0) {
       return res.json({ success: true, settings: {} });
     }
@@ -699,7 +712,11 @@ app.get('/api/public/store/:subdomain', async (req, res) => {
         refund_policy: store.refund_policy || '',
         // Collection testimonials
         showTestimonials: store.show_testimonials !== false,
-        collectionTestimonials: store.collection_testimonials || []
+        collectionTestimonials: store.collection_testimonials || [],
+        // Categories feature
+        categories: store.categories || [],
+        collectionTitle: store.collection_title || 'Shop All Products',
+        collectionSubtitle: store.collection_subtitle || ''
       },
       hero: hero,
       testimonial: testimonial,
@@ -807,7 +824,12 @@ async function migratePhase2Collection() {
       `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS privacy_policy TEXT DEFAULT ''`,
       `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS terms_of_service TEXT DEFAULT ''`,
       `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS refund_policy TEXT DEFAULT ''`,
-      `ALTER TABLE products ADD COLUMN IF NOT EXISTS testimonials JSONB DEFAULT '[]'`
+      `ALTER TABLE products ADD COLUMN IF NOT EXISTS testimonials JSONB DEFAULT '[]'`,
+      // Categories feature
+      `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS categories JSONB DEFAULT '[]'`,
+      `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS collection_title VARCHAR(100) DEFAULT 'Shop All Products'`,
+      `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS collection_subtitle VARCHAR(255)`,
+      `ALTER TABLE products ADD COLUMN IF NOT EXISTS category VARCHAR(100)`
     ];
     
     for (const sql of heroColumns) {

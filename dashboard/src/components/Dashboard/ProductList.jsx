@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { productsAPI, settingsAPI } from '../../services/api.jsx';
 import api from '../../services/api.jsx';
-import { Plus, Edit, Trash2, X, Eye, EyeOff, ExternalLink, Image, ChevronDown } from 'lucide-react';
+import { Plus, Edit, Trash2, X, Eye, EyeOff, ExternalLink, Image, ChevronDown, Tag, Settings } from 'lucide-react';
 
 // ===========================================
 // STORE URL CONFIGURATION
@@ -149,6 +149,14 @@ export default function ProductList() {
   const [loading, setLoading] = useState(true);
   const [selectedTemplate, setSelectedTemplate] = useState('quick-decision');
   
+  // Categories feature
+  const [categories, setCategories] = useState([]);
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const [newCategoryEmoji, setNewCategoryEmoji] = useState('📦');
+  const [collectionTitle, setCollectionTitle] = useState('Shop All Products');
+  const [collectionSubtitle, setCollectionSubtitle] = useState('');
+  
   // Form data with all possible fields
   const [formData, setFormData] = useState({
     name: '',
@@ -161,6 +169,7 @@ export default function ProductList() {
     stockQuantity: 1000,
     isActive: true,
     templateType: 'quick-decision',
+    category: '', // NEW: product category
     // Story media for quick-decision
     storyMedia: [{ url: '', type: 'image' }, { url: '', type: 'image' }, { url: '', type: 'image' }, { url: '', type: 'image' }],
     storyTitle: 'See it in Action',
@@ -195,7 +204,47 @@ export default function ProductList() {
     loadProducts();
     loadStoreUrl();
     loadTemplates();
+    loadCategories();
   }, []);
+
+  const loadCategories = async () => {
+    try {
+      const response = await settingsAPI.getAll();
+      const settings = response.data.settings || {};
+      setCategories(settings.categories || []);
+      setCollectionTitle(settings.collection_title || 'Shop All Products');
+      setCollectionSubtitle(settings.collection_subtitle || '');
+    } catch (error) {
+      console.error('Failed to load categories:', error);
+    }
+  };
+
+  const saveCategories = async () => {
+    try {
+      await settingsAPI.update({
+        categories: categories,
+        collection_title: collectionTitle,
+        collection_subtitle: collectionSubtitle
+      });
+      alert('Categories saved!');
+      setShowCategoryModal(false);
+    } catch (error) {
+      console.error('Failed to save categories:', error);
+      alert('Failed to save categories');
+    }
+  };
+
+  const addCategory = () => {
+    if (!newCategoryName.trim()) return;
+    const newCat = { name: newCategoryName.trim(), emoji: newCategoryEmoji };
+    setCategories([...categories, newCat]);
+    setNewCategoryName('');
+    setNewCategoryEmoji('📦');
+  };
+
+  const removeCategory = (index) => {
+    setCategories(categories.filter((_, i) => i !== index));
+  };
 
   const loadTemplates = async () => {
     // Hardcoded templates - backend API may not be deployed
@@ -306,6 +355,7 @@ export default function ProductList() {
       stockQuantity: product.stock_quantity || 1000,
       isActive: product.is_active !== false,
       templateType: product.template_type || 'quick-decision',
+      category: product.category || '',
       storyMedia: parseStoryMedia(product.story_media),
       storyTitle: product.story_title || 'See it in Action',
       videoUrl: product.video_url || '',
@@ -419,6 +469,7 @@ export default function ProductList() {
       stockQuantity: 1000,
       isActive: true,
       templateType: 'quick-decision',
+      category: '',
       storyMedia: [{ url: '', type: 'image' }, { url: '', type: 'image' }, { url: '', type: 'image' }, { url: '', type: 'image' }],
       storyTitle: 'See it in Action',
       videoUrl: '',
@@ -473,6 +524,10 @@ export default function ProductList() {
           <p style={styles.subtitle}>Manage your product catalog</p>
         </div>
         <div style={styles.headerActions}>
+          <button onClick={() => setShowCategoryModal(true)} style={styles.categoryBtn}>
+            <Tag size={18} />
+            Categories
+          </button>
           {products.length > 0 && storeUrl && (
             <button onClick={viewCollections} style={styles.viewCollectionsBtn}>
               <Eye size={18} />
@@ -485,6 +540,93 @@ export default function ProductList() {
           </button>
         </div>
       </div>
+
+      {/* Category Management Modal */}
+      {showCategoryModal && (
+        <div style={styles.modalOverlay} onClick={() => setShowCategoryModal(false)}>
+          <div style={styles.categoryModal} className="glass-card" onClick={(e) => e.stopPropagation()}>
+            <div style={styles.modalHeader}>
+              <h2 style={styles.modalTitle}>Manage Categories</h2>
+              <button onClick={() => setShowCategoryModal(false)} style={styles.closeBtn}><X size={24} /></button>
+            </div>
+            
+            {/* Collection Header Settings */}
+            <div style={styles.formGroup}>
+              <label style={styles.label}>COLLECTION TITLE</label>
+              <input
+                type="text"
+                value={collectionTitle}
+                onChange={(e) => setCollectionTitle(e.target.value)}
+                placeholder="Shop All Products"
+                className="dashboard-input"
+              />
+              <p style={styles.hint}>e.g., "Our Menu", "Browse Collection", "Shop Now"</p>
+            </div>
+            
+            <div style={styles.formGroup}>
+              <label style={styles.label}>COLLECTION SUBTITLE (Optional)</label>
+              <input
+                type="text"
+                value={collectionSubtitle}
+                onChange={(e) => setCollectionSubtitle(e.target.value)}
+                placeholder="Fresh dishes made with love"
+                className="dashboard-input"
+              />
+            </div>
+            
+            <hr style={{ border: 'none', borderTop: '1px solid rgba(255,255,255,0.1)', margin: '20px 0' }} />
+            
+            {/* Add Category */}
+            <div style={styles.formGroup}>
+              <label style={styles.label}>ADD NEW CATEGORY</label>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <input
+                  type="text"
+                  value={newCategoryEmoji}
+                  onChange={(e) => setNewCategoryEmoji(e.target.value)}
+                  placeholder="🔥"
+                  style={{ width: '60px', textAlign: 'center' }}
+                  className="dashboard-input"
+                />
+                <input
+                  type="text"
+                  value={newCategoryName}
+                  onChange={(e) => setNewCategoryName(e.target.value)}
+                  placeholder="Popular"
+                  style={{ flex: 1 }}
+                  className="dashboard-input"
+                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCategory())}
+                />
+                <button onClick={addCategory} className="btn btn-primary" style={{ padding: '10px 16px' }}>
+                  <Plus size={18} />
+                </button>
+              </div>
+            </div>
+            
+            {/* Category List */}
+            <div style={styles.formGroup}>
+              <label style={styles.label}>CATEGORIES ({categories.length})</label>
+              {categories.length === 0 ? (
+                <p style={styles.hint}>No categories yet. Add some above!</p>
+              ) : (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                  {categories.map((cat, idx) => (
+                    <div key={idx} style={styles.categoryTag}>
+                      <span>{cat.emoji} {cat.name}</span>
+                      <button onClick={() => removeCategory(idx)} style={styles.categoryRemoveBtn}>×</button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            
+            <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
+              <button onClick={() => setShowCategoryModal(false)} style={styles.cancelBtn}>Cancel</button>
+              <button onClick={saveCategories} className="btn btn-primary" style={{ flex: 1 }}>Save Categories</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showModal && (
         <div style={styles.modalOverlay} onClick={resetForm}>
@@ -532,6 +674,25 @@ export default function ProductList() {
                   className="dashboard-input"
                 />
               </div>
+
+              {/* Category Selector - Shows if categories exist */}
+              {categories.length > 0 && (
+                <div style={styles.formGroup}>
+                  <label style={styles.label}>CATEGORY</label>
+                  <select
+                    value={formData.category}
+                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                    className="dashboard-input"
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <option value="">-- No Category --</option>
+                    {categories.map((cat, idx) => (
+                      <option key={idx} value={cat.name}>{cat.emoji} {cat.name}</option>
+                    ))}
+                  </select>
+                  <p style={styles.hint}>Assign this product to a category for filtering</p>
+                </div>
+              )}
 
               {/* Description - Quick Decision */}
               {hasField('description') && (
@@ -1132,8 +1293,12 @@ const styles = {
   header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', flexWrap: 'wrap', gap: '16px' },
   title: { fontSize: '36px', fontWeight: '800', marginBottom: '8px' },
   subtitle: { fontSize: '16px', color: 'rgba(255, 255, 255, 0.5)' },
-  headerActions: { display: 'flex', gap: '12px', alignItems: 'center' },
+  headerActions: { display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' },
+  categoryBtn: { display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 20px', background: 'rgba(139, 92, 246, 0.1)', border: '1px solid rgba(139, 92, 246, 0.3)', borderRadius: '12px', color: '#8b5cf6', fontSize: '14px', fontWeight: '600', cursor: 'pointer', transition: 'all 0.3s' },
   viewCollectionsBtn: { display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 20px', background: 'rgba(255, 159, 10, 0.1)', border: '1px solid rgba(255, 159, 10, 0.3)', borderRadius: '12px', color: '#ff9f0a', fontSize: '14px', fontWeight: '600', cursor: 'pointer', transition: 'all 0.3s' },
+  categoryModal: { width: '100%', maxWidth: '500px', maxHeight: '90vh', overflowY: 'auto', padding: '32px' },
+  categoryTag: { display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '8px 12px', background: 'rgba(139, 92, 246, 0.15)', border: '1px solid rgba(139, 92, 246, 0.3)', borderRadius: '20px', color: '#c4b5fd', fontSize: '14px', fontWeight: '500' },
+  categoryRemoveBtn: { background: 'none', border: 'none', color: '#f87171', cursor: 'pointer', fontSize: '18px', fontWeight: '700', padding: '0 4px', lineHeight: 1 },
   loadingState: { display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '80px 20px' },
   spinner: { width: '40px', height: '40px', border: '3px solid rgba(255, 255, 255, 0.1)', borderTop: '3px solid #ff9f0a', borderRadius: '50%', animation: 'spin 1s linear infinite' },
   loadingText: { marginTop: '16px', color: 'rgba(255, 255, 255, 0.5)' },

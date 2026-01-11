@@ -449,17 +449,48 @@ function renderStore() {
     products.length === 1 ? renderSingleProduct(products[0]) : renderCollectionsGrid(products);
 }
 
+// Track active category filter
+let activeCategoryFilter = null;
+
+function filterByCategory(categoryName) {
+    activeCategoryFilter = activeCategoryFilter === categoryName ? null : categoryName;
+    renderCollectionsGrid(storeData.products);
+}
+
 function renderCollectionsGrid(products) {
     const main = document.getElementById('main');
+    const categories = storeData.store?.categories || [];
+    const collectionTitle = storeData.store?.collectionTitle || 'Shop All Products';
+    const collectionSubtitle = storeData.store?.collectionSubtitle || '';
+    
+    // Filter products by active category
+    const filteredProducts = activeCategoryFilter 
+        ? products.filter(p => p.category === activeCategoryFilter)
+        : products;
+    
+    // Generate category filter tags HTML
+    const categoryFiltersHTML = categories.length > 0 ? `
+        <div class="category-filters">
+            <button class="category-filter-tag ${!activeCategoryFilter ? 'active' : ''}" onclick="filterByCategory(null)">
+                All
+            </button>
+            ${categories.map(cat => `
+                <button class="category-filter-tag ${activeCategoryFilter === cat.name ? 'active' : ''}" onclick="filterByCategory('${cat.name}')">
+                    ${cat.emoji} ${cat.name}
+                </button>
+            `).join('')}
+        </div>
+    ` : '';
     
     main.innerHTML = `
         <div class="collections-container">
             <div class="collections-header">
-                <h2>Shop All Products</h2>
-                <p>${products.length} ${products.length === 1 ? 'Product' : 'Products'} Available</p>
+                <h2>${collectionTitle}</h2>
+                <p>${collectionSubtitle || `${filteredProducts.length} ${filteredProducts.length === 1 ? 'Product' : 'Products'} Available`}</p>
             </div>
+            ${categoryFiltersHTML}
             <div class="collections-grid">
-                ${products.map(product => {
+                ${filteredProducts.map(product => {
                     const imgCount = getProductImages(product).length;
                     // Parse dietary tags for collection cards
                     let dietaryTags = [];

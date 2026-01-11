@@ -3801,3 +3801,53 @@ textarea:focus-visible {
 .portfolio-hero-image {
     cursor: pointer;
 }
+
+
+/* ===== CATEGORY FILTER TAGS ===== */
+.category-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 28px;
+    padding: 0 16px;
+}
+
+.category-filter-tag {
+    padding: 10px 20px;
+    border-radius: 24px;
+    border: 2px solid var(--border);
+    background: white;
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+    font-family: var(--font-family);
+}
+
+.category-filter-tag:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.category-filter-tag.active {
+    background: var(--gradient-primary);
+    border-color: transparent;
+    color: white;
+    box-shadow: 0 4px 16px rgba(17, 153, 142, 0.3);
+}
+
+@media (max-width: 480px) {
+    .category-filters {
+        gap: 8px;
+        padding: 0 12px;
+    }
+    
+    .category-filter-tag {
+        padding: 8px 16px;
+        font-size: 13px;
+    }
+}
