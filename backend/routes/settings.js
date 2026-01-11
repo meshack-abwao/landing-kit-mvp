@@ -29,8 +29,6 @@ router.get('/', authMiddleware, async (req, res) => {
 // Update settings - handles ALL fields dynamically
 router.put('/', authMiddleware, async (req, res) => {
   try {
-    console.log('📝 Settings update request:', JSON.stringify(req.body, null, 2));
-    
     // Map of camelCase to snake_case field names
     const fieldMap = {
       // Basic
@@ -138,16 +136,11 @@ router.put('/', authMiddleware, async (req, res) => {
       RETURNING *
     `;
 
-    console.log('📝 Update query:', query);
-    console.log('📝 Values:', values);
-
     const result = await pool.query(query, values);
 
     if (result.rows.length === 0) {
       return res.status(404).json({ success: false, error: 'Settings not found' });
     }
-
-    console.log('✅ Settings updated successfully');
 
     res.json({
       success: true,
