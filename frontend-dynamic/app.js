@@ -1303,3 +1303,94 @@ window.handlePortfolioCheckout = handlePortfolioCheckout;
 window.selectPackageOption = selectPackageOption;
 window.skipPackageSelection = skipPackageSelection;
 window.closePackageSelection = closePackageSelection;
+
+
+// ===========================================
+// DESKTOP SCROLL LOCK - Centered Image Effect
+// ===========================================
+function initDesktopScrollLock() {
+    // Only on desktop (900px+)
+    if (window.innerWidth < 900) return;
+    
+    const card = document.querySelector('.template-menu .product-card.food-card');
+    const gallery = document.querySelector('.template-menu .menu-gallery');
+    const productInfo = document.querySelector('.template-menu .food-card .product-info');
+    
+    if (!card || !gallery || !productInfo) return;
+    
+    let isLocked = false;
+    let lockScrollY = 0;
+    let infoScrollAmount = 0;
+    const maxInfoScroll = productInfo.scrollHeight - productInfo.clientHeight;
+    
+    function handleScroll() {
+        const cardRect = card.getBoundingClientRect();
+        const viewportCenter = window.innerHeight / 2;
+        const galleryHeight = gallery.offsetHeight;
+        const galleryCenter = cardRect.top + galleryHeight / 2;
+        
+        // Check if gallery is centered (within 50px tolerance)
+        const isCentered = Math.abs(galleryCenter - viewportCenter) < 50;
+        
+        if (!isLocked && isCentered && maxInfoScroll > 0) {
+            // Lock the scroll
+            isLocked = true;
+            lockScrollY = window.scrollY;
+            card.classList.add('scroll-locked');
+            document.body.style.overflow = 'hidden';
+        }
+    }
+    
+    function handleWheel(e) {
+        if (!isLocked) return;
+        
+        e.preventDefault();
+        
+        // Apply scroll to the info panel
+        infoScrollAmount += e.deltaY;
+        infoScrollAmount = Math.max(0, Math.min(infoScrollAmount, maxInfoScroll));
+        productInfo.scrollTop = infoScrollAmount;
+        
+        // Check if we've scrolled to the end (or beginning if scrolling up)
+        if ((e.deltaY > 0 && infoScrollAmount >= maxInfoScroll) || 
+            (e.deltaY < 0 && infoScrollAmount <= 0)) {
+            // Unlock and resume normal scroll
+            isLocked = false;
+            card.classList.remove('scroll-locked');
+            document.body.style.overflow = '';
+            
+            // Small delay before allowing re-lock
+            setTimeout(() => {
+                window.addEventListener('scroll', handleScroll, { passive: true });
+            }, 500);
+            
+            window.removeEventListener('scroll', handleScroll);
+        }
+    }
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('wheel', handleWheel, { passive: false });
+    
+    // Cleanup on navigation
+    window.addEventListener('popstate', () => {
+        isLocked = false;
+        document.body.style.overflow = '';
+        window.removeEventListener('scroll', handleScroll);
+        window.removeEventListener('wheel', handleWheel);
+    });
+}
+
+// Initialize after product renders
+const originalRenderVisualMenu = window.renderVisualMenuTemplate;
+if (typeof renderVisualMenuTemplate === 'function') {
+    const _origRender = renderVisualMenuTemplate;
+    window.renderVisualMenuTemplate = function(product) {
+        _origRender(product);
+        setTimeout(initDesktopScrollLock, 100);
+    };
+}
+
+// Also try to init on DOMContentLoaded for safety
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(initDesktopScrollLock, 500);
+});
