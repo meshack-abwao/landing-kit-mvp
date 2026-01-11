@@ -278,5 +278,68 @@ git push origin master
 
 ---
 
+## 🔧 SURGICAL DEBUGGING METHODOLOGY
+
+### The Approach That Works
+
+**1. READ BEFORE EDITING**
+- Always `read_file` the target section FIRST
+- Understand existing code structure before making changes
+- Check for related code that might be affected
+
+**2. SMALL, TARGETED EDITS**
+- Use `edit_block` with exact `old_string` matches
+- Change ONE thing at a time
+- Keep edits minimal - don't rewrite entire files
+
+**3. VERIFY THE EDIT APPLIED**
+- Check the response: "Successfully applied 1 edit"
+- If it fails, the `old_string` didn't match exactly
+- Re-read the file to get exact current content
+
+**4. TEST IMMEDIATELY**
+- Commit and push after each logical change
+- User tests in browser right away
+- Fix issues before moving to next feature
+
+**5. DON'T CASCADE**
+- If something breaks, STOP
+- Don't try to fix by adding more code
+- Go back, understand what broke, fix surgically
+
+### Common Pitfalls Avoided
+
+❌ **DON'T:** Edit multiple files at once for one feature
+✅ **DO:** Edit one file, test, then move to next
+
+❌ **DON'T:** Guess at code structure
+✅ **DO:** Read the file first, find exact line content
+
+❌ **DON'T:** Add duplicate handlers (e.g., onClick + onTouchStart both firing)
+✅ **DO:** Use one handler, let React normalize events
+
+❌ **DON'T:** Rewrite entire functions when one line needs changing
+✅ **DO:** Target the specific line that needs modification
+
+### Debugging CSS Issues
+1. Check which theme mode is active (light/dark)
+2. Find the CSS variable definition
+3. Trace where it's used
+4. Edit the variable, not every usage
+
+### Debugging React Issues
+1. Check useEffect dependencies
+2. Look for state update loops
+3. Verify event handlers aren't doubling up
+4. Check if component is re-mounting unexpectedly
+
+### Debugging API Issues
+1. Test endpoint directly with curl/Postman first
+2. Check backend console for errors
+3. Verify request payload matches expected format
+4. Check CORS if cross-origin
+
+---
+
 **END OF SESSION KNOWLEDGE BASE**
 Generated: January 12, 2026
