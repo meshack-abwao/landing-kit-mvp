@@ -1,4 +1,4 @@
-﻿@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 * {
     margin: 0;
@@ -3858,7 +3858,7 @@ textarea:focus-visible {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
-    justify-content: flex-end !important;
+    justify-content: flex-start !important;
     margin-bottom: 28px;
     padding: 0 16px;
 }
