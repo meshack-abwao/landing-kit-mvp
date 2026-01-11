@@ -765,12 +765,12 @@ body {
 }
 
 .collection-card:hover {
-    transform: translateY(-6px) scale(1.02);
-    box-shadow: 0 12px 32px rgba(0,0,0,0.18);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.15);
 }
 
-.collection-card:hover .collection-image img {
-    transform: scale(1.05);
+.collection-card:hover .collection-overlay {
+    background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.5) 50%, transparent 100%);
 }
 
 .collection-image {
@@ -789,7 +789,6 @@ body {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 /* Premium Overlay - Title & Price on Image */
@@ -804,6 +803,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 4px;
+    transition: background 0.3s ease;
 }
 
 .collection-overlay-name {
@@ -845,12 +845,12 @@ body {
 }
 
 .collection-btn {
-    width: 100%;
-    padding: 10px 16px;
+    align-self: center;
+    padding: 10px 24px;
     background: var(--color-primary);
     color: white;
     border: none;
-    border-radius: 8px;
+    border-radius: 20px;
     font-size: var(--fs-body-sm);
     font-weight: 600;
     cursor: pointer;
@@ -859,7 +859,6 @@ body {
 
 .collection-btn:hover {
     opacity: 0.9;
-    transform: translateY(-1px);
 }
 
 .collection-title-row {

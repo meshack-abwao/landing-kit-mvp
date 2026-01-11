@@ -457,7 +457,7 @@ function renderCollectionsGrid(products) {
                         <div class="collection-content">
                             ${product.description ? `<p class="collection-description">${product.description.substring(0, 80)}${product.description.length > 80 ? '...' : ''}</p>` : ''}
                             ${dietaryHTML}
-                            <button class="collection-btn">View Details</button>
+                            <button class="collection-btn">Get This Now</button>
                         </div>
                     </div>
                 `}).join('')}
