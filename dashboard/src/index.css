@@ -98,6 +98,125 @@ body {
   transform: translateY(-2px);
 }
 
+/* ===== STAT CARDS - Apple Style ===== */
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 24px;
+}
+
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+}
+
+.stat-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+/* ===== ACTION CARDS ===== */
+.action-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 28px 20px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.action-card:hover {
+  background: var(--bg-secondary);
+}
+
+.action-icon {
+  font-size: 32px;
+  margin-bottom: 12px;
+}
+
+.action-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+/* ===== PRODUCT CARDS ===== */
+.product-card {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+}
+
+.product-card .product-image {
+  width: 80px;
+  height: 80px;
+  border-radius: 12px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.product-card .product-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  letter-spacing: -0.01em;
+}
+
+.product-card .product-price {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+/* ===== TIME FILTER ===== */
+.time-filter {
+  display: flex;
+  gap: 8px;
+  padding: 4px;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+}
+
+.time-filter button {
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.time-filter button.active {
+  background: var(--card-bg);
+  color: var(--text-primary);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
 /* ===== BUTTONS ===== */
 .btn {
   padding: 14px 28px;
@@ -262,7 +381,7 @@ body {
   .dashboard-main { padding: 80px 16px 24px; }
 }
 
-/* ===== TEXT OVERRIDES FOR DARK MODE ===== */
+/* ===== DARK MODE TEXT OVERRIDES ===== */
 [data-theme="dark"] body { background: var(--bg-primary); color: var(--text-primary); }
 [data-theme="dark"] h1, [data-theme="dark"] h2, [data-theme="dark"] h3 { color: var(--text-primary); }
 [data-theme="dark"] p { color: var(--text-secondary); }
