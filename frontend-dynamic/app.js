@@ -209,11 +209,31 @@ function getStoryMedia(product) {
 
 function setMainImage(index) {
     if (index < 0 || index >= productImages.length) return;
-    currentImageIndex = index;
     
     const mainImg = document.getElementById('mainProductImage');
-    if (mainImg) mainImg.src = productImages[index];
+    if (mainImg) {
+        // Determine slide direction
+        const direction = index > currentImageIndex ? 'left' : 'right';
+        
+        // Add exit animation class
+        mainImg.classList.add(`slide-out-${direction}`);
+        
+        // After exit animation completes, change image and enter
+        setTimeout(() => {
+            mainImg.src = productImages[index];
+            mainImg.classList.remove(`slide-out-${direction}`);
+            mainImg.classList.add(`slide-in-${direction === 'left' ? 'right' : 'left'}`);
+            
+            // Remove enter class after animation
+            setTimeout(() => {
+                mainImg.classList.remove(`slide-in-${direction === 'left' ? 'right' : 'left'}`);
+            }, 350);
+        }, 150);
+    }
     
+    currentImageIndex = index;
+    
+    // Update dots with smooth transition
     document.querySelectorAll('.gallery-dot').forEach((dot, i) => dot.classList.toggle('active', i === index));
     document.querySelectorAll('.thumbnail, .thumb-item').forEach((thumb, i) => thumb.classList.toggle('active', i === index));
 }
@@ -226,6 +246,7 @@ function nextImage() {
 function prevImage() {
     if (productImages.length <= 1) return;
     setMainImage((currentImageIndex - 1 + productImages.length) % productImages.length);
+}
 }
 
 // ===========================================
