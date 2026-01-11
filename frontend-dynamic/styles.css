@@ -1755,15 +1755,55 @@ body {
     overflow: visible;
 }
 
+/* Food gallery wrapper */
+.template-menu .food-gallery {
+    display: flex;
+    flex-direction: column;
+}
+
 .template-menu .food-image {
     position: relative;
     width: 100%;
-    height: 280px;
+    height: clamp(320px, 85vw, 480px);
     overflow: hidden;
     border-radius: 20px 20px 0 0;
 }
 
 .template-menu .food-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Thumbnail strip for Visual Menu */
+.template-menu .thumbnail-strip {
+    display: flex;
+    gap: 10px;
+    padding: 16px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    background: var(--bg-gray);
+    justify-content: center;
+}
+
+.template-menu .thumbnail {
+    width: 64px;
+    height: 64px;
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    flex-shrink: 0;
+    border: 3px solid transparent;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.template-menu .thumbnail.active {
+    border-color: var(--color-primary);
+    transform: scale(1.05);
+}
+
+.template-menu .thumbnail img {
     width: 100%;
     height: 100%;
     object-fit: cover;

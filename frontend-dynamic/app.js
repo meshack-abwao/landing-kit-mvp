@@ -698,11 +698,13 @@ function renderVisualMenuTemplate(product) {
     const backButton = storeData.products.length > 1 ? `<button onclick="backToCollections()" class="back-btn">← Back to Menu</button>` : '';
     
     const galleryHTML = `
-        <div class="food-image">
-            <div class="main-image-container">
-                ${hasMultipleImages ? `<button class="gallery-nav prev" onclick="prevImage()">‹</button>` : ''}
-                ${productImages[0] ? `<img id="mainProductImage" src="${productImages[0]}" alt="${product.name}" class="main-gallery-image">` : '<div class="image-placeholder">🍽️</div>'}
-                ${hasMultipleImages ? `<button class="gallery-nav next" onclick="nextImage()">›</button>` : ''}
+        <div class="food-gallery">
+            <div class="food-image">
+                <div class="main-image-container">
+                    ${hasMultipleImages ? `<button class="gallery-nav prev" onclick="prevImage()">‹</button>` : ''}
+                    ${productImages[0] ? `<img id="mainProductImage" src="${productImages[0]}" alt="${product.name}" class="main-gallery-image">` : '<div class="image-placeholder">🍽️</div>'}
+                    ${hasMultipleImages ? `<button class="gallery-nav next" onclick="nextImage()">›</button>` : ''}
+                </div>
             </div>
             ${hasMultipleImages ? `<div class="thumbnail-strip">${productImages.map((img, idx) => `<div class="thumbnail ${idx === 0 ? 'active' : ''}" onclick="setMainImage(${idx})"><img src="${img}" alt="View ${idx + 1}"></div>`).join('')}</div>` : ''}
         </div>
