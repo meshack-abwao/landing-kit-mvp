@@ -297,6 +297,71 @@ Key features:
 
 ## CRITICAL REMINDERS
 
+### ⚠️ NEW FIELD CHECKLIST (MUST FOLLOW FOR EVERY NEW FEATURE)
+
+When adding ANY new field to the system, you MUST update ALL 4 LAYERS or data won't persist:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  LAYER 1: DATABASE (PostgreSQL)                                 │
+│  ─────────────────────────────────────────                      │
+│  File: server.js → migratePhase2Collection() or similar         │
+│  Action: ALTER TABLE ADD COLUMN IF NOT EXISTS new_field         │
+│  Example: ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS   │
+│           my_new_field VARCHAR(255)                             │
+└─────────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────────┐
+│  LAYER 2: BACKEND PUT ROUTE (Save to DB)                        │
+│  ─────────────────────────────────────────                      │
+│  File: server.js → PUT /api/settings (around line 520-570)      │
+│  Action: Add handler for the new field                          │
+│  Example:                                                       │
+│    if (b.my_new_field !== undefined) {                          │
+│      updates.push(`my_new_field = $${idx++}`);                  │
+│      values.push(b.my_new_field);                               │
+│    }                                                            │
+│  ⚠️ THIS IS THE #1 MISSED STEP - testimonials bug lasted days! │
+└─────────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────────┐
+│  LAYER 3: BACKEND GET/PUBLIC ROUTE (Read from DB)               │
+│  ─────────────────────────────────────────                      │
+│  Files: GET /api/settings, GET /api/public/store/:subdomain     │
+│  Action: Include new field in response object                   │
+│  Example: In public route response:                             │
+│    store: {                                                     │
+│      ...existing fields,                                        │
+│      myNewField: store.my_new_field || ''                       │
+│    }                                                            │
+└─────────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────────┐
+│  LAYER 4: FRONTEND (Dashboard + Store)                          │
+│  ─────────────────────────────────────────                      │
+│  Dashboard: Settings.jsx                                        │
+│    - Add to state: myNewField: ''                               │
+│    - Add to loadSettings: myNewField: s.my_new_field || ''      │
+│    - Add to updateData: my_new_field: storeSettings.myNewField  │
+│    - Add UI input field                                         │
+│                                                                 │
+│  Store: app.js (if displayed on frontend)                       │
+│    - Read from storeData.store.myNewField                       │
+│    - Render in appropriate location                             │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**QUICK VALIDATION TEST:**
+1. Add field in Dashboard UI
+2. Enter value and click Save
+3. Refresh page - does value persist? 
+4. Check store frontend - does it display?
+
+If NO at step 3 → Missing Layer 2 (PUT route)
+If NO at step 4 → Missing Layer 3 (public route)
+
+---
+
 ### Before Making Changes
 ```bash
 # 1. Commit current state
