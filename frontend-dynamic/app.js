@@ -704,7 +704,7 @@ function renderVisualMenuTemplate(product) {
                 ${productImages[0] ? `<img id="mainProductImage" src="${productImages[0]}" alt="${product.name}" class="main-gallery-image">` : '<div class="image-placeholder">🍽️</div>'}
                 ${hasMultipleImages ? `<button class="gallery-nav next" onclick="nextImage()">›</button>` : ''}
             </div>
-            ${hasMultipleImages ? `<div class="gallery-dots">${productImages.map((_, idx) => `<span class="gallery-dot ${idx === 0 ? 'active' : ''}" onclick="setMainImage(${idx})"></span>`).join('')}</div>` : ''}
+            ${hasMultipleImages ? `<div class="thumbnail-strip">${productImages.map((img, idx) => `<div class="thumbnail ${idx === 0 ? 'active' : ''}" onclick="setMainImage(${idx})"><img src="${img}" alt="View ${idx + 1}"></div>`).join('')}</div>` : ''}
         </div>
     `;
     
