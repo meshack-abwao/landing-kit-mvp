@@ -4015,10 +4015,9 @@ textarea:focus-visible {
     }
 
     /* Back button positioning */
+    /* Back button - left aligned with card edge */
     .back-btn {
-        max-width: 1000px;
-        margin: 0 auto 20px;
-        display: block;
+        margin: 0 0 20px 0;
     }
 }
 
