@@ -430,6 +430,17 @@ function renderCollectionsGrid(products) {
             <div class="collections-grid">
                 ${products.map(product => {
                     const imgCount = getProductImages(product).length;
+                    // Parse dietary tags for collection cards
+                    let dietaryTags = [];
+                    try { dietaryTags = Array.isArray(product.dietary_tags) ? product.dietary_tags : JSON.parse(product.dietary_tags || '[]'); } catch (e) {}
+                    const dietaryHTML = dietaryTags.length > 0 ? `
+                        <div class="collection-dietary-tags">
+                            ${dietaryTags.slice(0, 3).map(tag => {
+                                const icons = { 'vegetarian': '🥬', 'vegan': '🌱', 'spicy': '🌶️', 'hot': '🔥', 'gluten-free': '🌾', 'halal': '☪️', 'contains-nuts': '🥜', 'dairy-free': '🥛', 'nut-free': '🥜', 'organic': '🌿' };
+                                return `<span class="collection-dietary-tag">${icons[tag.toLowerCase()] || '•'} ${tag}</span>`;
+                            }).join('')}
+                        </div>
+                    ` : '';
                     return `
                     <div class="collection-card" onclick="viewProduct(${product.id})">
                         <div class="collection-image">
@@ -445,6 +456,7 @@ function renderCollectionsGrid(products) {
                                 <span class="collection-price">${parseInt(product.price).toLocaleString()}</span>
                             </div>
                             <p class="collection-description">${product.description ? (product.description.substring(0, 80) + (product.description.length > 80 ? '...' : '')) : ''}</p>
+                            ${dietaryHTML}
                             <div class="collection-footer">
                                 <span></span>
                                 <button class="collection-btn">Add to Order</button>

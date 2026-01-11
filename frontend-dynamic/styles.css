@@ -876,6 +876,26 @@ body {
     color: var(--color-primary, #11998e);
 }
 
+/* Collection card dietary tags */
+.collection-dietary-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 8px 0;
+}
+
+.collection-dietary-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 4px 8px;
+    background: rgba(var(--color-primary-rgb, 17, 153, 142), 0.12);
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--color-primary, #11998e);
+}
+
 .collection-footer {
     display: flex;
     justify-content: space-between;
@@ -1708,7 +1728,7 @@ body {
     object-fit: cover;
 }
 
-.dietary-tags {
+.dietary-tags-hero {
     position: absolute;
     top: 16px;
     left: 16px;
@@ -1717,7 +1737,7 @@ body {
     gap: 8px;
 }
 
-.dietary-tag {
+.dietary-tags-hero .dietary-tag {
     background: rgba(255, 255, 255, 0.95);
     padding: 5px 10px;
     border-radius: 16px;
