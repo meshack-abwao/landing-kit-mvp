@@ -156,8 +156,8 @@ function renderHeroSection() {
     const heroPhoto = document.getElementById('heroPhoto');
     if (heroPhoto) {
         if (store?.logoImageUrl) {
-            // Show logo image
-            heroPhoto.innerHTML = `<img src="${store.logoImageUrl}" alt="${store.logoText || 'Logo'}" style="width:100%;height:100%;object-fit:contain;border-radius:14px;">`;
+            // Show logo image - uses object-fit:cover to fill and crop nicely
+            heroPhoto.innerHTML = `<img src="${store.logoImageUrl}" alt="${store.logoText || 'Logo'}" class="hero-photo-img">`;
             heroPhoto.style.display = 'flex';
         } else if (store?.logoText) {
             // Fallback to first letter
