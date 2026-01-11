@@ -328,9 +328,6 @@ export default function ProductList() {
       testimonials: parseTestimonials(product.testimonials),
     };
     
-    // DEBUG: Log parsed form data
-    console.log('📤 PARSED FORM DATA:', parsedFormData);
-    
     setFormData(parsedFormData);
     setShowModal(true);
   };

@@ -41,12 +41,6 @@ export default function Marketplace() {
     setProcessing(true);
 
     try {
-      console.log('Processing M-Pesa payment:', {
-        addOnId: selectedAddOn.id,
-        phone: phoneNumber,
-        amount: selectedAddOn.price,
-      });
-
       await new Promise(resolve => setTimeout(resolve, 2000));
       await settingsAPI.activateAddOn(selectedAddOn.id);
       

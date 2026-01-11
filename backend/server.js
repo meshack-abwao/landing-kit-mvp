@@ -230,10 +230,6 @@ app.post('/api/products', auth, async (req, res) => {
       eventDate, eventLocation, availability, testimonials
     } = req.body;
     
-    console.log('📦 Creating product:', name, '| Template:', templateType);
-    console.log('📸 Story media received:', JSON.stringify(storyMedia));
-    console.log('🖼️ Gallery images received:', JSON.stringify(galleryImages));
-    
     const result = await pool.query(
       `INSERT INTO products (
         user_id, name, description, price, image_url, stock_quantity, is_active,
@@ -284,10 +280,8 @@ app.post('/api/products', auth, async (req, res) => {
       ]
     );
     
-    console.log('✅ Product created with ID:', result.rows[0].id);
     res.json({ success: true, product: result.rows[0] });
   } catch (err) {
-    console.error('❌ Create product error:', err.message);
     res.status(500).json({ success: false, error: err.message });
   }
 });
@@ -296,8 +290,6 @@ app.post('/api/products', auth, async (req, res) => {
 app.put('/api/products/:id', auth, async (req, res) => {
   try {
     const body = req.body;
-    console.log('📝 PUT /api/products/' + req.params.id);
-    console.log('📦 Body keys:', Object.keys(body).join(', '));
     
     // Helper to safely stringify JSON
     const safeJson = (val) => {
@@ -345,14 +337,7 @@ app.put('/api/products/:id', auth, async (req, res) => {
     const eventDate = body.eventDate || body.event_date || null;
     const eventLocation = body.eventLocation || body.event_location || null;
     const availability = body.availability || body.availability_notes || null;
-    const testimonials = body.testimonials || body.testimonials || null;
-    
-    console.log('📸 storyMedia:', storyMedia);
-    console.log('⭐ testimonials:', testimonials);
-    console.log('🖼️ additionalImages:', additionalImages);
-    console.log('🖼️ galleryImages:', galleryImages);
-    console.log('📦 servicePackages:', servicePackages);
-    console.log('📝 templateType:', templateType);
+    const testimonials = body.testimonials || null;
     
     const result = await pool.query(
       `UPDATE products SET
@@ -427,7 +412,6 @@ app.put('/api/products/:id', auth, async (req, res) => {
       return res.status(404).json({ success: false, error: 'Product not found' });
     }
     
-    console.log('✅ Product updated successfully');
     res.json({ success: true, product: result.rows[0] });
   } catch (err) {
     console.error('❌ Update product error:', err.message);
@@ -464,8 +448,6 @@ app.post('/api/orders', async (req, res) => {
   try {
     const { subdomain, productId, product, quantity, price, total, customer, paymentMethod } = req.body;
     
-    console.log('📦 New order received:', { subdomain, productId, customer: customer?.name });
-    
     let userId = null;
     if (subdomain) {
       const storeResult = await pool.query('SELECT user_id FROM store_settings WHERE subdomain = $1', [subdomain]);
@@ -486,10 +468,8 @@ app.post('/api/orders', async (req, res) => {
       [userId, productId, orderNumber, customer.name, customer.phone, customer.location, quantity, price, total, paymentMethod]
     );
     
-    console.log('✅ Order created:', orderNumber);
     res.json({ success: true, orderNumber, order: result.rows[0] });
   } catch (err) {
-    console.error('❌ Order creation failed:', err);
     res.status(500).json({ success: false, error: err.message });
   }
 });
@@ -520,7 +500,6 @@ app.get('/api/settings', auth, async (req, res) => {
 app.put('/api/settings', auth, async (req, res) => {
   try {
     const b = req.body;
-    console.log('📝 Updating settings:', Object.keys(b).join(', '));
     
     // Build dynamic update query
     const updates = [];
@@ -585,11 +564,8 @@ app.put('/api/settings', auth, async (req, res) => {
     const query = `UPDATE store_settings SET ${updates.join(', ')} WHERE user_id = $${idx} RETURNING *`;
     
     const result = await pool.query(query, values);
-    
-    console.log('✅ Settings updated');
     res.json({ success: true, settings: result.rows[0] });
   } catch (err) {
-    console.error('❌ Settings update error:', err.message);
     res.status(500).json({ success: false, error: err.message });
   }
 });
@@ -643,7 +619,6 @@ app.post('/api/settings/add-ons/:id/activate', auth, async (req, res) => {
 app.get('/api/public/store/:subdomain', async (req, res) => {
   try {
     const { subdomain } = req.params;
-    console.log('🏪 Loading store:', subdomain);
     
     const storeResult = await pool.query('SELECT * FROM store_settings WHERE subdomain = $1', [subdomain]);
     
@@ -676,8 +651,6 @@ app.get('/api/public/store/:subdomain', async (req, res) => {
         primary_color: '#ff9f0a'
       };
     }
-    
-    console.log('✅ Store loaded:', store.logo_text, '| Products:', productsResult.rows.length);
     
     // Build hero configuration
     const hero = {
@@ -761,8 +734,6 @@ app.get('/api/templates', async (req, res) => {
 // ============ BLOCK SYSTEM MIGRATION (runs on startup) ============
 async function migrateBlockSystem() {
   try {
-    console.log('🔧 Checking block system columns...');
-    
     // Products table - block system columns
     const productColumns = [
       `ALTER TABLE products ADD COLUMN IF NOT EXISTS blocks JSONB DEFAULT '[]'`,
@@ -798,18 +769,14 @@ async function migrateBlockSystem() {
         AND image_url != '' 
         AND (images IS NULL OR images = '[]'::jsonb)
     `);
-    
-    console.log('✅ Block system ready!');
   } catch (err) {
-    console.error('⚠️ Block migration warning:', err.message);
+    // Silent migration - columns already exist
   }
 }
 
 // ============ PHASE 2: COLLECTION PAGE MIGRATION ============
 async function migratePhase2Collection() {
   try {
-    console.log('🎨 Phase 2: Collection page upgrade...');
-    
     // Hero customization columns for store_settings
     const heroColumns = [
       `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS header_bg_url VARCHAR(500)`,
@@ -852,10 +819,8 @@ async function migratePhase2Collection() {
         hero_subtitle = COALESCE(hero_subtitle, tagline)
       WHERE hero_title IS NULL OR hero_title = ''
     `);
-    
-    console.log('✅ Phase 2 collection upgrade ready!');
   } catch (err) {
-    console.error('⚠️ Phase 2 migration warning:', err.message);
+    // Silent migration - columns already exist
   }
 }
 
