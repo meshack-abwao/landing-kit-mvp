@@ -1272,6 +1272,7 @@ body {
     text-transform: uppercase;
     letter-spacing: 0.5px;
     margin-bottom: 12px;
+    text-align: center;
 }
 
 .story-circles {

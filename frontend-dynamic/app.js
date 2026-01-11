@@ -343,8 +343,16 @@ function showStoryAtIndex(index) {
 function startProgressAnimation(duration) {
     const activeBar = document.querySelector('.story-progress-bar.active .story-progress-fill');
     if (activeBar) {
-        activeBar.style.transition = `width ${duration}ms linear`;
-        activeBar.style.width = '100%';
+        // Reset to 0 first, then animate
+        activeBar.style.transition = 'none';
+        activeBar.style.width = '0';
+        // Force reflow then animate
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                activeBar.style.transition = `width ${duration}ms linear`;
+                activeBar.style.width = '100%';
+            });
+        });
     }
 }
 
@@ -528,7 +536,7 @@ function renderQuickDecisionTemplate(product) {
                         <div class="price"><span class="currency">KES</span> <span id="displayPrice">${parseInt(product.price).toLocaleString()}</span></div>
                         <div class="social-actions">
                             <button class="social-btn share-btn" onclick="shareProduct(${product.id}, event)">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
                             </button>
                             <button id="like-btn-${product.id}" class="social-btn like-btn" onclick="toggleLike(${product.id}, event)">
                                 <span class="heart-icon ${isLiked ? 'liked' : ''}">${isLiked ? '❤️' : '🤍'}</span>
@@ -632,7 +640,7 @@ function renderPortfolioBookingTemplate(product) {
                     <div class="price-row">
                         <div class="price">${servicePackages.length > 0 ? '<span class="price-prefix">From </span>' : ''}<span class="currency">KES</span> <span id="displayPrice">${parseInt(product.price).toLocaleString()}</span></div>
                         <div class="social-actions">
-                            <button class="social-btn share-btn" onclick="shareProduct(${product.id}, event)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg></button>
+                            <button class="social-btn share-btn" onclick="shareProduct(${product.id}, event)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button>
                             <button id="like-btn-${product.id}" class="social-btn like-btn" onclick="toggleLike(${product.id}, event)"><span class="heart-icon ${isLiked ? 'liked' : ''}">${isLiked ? '❤️' : '🤍'}</span></button>
                         </div>
                     </div>
@@ -695,7 +703,7 @@ function renderVisualMenuTemplate(product) {
                     <div class="price-row">
                         <div class="price"><span class="currency">KES</span> <span id="displayPrice">${parseInt(product.price).toLocaleString()}</span></div>
                         <div class="social-actions">
-                            <button class="social-btn share-btn" onclick="shareProduct(${product.id}, event)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg></button>
+                            <button class="social-btn share-btn" onclick="shareProduct(${product.id}, event)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button>
                             <button id="like-btn-${product.id}" class="social-btn like-btn" onclick="toggleLike(${product.id}, event)"><span class="heart-icon ${isLiked ? 'liked' : ''}">${isLiked ? '❤️' : '🤍'}</span></button>
                         </div>
                     </div>
@@ -790,7 +798,7 @@ function renderDeepDiveTemplate(product) {
                     <div class="price-row">
                         <div class="price"><span class="currency">KES</span> <span id="displayPrice">${parseInt(product.price).toLocaleString()}</span></div>
                         <div class="social-actions">
-                            <button class="social-btn share-btn" onclick="shareProduct(${product.id}, event)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg></button>
+                            <button class="social-btn share-btn" onclick="shareProduct(${product.id}, event)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button>
                             <button id="like-btn-${product.id}" class="social-btn like-btn" onclick="toggleLike(${product.id}, event)"><span class="heart-icon ${isLiked ? 'liked' : ''}">${isLiked ? '❤️' : '🤍'}</span></button>
                         </div>
                     </div>
@@ -876,7 +884,7 @@ function renderEventLandingTemplate(product) {
                     <div class="price-row">
                         <div class="price"><span class="currency">KES</span> <span id="displayPrice">${parseInt(product.price).toLocaleString()}</span></div>
                         <div class="social-actions">
-                            <button class="social-btn share-btn" onclick="shareProduct(${product.id}, event)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg></button>
+                            <button class="social-btn share-btn" onclick="shareProduct(${product.id}, event)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button>
                             <button id="like-btn-${product.id}" class="social-btn like-btn" onclick="toggleLike(${product.id}, event)"><span class="heart-icon ${isLiked ? 'liked' : ''}">${isLiked ? '❤️' : '🤍'}</span></button>
                         </div>
                     </div>
