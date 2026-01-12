@@ -94,8 +94,13 @@ const parseGalleryImages = (galleryJson) => {
 
 const parseSpecifications = (specsJson) => {
   try {
+    // Handle already-parsed object (from JSONB column)
+    if (specsJson && typeof specsJson === 'object' && !Array.isArray(specsJson)) {
+      return specsJson;
+    }
+    // Handle JSON string
     const parsed = JSON.parse(specsJson || '{}');
-    if (typeof parsed === 'object') return parsed;
+    if (typeof parsed === 'object' && !Array.isArray(parsed)) return parsed;
   } catch (e) {}
   return {};
 };

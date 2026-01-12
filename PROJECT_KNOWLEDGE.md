@@ -1,6 +1,6 @@
 # Landing Kit MVP - Complete Session Knowledge Base
 **Last Updated:** January 12, 2026
-**Status:** STABLE - Railway Dark Theme + Premium Transitions
+**Status:** STABLE - Logo URL + Pipeline Debugging Methodology Added
 
 ---
 
@@ -81,7 +81,7 @@ C:\Users\ADMIN\Desktop\landing-kit-mvp\
 - **JSONB fields:** stories, testimonials, service_packages, faqs, trust_badges, gallery_images
 
 **store_settings** - Per-user store config
-- subdomain, logo_text, tagline
+- subdomain, logo_text, logo_url (NEW), tagline
 - theme_color, font_family
 - mpesa_number
 
@@ -196,6 +196,57 @@ All theme colors use CSS variables defined in `dashboard/src/index.css`:
 ---
 
 ## TROUBLESHOOTING
+
+### 🔬 Pipeline Debugging Formula (NEW)
+
+When a feature "doesn't work," trace it through each layer systematically:
+
+```
+Database → Backend Route → API Response → Frontend Render
+```
+
+**Step 1: DATABASE**
+- Does the column exist?
+- Is data actually stored there?
+- Check with: `SELECT column_name FROM table WHERE id = X`
+
+**Step 2: BACKEND ROUTE**
+- Is the column in the SELECT query?
+- Is it included in the response object?
+- Check the actual route file, not assumptions
+
+**Step 3: API RESPONSE**
+- What does the endpoint actually return?
+- Test with: `curl http://localhost:3000/api/endpoint`
+- Or use browser Network tab → check response JSON
+
+**Step 4: FRONTEND RENDER**
+- Is the code using the correct property name?
+- Watch for: `store.logoUrl` vs `store.logo_url` (camelCase vs snake_case)
+- Console.log the data object to see what's actually there
+
+**The Surgical Approach:**
+1. **Isolate** - Which specific layer is broken?
+2. **Change ONE thing** - Fix that layer only
+3. **Test immediately** - Confirm it worked
+4. **Move to next layer** - Only after verification
+
+**Anti-Pattern (wastes hours):**
+- Changing 5 files at once
+- "Shotgun debugging" - spraying fixes everywhere
+- Not testing between changes
+
+**Real Example (Logo URL fix):**
+```
+1. Added logo_url column to DB → verified with SELECT ✅
+2. Updated backend PUT route → tested save worked ✅  
+3. Updated backend GET route → tested API response ✅
+4. Updated frontend render → tested image displayed ✅
+```
+
+Each step isolated and verified before moving on.
+
+---
 
 ### Backend Not Responding
 ```bash
