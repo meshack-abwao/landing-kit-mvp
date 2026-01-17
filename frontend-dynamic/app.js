@@ -1304,8 +1304,8 @@ async function completeOrder() {
             document.getElementById('orderNumber').textContent = result.orderNumber;
             const total = (orderData.price * orderData.quantity).toLocaleString();
             const message = selectedPaymentMethod === 'mpesa' 
-                ? `🎉 Order confirmed!\n\n📱 Check ${orderData.customer.phone} for M-Pesa prompt to pay KES ${total}.\n\n💬 WhatsApp confirmation coming soon.`
-                : `🎉 Order confirmed!\n\n💵 Prepare KES ${total} for payment on delivery.\n\n💬 WhatsApp confirmation coming soon.`;
+                ? `🎉 Order confirmed!\n\n📱 Check ${orderData.customer.phone} for M-Pesa prompt to pay KES ${total}.\n\n📞 Expect a call from Jari Solutions for delivery coordination:\n• Mary: +254 100 216252\n• Arthur: +254 104 496048`
+                : `🎉 Order confirmed!\n\n💵 Prepare KES ${total} for payment on delivery.\n\n📞 Expect a call from Jari Solutions for delivery coordination:\n• Mary: +254 100 216252\n• Arthur: +254 104 496048`;
             document.getElementById('successMessage').textContent = message;
             showSuccess();
         } else {
