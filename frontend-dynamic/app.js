@@ -290,7 +290,6 @@ function prevImage() {
     if (productImages.length <= 1) return;
     setMainImage((currentImageIndex - 1 + productImages.length) % productImages.length);
 }
-}
 
 // ===========================================
 // LIKE & SHARE FUNCTIONS
