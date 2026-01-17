@@ -26,6 +26,7 @@ export default function Settings() {
     testimonials: false,
     policies: false,
     theme: true,
+    tracking: false,
   });
   
   const [storeSettings, setStoreSettings] = useState({
@@ -55,6 +56,8 @@ export default function Settings() {
     privacyPolicy: '',
     termsOfService: '',
     refundPolicy: '',
+    // Meta Pixel
+    metaPixelId: '',
   });
   const [themes, setThemes] = useState([]);
   const [storeUrl, setStoreUrl] = useState('');
@@ -104,6 +107,8 @@ export default function Settings() {
         privacyPolicy: s.privacy_policy || '',
         termsOfService: s.terms_of_service || '',
         refundPolicy: s.refund_policy || '',
+        // Meta Pixel
+        metaPixelId: s.meta_pixel_id || '',
       });
 
       if (s.subdomain) {
@@ -159,6 +164,8 @@ export default function Settings() {
         privacy_policy: storeSettings.privacyPolicy,
         terms_of_service: storeSettings.termsOfService,
         refund_policy: storeSettings.refundPolicy,
+        // Meta Pixel
+        meta_pixel_id: storeSettings.metaPixelId,
       };
 
       const response = await settingsAPI.update(updateData);
@@ -511,6 +518,33 @@ export default function Settings() {
                   className="dashboard-input"
                   style={styles.textarea}
                 />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* TRACKING & ANALYTICS */}
+        <div style={styles.card} className="glass-card">
+          <div style={styles.sectionHeader} onClick={() => toggleSection('tracking')}>
+            <h3 style={styles.cardTitle}>📊 Tracking & Analytics</h3>
+            {expandedSections.tracking ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+          </div>
+          
+          {expandedSections.tracking && (
+            <div style={styles.sectionContent}>
+              <div style={styles.formGroup}>
+                <label style={styles.label}>META PIXEL ID</label>
+                <input
+                  type="text"
+                  value={storeSettings.metaPixelId}
+                  onChange={(e) => setStoreSettings({ ...storeSettings, metaPixelId: e.target.value })}
+                  placeholder="e.g. 1234567890123456"
+                  className="dashboard-input"
+                  style={styles.input}
+                />
+                <p style={{ ...styles.cardDesc, marginTop: '8px', fontSize: '12px' }}>
+                  Find this in Meta Events Manager → Data Sources → Your Pixel → Pixel ID
+                </p>
               </div>
             </div>
           )}

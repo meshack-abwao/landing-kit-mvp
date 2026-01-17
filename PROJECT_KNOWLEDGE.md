@@ -392,5 +392,51 @@ git push origin master
 
 ---
 
+## META PIXEL TRACKING (Added Jan 17, 2026)
+
+### Current Implementation: Quick Hack (Temporary)
+
+Per-store Meta Pixel tracking added to `frontend-dynamic/app.js`.
+
+**Location:** Lines 20-55 in `app.js`
+
+**How it works:**
+```javascript
+const STORE_PIXELS = {
+    'gariwashop': '1272414961601655',
+    // 'lanixkenya': 'PASTE_PIXEL_ID_HERE',
+};
+```
+
+When a store loads, if its subdomain exists in `STORE_PIXELS`, the Meta Pixel is dynamically injected.
+
+### Adding a New Store's Pixel
+
+1. Get the Pixel ID from Meta Events Manager
+2. Add to `STORE_PIXELS` object in `app.js`:
+   ```javascript
+   'storename': 'PIXEL_ID_HERE',
+   ```
+3. Commit and push
+4. Wait for Netlify deploy (~60 sec)
+
+### Verification
+
+1. Visit store URL
+2. Open DevTools (F12) → Console
+3. Look for: `✅ Meta Pixel loaded for store: XXXXX`
+4. Network tab → filter "facebook" → should see requests
+
+### Future: Proper Solution (TODO)
+
+1. Add `meta_pixel_id` column to `store_settings` table
+2. Return it in `/api/public/store/:subdomain` response
+3. Add Pixel ID field in Dashboard Settings
+4. Inject dynamically from `storeData.store.meta_pixel_id`
+
+This removes need to redeploy for each new store.
+
+---
+
 **END OF SESSION KNOWLEDGE BASE**
-Generated: January 12, 2026
+Generated: January 17, 2026

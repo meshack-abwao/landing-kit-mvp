@@ -603,6 +603,9 @@ app.put('/api/settings', auth, async (req, res) => {
     if (b.collection_title !== undefined) { updates.push(`collection_title = $${idx++}`); values.push(b.collection_title); }
     if (b.collection_subtitle !== undefined) { updates.push(`collection_subtitle = $${idx++}`); values.push(b.collection_subtitle); }
     
+    // Meta Pixel tracking
+    if (b.meta_pixel_id !== undefined) { updates.push(`meta_pixel_id = $${idx++}`); values.push(b.meta_pixel_id); }
+    
     if (updates.length === 0) {
       return res.json({ success: true, settings: {} });
     }
@@ -749,7 +752,9 @@ app.get('/api/public/store/:subdomain', async (req, res) => {
         // Categories feature
         categories: store.categories || [],
         collectionTitle: store.collection_title || 'Shop All Products',
-        collectionSubtitle: store.collection_subtitle || ''
+        collectionSubtitle: store.collection_subtitle || '',
+        // Meta Pixel tracking
+        metaPixelId: store.meta_pixel_id || null
       },
       hero: hero,
       testimonial: testimonial,
@@ -862,7 +867,9 @@ async function migratePhase2Collection() {
       `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS categories JSONB DEFAULT '[]'`,
       `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS collection_title VARCHAR(100) DEFAULT 'Shop All Products'`,
       `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS collection_subtitle VARCHAR(255)`,
-      `ALTER TABLE products ADD COLUMN IF NOT EXISTS category VARCHAR(100)`
+      `ALTER TABLE products ADD COLUMN IF NOT EXISTS category VARCHAR(100)`,
+      // Meta Pixel tracking
+      `ALTER TABLE store_settings ADD COLUMN IF NOT EXISTS meta_pixel_id VARCHAR(50)`
     ];
     
     for (const sql of heroColumns) {
