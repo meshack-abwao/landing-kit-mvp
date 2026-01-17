@@ -45,8 +45,6 @@ function injectMetaPixel(pixelId) {
     const noscript = document.createElement('noscript');
     noscript.innerHTML = `<img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1"/>`;
     document.body.appendChild(noscript);
-    
-    console.log('✅ Meta Pixel loaded for store:', pixelId);
 }
 
 // Inject pixel from fallback if this store has one configured (runs immediately)
